@@ -1,0 +1,26 @@
+import 'package:sqflite/sqflite.dart';
+
+import '../../../core/database/app_database.dart';
+import '../models/pet.dart';
+
+class PetProfileDao {
+  PetProfileDao({AppDatabase? database})
+    : _database = database ?? AppDatabase.instance;
+
+  final AppDatabase _database;
+
+  Future<List<Pet>> getPets() async {
+    final db = await _database.database;
+    final rows = await db.query('pets', orderBy: 'name ASC');
+    return rows.map(Pet.fromMap).toList();
+  }
+
+  Future<int> insertPet(Pet pet) async {
+    final db = await _database.database;
+    return db.insert(
+      'pets',
+      pet.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+}
