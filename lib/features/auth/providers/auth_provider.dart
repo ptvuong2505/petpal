@@ -10,6 +10,11 @@ class AuthProvider extends ChangeNotifier {
 
   User? currentUser;
   bool isLoading = false;
+  bool isCheckingLogin = true;
+
+  bool get isLoggedIn => currentUser != null;
+
+  String? get currentRole => currentUser?.role;
 
   Future<void> login({required String email, required String password}) async {
     isLoading = true;
