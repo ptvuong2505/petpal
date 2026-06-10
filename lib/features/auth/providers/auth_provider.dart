@@ -65,14 +65,38 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> register(User user) async {
+  Future<String?> register(User user) async {
     isLoading = true;
     notifyListeners();
 
-    await _repository.register(user);
+    try {
+      if (await _repository.isEmailTaken(user.email)) {
+        return 'Email này đã được sử dụng';
+      }
+      if (user.phone != null && user.phone!.isNotEmpty) {
+        if (await _repository.isPhoneTaken(user.phone!)) {
+          return 'Số điện thoại này đã được sử dụng';
+        }
+      }
 
-    isLoading = false;
-    notifyListeners();
+      // Tự động gán thời gian tạo và cập nhật
+      final userWithTimestamp = user.copyWith(
+        createdAt: DateTime.now().toIso8601String(),
+        updatedAt: DateTime.now().toIso8601String(),
+      );
+
+      final id = await _repository.register(userWithTimestamp);
+      if (id > 0) {
+        return null; // Thành công
+      }
+      return 'Đăng ký thất bại, vui lòng thử lại';
+    } catch (e) {
+      debugPrint('Register error: $e');
+      return 'Có lỗi xảy ra: $e';
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
   }
 
   Future<void> logout() async {

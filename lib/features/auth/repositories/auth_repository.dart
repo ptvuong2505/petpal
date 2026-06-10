@@ -13,4 +13,14 @@ class AuthRepository {
   Future<int> register(User user) {
     return _dao.insertUser(user);
   }
+
+  Future<bool> isEmailTaken(String email) async {
+    final user = await _dao.findByEmail(email);
+    return user != null;
+  }
+
+  Future<bool> isPhoneTaken(String phone) async {
+    final user = await _dao.findByPhone(phone);
+    return user != null;
+  }
 }
