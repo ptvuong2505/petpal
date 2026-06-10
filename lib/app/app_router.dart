@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-
 import '../core/constants/app_routes.dart';
 import '../core/services/navigation_service.dart';
 import '../features/admin_dashboard/pages/admin_dashboard_page.dart';
 import '../features/auth/pages/forgot_password_page.dart';
 import '../features/auth/pages/login_page.dart';
 import '../features/auth/pages/register_page.dart';
+import '../features/auth/providers/auth_provider.dart';
 import '../features/booking/pages/booking_confirm_page.dart';
 import '../features/booking/pages/booking_detail_page.dart';
 import '../features/booking/pages/booking_pet_page.dart';
@@ -14,6 +14,7 @@ import '../features/booking/pages/booking_time_slot_page.dart';
 import '../features/booking/pages/my_bookings_page.dart';
 import '../features/health_record/pages/health_record_detail_page.dart';
 import '../features/health_record/pages/health_record_list_page.dart';
+import '../features/home/pages/home_page.dart';
 import '../features/pet_profile/pages/add_pet_page.dart';
 import '../features/pet_profile/pages/edit_pet_page.dart';
 import '../features/pet_profile/pages/pet_detail_page.dart';
@@ -36,6 +37,9 @@ import '../features/time_slot/pages/edit_time_slot_page.dart';
 import '../features/time_slot/pages/time_slot_management_page.dart';
 import '../features/user_profile/pages/edit_user_profile_page.dart';
 import '../features/user_profile/pages/user_profile_page.dart';
+import '../shared/layouts/admin_layout.dart';
+import '../shared/layouts/staff_layout.dart';
+import '../shared/layouts/user_layout.dart';
 import '../shared/widgets/app_page.dart';
 import 'app_route_path.dart';
 
@@ -43,30 +47,68 @@ class AppRouter extends RouterDelegate<AppRoutePath>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin<AppRoutePath>
     implements AppNavigationController {
   AppRoutePath _currentPath = AppRoutePath.home();
+  AuthProvider? _authProvider;
 
   @override
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
   @override
+  void dispose() {
+    _authProvider?.removeListener(notifyListeners);
+    super.dispose();
+  }
+
+  @override
   AppRoutePath get currentConfiguration => _currentPath;
+
+  void setAuthProvider(AuthProvider authProvider) {
+    if (_authProvider == authProvider) return;
+
+    _authProvider?.removeListener(notifyListeners);
+    _authProvider = authProvider;
+    _authProvider?.addListener(notifyListeners);
+  }
 
   @override
   Widget build(BuildContext context) {
+    final auth = _authProvider;
+
+    if (auth == null || auth.isCheckingLogin) {
+      return Navigator(
+        key: navigatorKey,
+        pages: const [
+          MaterialPage(
+            child: AppPage(
+              title: 'PetPal',
+              message: 'Đang kiểm tra đăng nhập...',
+            ),
+          ),
+        ],
+        onDidRemovePage: (page) {},
+      );
+    }
+
+    final pages = <Page>[
+      MaterialPage(
+        key: const ValueKey(AppRoutes.home),
+        name: AppRoutes.home,
+        child: _buildPageWithLayout(AppRoutes.home),
+      ),
+    ];
+
+    if (!_currentPath.isHome) {
+      pages.add(
+        MaterialPage(
+          key: ValueKey(_currentPath.routeName),
+          name: _currentPath.location,
+          child: _buildPageWithLayout(_currentPath.routeName),
+        ),
+      );
+    }
+
     return Navigator(
       key: navigatorKey,
-      pages: [
-        MaterialPage(
-          key: const ValueKey(AppRoutes.home),
-          name: AppRoutes.home,
-          child: AppHomePage(onOpen: goTo),
-        ),
-        if (!_currentPath.isHome)
-          MaterialPage(
-            key: ValueKey(_currentPath.routeName),
-            name: _currentPath.location,
-            child: _buildPage(_currentPath.routeName),
-          ),
-      ],
+      pages: pages,
       onDidRemovePage: (page) {
         if (page.name == _currentPath.location) {
           goHome();
@@ -78,6 +120,7 @@ class AppRouter extends RouterDelegate<AppRoutePath>
   @override
   Future<void> setNewRoutePath(AppRoutePath configuration) async {
     _currentPath = configuration;
+    notifyListeners();
   }
 
   @override
@@ -89,6 +132,37 @@ class AppRouter extends RouterDelegate<AppRoutePath>
   void goHome() {
     _currentPath = AppRoutePath.home();
     notifyListeners();
+  }
+
+  Widget _buildPageWithLayout(String routeName) {
+    final page = _buildPage(routeName);
+    final path = AppRoutePath.byName(routeName);
+
+    if (AppRoutes.isAuthRoute(routeName)) {
+      return page;
+    }
+
+    if (AppRoutes.isAdminRoute(routeName)) {
+      return AdminLayout(
+        title: path.pageTitle,
+        currentRouteName: routeName,
+        child: page,
+      );
+    }
+
+    if (AppRoutes.isStaffRoute(routeName)) {
+      return StaffLayout(
+        title: path.pageTitle,
+        currentRouteName: routeName,
+        child: page,
+      );
+    }
+
+    return UserLayout(
+      title: path.pageTitle,
+      currentRouteName: routeName,
+      child: page,
+    );
   }
 
   Widget _buildPage(String routeName) {
@@ -162,29 +236,7 @@ class AppRouter extends RouterDelegate<AppRoutePath>
       case AppRoutes.shopSetting:
         return const ShopSettingPage();
       default:
-        return AppHomePage(onOpen: goTo);
+        return const AppHomePage();
     }
-  }
-}
-
-class AppHomePage extends StatelessWidget {
-  const AppHomePage({required this.onOpen, super.key});
-
-  final ValueChanged<String> onOpen;
-
-  @override
-  Widget build(BuildContext context) {
-    return AppPage(
-      title: 'PetPal',
-      message: 'Welcome to PetPal',
-      actions: [
-        PageAction(label: 'Login', routeName: AppRoutes.login),
-        PageAction(label: 'Pets', routeName: AppRoutes.petList),
-        PageAction(label: 'Booking', routeName: AppRoutes.bookingService),
-        PageAction(label: 'Staff', routeName: AppRoutes.staffDashboard),
-        PageAction(label: 'Admin', routeName: AppRoutes.adminDashboard),
-      ],
-      onAction: onOpen,
-    );
   }
 }
