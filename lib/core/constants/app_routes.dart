@@ -34,4 +34,75 @@ class AppRoutes {
   static const String editReminder = 'editReminder';
   static const String adminDashboard = 'adminDashboard';
   static const String shopSetting = 'shopSetting';
+
+  static bool isAuthRoute(String routeName) {
+    switch (routeName) {
+      case login:
+      case register:
+      case forgotPassword:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  static bool isUserRoute(String routeName) {
+    switch (routeName) {
+      case home:
+      case userProfile:
+      case editUserProfile:
+      case petList:
+      case petDetail:
+      case addPet:
+      case editPet:
+      case healthRecordList:
+      case healthRecordDetail:
+      case bookingService:
+      case bookingPet:
+      case bookingTimeSlot:
+      case bookingConfirm:
+      case myBookings:
+      case bookingDetail:
+      case reviewList:
+      case reviewDetail:
+      case createReview:
+      case myReviews:
+      case reminderList:
+      case createReminder:
+      case editReminder:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  static bool isStaffRoute(String routeName) {
+    switch (routeName) {
+      case staffDashboard:
+      case staffBookingList:
+      case staffBookingDetail:
+      case createExaminationResult:
+      case examinationResultDetail:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  static bool isAdminRoute(String routeName) {
+    switch (routeName) {
+      case adminDashboard:
+      case timeSlotManagement:
+      case createTimeSlot:
+      case editTimeSlot:
+      case shopSetting:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  static bool shouldShowBottomNav(String routeName) {
+    return !isAuthRoute(routeName);
+  }
 }
