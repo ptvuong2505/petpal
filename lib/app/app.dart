@@ -45,16 +45,20 @@ class PetPalApp extends StatefulWidget {
 }
 
 class _PetPalAppState extends State<PetPalApp> {
-  final AppRouter _routerDelegate = AppRouter();
-  final AppRouteParser _routeParser = AppRouteParser();
-
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (_) =>
-              AuthProvider(repository: AuthRepository(dao: AuthDao())),
+          create: (_) {
+            final provider = AuthProvider(
+              repository: AuthRepository(dao: AuthDao()),
+            );
+
+            provider.checkLoginStatus();
+
+            return provider;
+          },
         ),
         ChangeNotifierProvider(
           create: (_) => UserProfileProvider(
@@ -105,16 +109,37 @@ class _PetPalAppState extends State<PetPalApp> {
           ),
         ),
       ],
-      child: MaterialApp.router(
-        title: 'PetPal',
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
-          useMaterial3: true,
-        ),
-        routerDelegate: _routerDelegate,
-        routeInformationParser: _routeParser,
+      child: const _PetPalMaterialApp(),
+    );
+  }
+}
+
+class _PetPalMaterialApp extends StatefulWidget {
+  const _PetPalMaterialApp();
+
+  @override
+  State<_PetPalMaterialApp> createState() => _PetPalMaterialAppState();
+}
+
+class _PetPalMaterialAppState extends State<_PetPalMaterialApp> {
+  final AppRouter _routerDelegate = AppRouter();
+  final AppRouteParser _routeParser = AppRouteParser();
+
+  @override
+  Widget build(BuildContext context) {
+    final authProvider = context.watch<AuthProvider>();
+
+    _routerDelegate.setAuthProvider(authProvider);
+
+    return MaterialApp.router(
+      title: 'PetPal',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
+        useMaterial3: true,
       ),
+      routerDelegate: _routerDelegate,
+      routeInformationParser: _routeParser,
     );
   }
 }
