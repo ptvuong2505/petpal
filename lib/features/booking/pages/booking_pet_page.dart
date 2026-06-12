@@ -5,9 +5,8 @@ import '../../../core/constants/app_routes.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/database/app_database.dart';
 import '../../../core/services/navigation_service.dart';
-import '../../pet_profile/models/pet.dart' as Model;
+import '../../pet_profile/models/pet.dart' as model;
 import '../../auth/providers/auth_provider.dart';
-import 'package:provider/provider.dart';
 import '../providers/booking_provider.dart';
 
 class BookingPetPage extends StatefulWidget {
@@ -18,7 +17,7 @@ class BookingPetPage extends StatefulWidget {
 }
 
 class _BookingPetPageState extends State<BookingPetPage> {
-  List<Model.Pet> _pets = [];
+  List<model.Pet> _pets = [];
   bool _isLoading = true;
   int? _selectedPetId;
 
@@ -42,7 +41,7 @@ class _BookingPetPageState extends State<BookingPetPage> {
       rows = await db.query('pets');
     }
 
-    final list = rows.map((r) => Model.Pet.fromMap(r)).toList();
+     final list = rows.map((r) => model.Pet.fromMap(r)).toList();
 
     setState(() {
       _pets = list;
@@ -59,8 +58,9 @@ class _BookingPetPageState extends State<BookingPetPage> {
 
   void _continue() {
     if (_selectedPetId == null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Vui lòng chọn một thú cưng')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Vui lòng chọn một thú cưng')),
+      );
       return;
     }
 
@@ -110,36 +110,47 @@ class _BookingPetPageState extends State<BookingPetPage> {
                       const Text('Bạn chưa có thú cưng nào.'),
                       const SizedBox(height: 12),
                       ElevatedButton(
-                        onPressed: () => NavigationService.goTo(context, AppRoutes.addPet),
+                        onPressed: () =>
+                            NavigationService.goTo(context, AppRoutes.addPet),
                         child: const Text('Thêm thú cưng'),
                       ),
                     ],
                   ),
                 )
-              : ListView.separated(
-                  itemCount: _pets.length + 1,
-                  separatorBuilder: (_, __) => const SizedBox(height: 12),
-                  padding: const EdgeInsets.only(bottom: 16),
+               : ListView.separated(
+                   itemCount: _pets.length + 1,
+                   separatorBuilder: (_, _) => const SizedBox(height: 12),
+                   padding: const EdgeInsets.only(bottom: 16),
                   itemBuilder: (context, index) {
                     if (index == _pets.length) {
                       // Add new pet card
                       return InkWell(
-                        onTap: () => NavigationService.goTo(context, AppRoutes.addPet),
+                        onTap: () =>
+                            NavigationService.goTo(context, AppRoutes.addPet),
                         child: Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
                             color: const Color(0xFFF5F3F3),
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: const Color(0xFFBFC9C3), width: 1.5),
+                            border: Border.all(
+                              color: const Color(0xFFBFC9C3),
+                              width: 1.5,
+                            ),
                           ),
                           child: Row(
                             children: const [
                               CircleAvatar(
                                 backgroundColor: AppColors.secondaryContainer,
-                                child: Icon(Icons.add, color: AppColors.primary),
+                                child: Icon(
+                                  Icons.add,
+                                  color: AppColors.primary,
+                                ),
                               ),
                               SizedBox(width: 12),
-                              Text('Thêm thú cưng', style: TextStyle(fontWeight: FontWeight.w600)),
+                              Text(
+                                'Thêm thú cưng',
+                                style: TextStyle(fontWeight: FontWeight.w600),
+                              ),
                             ],
                           ),
                         ),
@@ -158,7 +169,9 @@ class _BookingPetPageState extends State<BookingPetPage> {
                           color: AppColors.surface,
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: selected ? AppColors.primaryContainer : Colors.transparent,
+                            color: selected
+                                ? AppColors.primaryContainer
+                                : Colors.transparent,
                             width: 2,
                           ),
                           boxShadow: [
@@ -174,20 +187,39 @@ class _BookingPetPageState extends State<BookingPetPage> {
                             CircleAvatar(
                               radius: 28,
                               backgroundColor: AppColors.secondaryContainer,
-                              child: Icon(Icons.pets, color: AppColors.primary, size: 28),
+                              child: Icon(
+                                Icons.pets,
+                                color: AppColors.primary,
+                                size: 28,
+                              ),
                             ),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(pet.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                                  Text(
+                                    pet.name,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                                   const SizedBox(height: 4),
-                                  Text(pet.breed ?? pet.species ?? '', style: const TextStyle(color: Color(0xFF707974))),
+                                  Text(
+                                    pet.breed ?? pet.species ?? '',
+                                    style: const TextStyle(
+                                      color: Color(0xFF707974),
+                                    ),
+                                  ),
                                   if ((pet.note ?? '').isNotEmpty) ...[
                                     const SizedBox(height: 6),
-                                    Text(pet.note!, style: const TextStyle(color: Color(0xFF707974))),
-                                  ]
+                                    Text(
+                                      pet.note!,
+                                      style: const TextStyle(
+                                        color: Color(0xFF707974),
+                                      ),
+                                    ),
+                                  ],
                                 ],
                               ),
                             ),
@@ -212,7 +244,9 @@ class _BookingPetPageState extends State<BookingPetPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primaryContainer,
                 foregroundColor: AppColors.primary,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
                 textStyle: const TextStyle(fontWeight: FontWeight.bold),
               ),
               child: Row(
@@ -230,5 +264,3 @@ class _BookingPetPageState extends State<BookingPetPage> {
     );
   }
 }
-
-

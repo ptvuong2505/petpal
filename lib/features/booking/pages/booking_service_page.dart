@@ -5,7 +5,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/database/app_database.dart';
 import '../../../core/services/navigation_service.dart';
 import 'package:provider/provider.dart';
-import '../models/service.dart' as Model;
+import '../models/service.dart' as model;
 import '../providers/booking_provider.dart';
 
 class BookingServicePage extends StatefulWidget {
@@ -49,8 +49,12 @@ class _BookingServicePageState extends State<BookingServicePage> {
     });
 
     final db = await AppDatabase.instance.database;
-    final rows = await db.query('services', where: 'status = ?', whereArgs: ['active']);
-    final list = rows.map((r) => Model.Service.fromMap(r)).toList();
+    final rows = await db.query(
+      'services',
+      where: 'status = ?',
+      whereArgs: ['active'],
+    );
+     final list = rows.map((r) => model.Service.fromMap(r)).toList();
 
     // Map DB services to UI items with icons/colors
     final items = list.map((s) {
@@ -189,27 +193,27 @@ class _BookingServicePageState extends State<BookingServicePage> {
                       const SizedBox(height: 12),
                       Text(
                         s.title,
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleMedium
+                        style: Theme.of(context).textTheme.titleMedium
                             ?.copyWith(fontWeight: FontWeight.w600),
                       ),
                       const SizedBox(height: 6),
                       Expanded(
-                          child: Text(
+                        child: Text(
                           s.description,
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: colorScheme.onSurface.withValues(alpha: 0.7),
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(
+                                color: colorScheme.onSurface.withValues(
+                                  alpha: 0.7,
+                                ),
                               ),
                         ),
                       ),
                       const SizedBox(height: 8),
                       Text(
                         s.priceLabel,
-                        style: Theme.of(context)
-                            .textTheme
-                            .labelLarge
-                            ?.copyWith(color: colorScheme.primary),
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          color: colorScheme.primary,
+                        ),
                       ),
                     ],
                   ),
@@ -231,10 +235,9 @@ class _BookingServicePageState extends State<BookingServicePage> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
-                textStyle: Theme.of(context)
-                    .textTheme
-                    .labelLarge
-                    ?.copyWith(fontWeight: FontWeight.w600),
+                textStyle: Theme.of(
+                  context,
+                ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w600),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -269,5 +272,3 @@ class _ServiceItem {
   final IconData icon;
   final Color bgColor;
 }
-
-

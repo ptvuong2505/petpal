@@ -13,7 +13,7 @@ class BookingProvider extends ChangeNotifier {
   bool isLoading = false;
 
   // Booking flow selections
-  Set<int> _selectedServiceIds = {};
+  final Set<int> _selectedServiceIds = {};
   int? _selectedPetId;
   int? _selectedTimeSlotId;
 

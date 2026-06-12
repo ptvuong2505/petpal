@@ -32,7 +32,19 @@ class _BookingTimeSlotPageState extends State<BookingTimeSlotPage> {
 
   String _monthName(int m) {
     const names = [
-      '', 'Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'
+      '',
+      'Tháng 1',
+      'Tháng 2',
+      'Tháng 3',
+      'Tháng 4',
+      'Tháng 5',
+      'Tháng 6',
+      'Tháng 7',
+      'Tháng 8',
+      'Tháng 9',
+      'Tháng 10',
+      'Tháng 11',
+      'Tháng 12',
     ];
     return names[m];
   }
@@ -46,7 +58,11 @@ class _BookingTimeSlotPageState extends State<BookingTimeSlotPage> {
     });
 
     final db = await AppDatabase.instance.database;
-    final rows = await db.query('time_slots', where: 'slot_date = ?', whereArgs: [_dateKey(date)]);
+    final rows = await db.query(
+      'time_slots',
+      where: 'slot_date = ?',
+      whereArgs: [_dateKey(date)],
+    );
 
     setState(() {
       _timeSlots = rows;
@@ -63,7 +79,9 @@ class _BookingTimeSlotPageState extends State<BookingTimeSlotPage> {
 
   void _continue() {
     if (_selectedSlotId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Vui lòng chọn khung giờ')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Vui lòng chọn khung giờ')));
       return;
     }
 
@@ -72,7 +90,11 @@ class _BookingTimeSlotPageState extends State<BookingTimeSlotPage> {
 
   List<DateTime> _buildDateList() {
     final today = DateTime.now();
-    return List.generate(14, (i) => DateTime(today.year, today.month, today.day).add(Duration(days: i)));
+    return List.generate(
+      14,
+      (i) =>
+          DateTime(today.year, today.month, today.day).add(Duration(days: i)),
+    );
   }
 
   List<Map<String, Object?>> _filterSession(String session) {
@@ -86,12 +108,39 @@ class _BookingTimeSlotPageState extends State<BookingTimeSlotPage> {
     }).toList();
   }
 
+  bool _isTimePassed(String startTime, DateTime slotDate) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final slotDay = DateTime(slotDate.year, slotDate.month, slotDate.day);
+
+    // If the slot is not today, it's not in the past
+    if (slotDay != today) return false;
+
+    try {
+      final parts = startTime.split(':');
+      final hour = int.parse(parts[0]);
+      final minute = parts.length > 1 ? int.parse(parts[1]) : 0;
+
+      final slotTime = DateTime(now.year, now.month, now.day, hour, minute);
+      return now.isAfter(slotTime);
+    } catch (_) {
+      return false;
+    }
+  }
+
   int _availableCount(List<Map<String, Object?>> rows) {
     var sum = 0;
     for (final r in rows) {
       final maxB = (r['max_booking'] as int?) ?? 1;
       final booked = (r['booked_count'] as int?) ?? 0;
-      if ((r['status'] as String?) == 'available' && booked < maxB) {
+      final startTime = (r['start_time'] as String?) ?? '';
+      final slotDate = _selectedDate;
+
+      final status = (r['status'] as String?) == 'available';
+      final hasSpace = booked < maxB;
+      final notPassed = !_isTimePassed(startTime, slotDate);
+
+      if (status && hasSpace && notPassed) {
         sum += (maxB - booked);
       }
     }
@@ -109,26 +158,46 @@ class _BookingTimeSlotPageState extends State<BookingTimeSlotPage> {
           children: [
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 child: _isLoading
                     ? const Center(child: CircularProgressIndicator())
                     : ListView(
                         children: [
                           // Month label
-                          Text(_monthLabel(_selectedDate), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.textMuted)),
+                          Text(
+                            _monthLabel(_selectedDate),
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textMuted,
+                            ),
+                          ),
                           const SizedBox(height: 12),
 
-                          // Date selector
-                          SizedBox(
-                            height: 92,
-                            child: ListView.separated(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: dates.length,
-                              separatorBuilder: (_, __) => const SizedBox(width: 12),
-                              itemBuilder: (context, index) {
+                           // Date selector
+                           SizedBox(
+                             height: 92,
+                             child: ListView.separated(
+                               scrollDirection: Axis.horizontal,
+                               itemCount: dates.length,
+                               separatorBuilder: (_, _) =>
+                                   const SizedBox(width: 12),
+                               itemBuilder: (context, index) {
                                 final d = dates[index];
-                                final isSelected = _dateKey(d) == _dateKey(_selectedDate);
-                                final weekday = ['CN','T2','T3','T4','T5','T6','T7'][d.weekday % 7];
+                                final isSelected =
+                                    _dateKey(d) == _dateKey(_selectedDate);
+                                final weekday = [
+                                  'CN',
+                                  'T2',
+                                  'T3',
+                                  'T4',
+                                  'T5',
+                                  'T6',
+                                  'T7',
+                                ][d.weekday % 7];
 
                                 return GestureDetector(
                                   onTap: () {
@@ -141,17 +210,54 @@ class _BookingTimeSlotPageState extends State<BookingTimeSlotPage> {
                                     width: 64,
                                     height: 88,
                                     decoration: BoxDecoration(
-                                      color: isSelected ? AppColors.primaryContainer : AppColors.surface,
+                                      color: isSelected
+                                          ? AppColors.primaryContainer
+                                          : AppColors.surface,
                                       borderRadius: BorderRadius.circular(16),
-                                      border: isSelected ? null : Border.all(color: const Color(0xFFBFC9C3)),
-                                      boxShadow: isSelected ? [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 12, offset: const Offset(0,4))] : null,
+                                      border: isSelected
+                                          ? null
+                                          : Border.all(
+                                              color: const Color(0xFFBFC9C3),
+                                            ),
+                                      boxShadow: isSelected
+                                          ? [
+                                              BoxShadow(
+                                                color: Colors.black.withValues(
+                                                  alpha: 0.05,
+                                                ),
+                                                blurRadius: 12,
+                                                offset: const Offset(0, 4),
+                                              ),
+                                            ]
+                                          : null,
                                     ),
                                     child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
-                                        Text(weekday, style: TextStyle(fontSize: 12, color: isSelected ? AppColors.primary : AppColors.textMuted, fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500)),
+                                        Text(
+                                          weekday,
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: isSelected
+                                                ? AppColors.primary
+                                                : AppColors.textMuted,
+                                            fontWeight: isSelected
+                                                ? FontWeight.w600
+                                                : FontWeight.w500,
+                                          ),
+                                        ),
                                         const SizedBox(height: 6),
-                                        Text('${d.day}', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: isSelected ? AppColors.primary : AppColors.textDark)),
+                                        Text(
+                                          '${d.day}',
+                                          style: TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.w600,
+                                            color: isSelected
+                                                ? AppColors.primary
+                                                : AppColors.textDark,
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -163,21 +269,33 @@ class _BookingTimeSlotPageState extends State<BookingTimeSlotPage> {
                           const SizedBox(height: 20),
 
                           // Sessions
-                          _sessionSection('Buổi sáng', _filterSession('morning')),
+                          _sessionSection(
+                            'Buổi sáng',
+                            _filterSession('morning'),
+                          ),
                           const SizedBox(height: 20),
-                          _sessionSection('Buổi chiều', _filterSession('afternoon')),
+                          _sessionSection(
+                            'Buổi chiều',
+                            _filterSession('afternoon'),
+                          ),
                           const SizedBox(height: 20),
-                          _sessionSection('Buổi tối', _filterSession('evening')),
+                          _sessionSection(
+                            'Buổi tối',
+                            _filterSession('evening'),
+                          ),
                           const SizedBox(height: 28),
 
                           // Legend
-                          Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                            _legendItem(AppColors.surface, 'Trống'),
-                            const SizedBox(width: 16),
-                            _legendItem(AppColors.primary, 'Đã chọn'),
-                            const SizedBox(width: 16),
-                            _legendItem(AppColors.surface, 'Kín', dim: true),
-                          ]),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              _legendItem(AppColors.surface, 'Trống'),
+                              const SizedBox(width: 16),
+                              _legendItem(AppColors.primary, 'Đã chọn'),
+                              const SizedBox(width: 16),
+                              _legendItem(AppColors.surface, 'Kín', dim: true),
+                            ],
+                          ),
                           const SizedBox(height: 28),
                         ],
                       ),
@@ -187,7 +305,16 @@ class _BookingTimeSlotPageState extends State<BookingTimeSlotPage> {
             // Bottom action
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: const BoxDecoration(color: Colors.white, boxShadow: [BoxShadow(color: Color(0x0A000000), blurRadius: 12, offset: Offset(0,-4))]),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Color(0x0A000000),
+                    blurRadius: 12,
+                    offset: Offset(0, -4),
+                  ),
+                ],
+              ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -197,24 +324,44 @@ class _BookingTimeSlotPageState extends State<BookingTimeSlotPage> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('Thời gian đã chọn', style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
+                          const Text(
+                            'Thời gian đã chọn',
+                            style: TextStyle(
+                              color: AppColors.textMuted,
+                              fontSize: 12,
+                            ),
+                          ),
                           const SizedBox(height: 4),
                           Text(
-                            _selectedSlotId == null ? 'Chưa chọn' : _slotSummary(_selectedSlotId!),
+                            _selectedSlotId == null
+                                ? 'Chưa chọn'
+                                : _slotSummary(_selectedSlotId!),
                             style: const TextStyle(fontWeight: FontWeight.w600),
                           ),
                         ],
                       ),
                       ElevatedButton(
                         onPressed: _continue,
-                        style: ElevatedButton.styleFrom(backgroundColor: AppColors.primaryContainer, foregroundColor: AppColors.primary, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999))),
-                        child: Row(children: const [Text('Tiếp tục'), SizedBox(width: 8), Icon(Icons.arrow_forward, size: 18)]),
-                      )
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primaryContainer,
+                          foregroundColor: AppColors.primary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                        ),
+                        child: Row(
+                          children: const [
+                            Text('Tiếp tục'),
+                            SizedBox(width: 8),
+                            Icon(Icons.arrow_forward, size: 18),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),
@@ -230,8 +377,14 @@ class _BookingTimeSlotPageState extends State<BookingTimeSlotPage> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-            Text('$avail chỗ trống', style: const TextStyle(color: AppColors.textMuted)),
+            Text(
+              title,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
+            Text(
+              '$avail chỗ trống',
+              style: const TextStyle(color: AppColors.textMuted),
+            ),
           ],
         ),
         const SizedBox(height: 12),
@@ -252,32 +405,56 @@ class _BookingTimeSlotPageState extends State<BookingTimeSlotPage> {
             final maxB = (row['max_booking'] as int?) ?? 1;
             final booked = (row['booked_count'] as int?) ?? 0;
             final status = (row['status'] as String?) ?? 'available';
-            final available = status == 'available' && booked < maxB;
+            final isPassed = _isTimePassed(start, _selectedDate);
+            final available =
+                status == 'available' && booked < maxB && !isPassed;
 
             final isSelected = _selectedSlotId == id;
 
             return ElevatedButton(
               onPressed: available ? () => _selectSlot(id) : null,
               style: ElevatedButton.styleFrom(
-                backgroundColor: isSelected ? AppColors.primary : (available ? AppColors.surface : AppColors.surface.withValues(alpha: 0.9)),
+                backgroundColor: isSelected
+                    ? AppColors.primary
+                    : (available
+                          ? AppColors.surface
+                          : AppColors.surface.withValues(alpha: 0.9)),
                 foregroundColor: isSelected ? Colors.white : AppColors.textDark,
                 elevation: isSelected ? 6 : 0,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                side: BorderSide(color: available ? AppColors.primaryContainer : Colors.transparent),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                side: BorderSide(
+                  color: available
+                      ? AppColors.primaryContainer
+                      : Colors.transparent,
+                ),
               ),
-              child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                if (isSelected) const Icon(Icons.check, size: 16) else const SizedBox.shrink(),
-                Text(start, style: const TextStyle(fontWeight: FontWeight.w600)),
-              ]),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (isSelected)
+                    const Icon(Icons.check, size: 16)
+                  else
+                    const SizedBox.shrink(),
+                  Text(
+                    start,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                ],
+              ),
             );
           },
-        )
+        ),
       ],
     );
   }
 
   String _slotSummary(int slotId) {
-    final row = _timeSlots.firstWhere((r) => (r['id'] as int?) == slotId, orElse: () => {});
+    final row = _timeSlots.firstWhere(
+      (r) => (r['id'] as int?) == slotId,
+      orElse: () => {},
+    );
     if (row.isEmpty) return 'Không xác định';
     final time = row['start_time'] as String? ?? '';
     final date = row['slot_date'] as String? ?? _dateKey(_selectedDate);
@@ -294,13 +471,25 @@ class _BookingTimeSlotPageState extends State<BookingTimeSlotPage> {
   }
 
   Widget _legendItem(Color color, String label, {bool dim = false}) {
-    return Row(children: [
-      Container(width: 14, height: 14, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(4), border: Border.all(color: dim ? const Color(0xFFBFC9C3) : Colors.transparent))),
-      const SizedBox(width: 6),
-      Text(label, style: const TextStyle(color: AppColors.textMuted, fontSize: 12)),
-    ]);
+    return Row(
+      children: [
+        Container(
+          width: 14,
+          height: 14,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(4),
+            border: Border.all(
+              color: dim ? const Color(0xFFBFC9C3) : Colors.transparent,
+            ),
+          ),
+        ),
+        const SizedBox(width: 6),
+        Text(
+          label,
+          style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
+        ),
+      ],
+    );
   }
-
 }
-
-
