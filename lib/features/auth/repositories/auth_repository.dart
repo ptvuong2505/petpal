@@ -14,6 +14,10 @@ class AuthRepository {
     return _dao.insertUser(user);
   }
 
+  Future<int> update(User user) {
+    return _dao.updateUser(user);
+  }
+
   Future<bool> isEmailTaken(String email) async {
     final user = await _dao.findByEmail(email);
     return user != null;

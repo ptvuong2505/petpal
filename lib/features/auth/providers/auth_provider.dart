@@ -125,4 +125,30 @@ class AuthProvider extends ChangeNotifier {
     await prefs.setString('address', user.address ?? '');
     await prefs.setString('role', user.role);
   }
+
+  Future<String?> updateProfile(User updatedUser) async {
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      final userWithTime = updatedUser.copyWith(
+        updatedAt: DateTime.now().toIso8601String(),
+      );
+
+      final rowsAffected = await _repository.update(userWithTime);
+
+      if (rowsAffected > 0) {
+        currentUser = userWithTime;
+        await _saveLoginSession(userWithTime);
+        return null; // Thành công
+      }
+      return 'Không thể cập nhật hồ sơ (id: ${userWithTime.id})';
+    } catch (e) {
+      debugPrint('UpdateProfile error: $e');
+      return 'Có lỗi xảy ra: $e';
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
 }

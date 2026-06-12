@@ -39,6 +39,16 @@ class AuthDao {
     return rows.isEmpty ? null : User.fromMap(rows.first);
   }
 
+  Future<int> updateUser(User user) async {
+    final db = await _database.database;
+    return db.update(
+      'users',
+      user.toMap(),
+      where: 'id = ?',
+      whereArgs: [user.id],
+    );
+  }
+
   Future<User?> findByEmailAndPassword(String email, String password) async {
     final db = await _database.database;
     final rows = await db.query(
