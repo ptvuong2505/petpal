@@ -41,7 +41,7 @@ class _BookingPetPageState extends State<BookingPetPage> {
       rows = await db.query('pets');
     }
 
-     final list = rows.map((r) => model.Pet.fromMap(r)).toList();
+    final list = rows.map((r) => model.Pet.fromMap(r)).toList();
 
     setState(() {
       _pets = list;
@@ -117,10 +117,10 @@ class _BookingPetPageState extends State<BookingPetPage> {
                     ],
                   ),
                 )
-               : ListView.separated(
-                   itemCount: _pets.length + 1,
-                   separatorBuilder: (_, _) => const SizedBox(height: 12),
-                   padding: const EdgeInsets.only(bottom: 16),
+              : ListView.separated(
+                  itemCount: _pets.length + 1,
+                  separatorBuilder: (_, _) => const SizedBox(height: 12),
+                  padding: const EdgeInsets.only(bottom: 16),
                   itemBuilder: (context, index) {
                     if (index == _pets.length) {
                       // Add new pet card

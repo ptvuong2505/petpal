@@ -177,15 +177,15 @@ class _BookingTimeSlotPageState extends State<BookingTimeSlotPage> {
                           ),
                           const SizedBox(height: 12),
 
-                           // Date selector
-                           SizedBox(
-                             height: 92,
-                             child: ListView.separated(
-                               scrollDirection: Axis.horizontal,
-                               itemCount: dates.length,
-                               separatorBuilder: (_, _) =>
-                                   const SizedBox(width: 12),
-                               itemBuilder: (context, index) {
+                          // Date selector
+                          SizedBox(
+                            height: 92,
+                            child: ListView.separated(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: dates.length,
+                              separatorBuilder: (_, _) =>
+                                  const SizedBox(width: 12),
+                              itemBuilder: (context, index) {
                                 final d = dates[index];
                                 final isSelected =
                                     _dateKey(d) == _dateKey(_selectedDate);

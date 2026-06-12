@@ -54,7 +54,7 @@ class _BookingServicePageState extends State<BookingServicePage> {
       where: 'status = ?',
       whereArgs: ['active'],
     );
-     final list = rows.map((r) => model.Service.fromMap(r)).toList();
+    final list = rows.map((r) => model.Service.fromMap(r)).toList();
 
     // Map DB services to UI items with icons/colors
     final items = list.map((s) {
