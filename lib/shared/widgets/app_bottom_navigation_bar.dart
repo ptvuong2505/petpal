@@ -108,29 +108,34 @@ class AppBottomNavigationBar extends StatelessWidget {
       case 'staff':
         return const [
           AppBottomNavItem(
-            label: 'Home',
-            icon: Icons.home,
-            routeName: AppRoutes.home,
-          ),
-          AppBottomNavItem(
-            label: 'Staff',
+            label: 'Tổng quan',
             icon: Icons.dashboard,
             routeName: AppRoutes.staffDashboard,
           ),
           AppBottomNavItem(
-            label: 'Bookings',
-            icon: Icons.assignment,
-            routeName: AppRoutes.staffBookingList,
+            label: 'Lịch',
+            icon: Icons.calendar_month,
+            routeName: AppRoutes.staffSchedule,
           ),
           AppBottomNavItem(
-            label: 'Pets',
+            label: 'Thú cưng',
             icon: Icons.pets,
-            routeName: AppRoutes.petList,
+            routeName: AppRoutes.staffPetSearch,
           ),
           AppBottomNavItem(
-            label: 'Profile',
+            label: 'Thông báo',
+            icon: Icons.notifications,
+            routeName: AppRoutes.staffNotifications,
+          ),
+          AppBottomNavItem(
+            label: 'Thống kê',
+            icon: Icons.bar_chart,
+            routeName: AppRoutes.staffStatistics,
+          ),
+          AppBottomNavItem(
+            label: 'Hồ sơ',
             icon: Icons.person,
-            routeName: AppRoutes.userProfile,
+            routeName: AppRoutes.staffProfile,
           ),
         ];
 

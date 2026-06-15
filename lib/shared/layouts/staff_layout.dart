@@ -19,6 +19,7 @@ class StaffLayout extends StatelessWidget {
     return AppLayout(
       title: title,
       currentRouteName: currentRouteName,
+      constrainTitle: true,
       child: child,
     );
   }
