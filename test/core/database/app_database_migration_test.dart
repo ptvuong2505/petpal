@@ -99,21 +99,23 @@ void main() {
     expect(tableNames, contains('staff_shifts'));
     expect(tableNames, contains('staff_notification_reads'));
 
-    final booking = (await migratedDatabase.query(
+    final inferableBooking = (await migratedDatabase.query(
       'bookings',
       where: 'id = ?',
       whereArgs: [1],
     )).single;
-    expect(booking['service_name'], 'Legacy health check');
-    expect(booking['status'], 'completed');
-    expect(booking['staff_id'], isNull);
+    expect(inferableBooking['service_name'], 'Legacy health check');
+    expect(inferableBooking['status'], 'completed');
+    expect(inferableBooking['staff_id'], 2);
 
-    await migratedDatabase.update(
+    final unattributedBooking = (await migratedDatabase.query(
       'bookings',
-      {'staff_id': 2},
       where: 'id = ?',
-      whereArgs: [1],
-    );
+      whereArgs: [2],
+    )).single;
+    expect(unattributedBooking['status'], 'completed');
+    expect(unattributedBooking['staff_id'], isNull);
+
     await migratedDatabase.delete('users', where: 'id = ?', whereArgs: [2]);
     final bookingAfterStaffDeletion = (await migratedDatabase.query(
       'bookings',
@@ -239,11 +241,21 @@ Future<void> _createVersionOneDatabase(Database db, int version) async {
     'created_at': '2026-06-01T08:00:00.000',
     'updated_at': '2026-06-01T09:00:00.000',
   });
+  await db.insert('bookings', {
+    'id': 2,
+    'user_id': 1,
+    'pet_id': 1,
+    'service_name': 'Legacy grooming',
+    'booking_date': '2026-06-02',
+    'status': 'completed',
+    'created_at': '2026-06-02T08:00:00.000',
+    'updated_at': '2026-06-02T09:00:00.000',
+  });
   await db.insert('health_records', {
     'id': 1,
     'pet_id': 1,
     'booking_id': 1,
-    'staff_id': null,
+    'staff_id': 2,
     'title': 'Legacy result',
     'record_date': '2026-06-01',
   });

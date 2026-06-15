@@ -17,26 +17,34 @@ class AppRoutePath {
     Map<String, String> queryParameters = const {},
   }) {
     final route = AppRouteCatalog.findByName(routeName);
+    final copiedQueryParameters = Map<String, String>.unmodifiable(
+      Map<String, String>.of(queryParameters),
+    );
     final uri = Uri(
       path: route.location,
-      queryParameters: queryParameters.isEmpty ? null : queryParameters,
+      queryParameters: copiedQueryParameters.isEmpty
+          ? null
+          : copiedQueryParameters,
     );
     return AppRoutePath._(
       routeName: route.name,
       location: uri.toString(),
       pageTitle: route.title,
-      queryParameters: queryParameters,
+      queryParameters: copiedQueryParameters,
     );
   }
 
   factory AppRoutePath.byLocation(String location) {
     final uri = Uri.parse(location);
     final route = AppRouteCatalog.findByLocation(uri.path);
+    final queryParameters = Map<String, String>.unmodifiable(
+      Map<String, String>.of(uri.queryParameters),
+    );
     return AppRoutePath._(
       routeName: route.name,
       location: route.name == AppRoutes.home ? route.location : uri.toString(),
       pageTitle: route.title,
-      queryParameters: uri.queryParameters,
+      queryParameters: queryParameters,
     );
   }
 

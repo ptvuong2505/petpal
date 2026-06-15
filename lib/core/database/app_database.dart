@@ -210,6 +210,23 @@ class AppDatabase {
         ADD COLUMN staff_id INTEGER
         REFERENCES users (id) ON DELETE SET NULL
       ''');
+      await db.execute('''
+        UPDATE bookings
+        SET staff_id = (
+          SELECT hr.staff_id
+          FROM health_records hr
+          WHERE hr.booking_id = bookings.id
+            AND hr.staff_id IS NOT NULL
+          LIMIT 1
+        )
+        WHERE staff_id IS NULL
+          AND EXISTS (
+            SELECT 1
+            FROM health_records hr
+            WHERE hr.booking_id = bookings.id
+              AND hr.staff_id IS NOT NULL
+          )
+      ''');
       await _createStaffTables(db);
       await _createStaffIndexes(db);
     }

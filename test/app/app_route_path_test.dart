@@ -23,6 +23,19 @@ void main() {
     expect(path.location, '/staff/examination-results/create?bookingId=7');
   });
 
+  test('named route does not retain the caller query parameter map', () {
+    final queryParameters = <String, String>{'resultId': '9'};
+    final path = AppRoutePath.byName(
+      AppRoutes.examinationResultDetail,
+      queryParameters: queryParameters,
+    );
+
+    queryParameters['resultId'] = '10';
+
+    expect(path.resultId, 9);
+    expect(path.location, '/staff/examination-results/detail?resultId=9');
+  });
+
   test('route parser preserves bookingId query parameter', () async {
     final path = await AppRouteParser().parseRouteInformation(
       RouteInformation(uri: Uri.parse('/staff/bookings/detail?bookingId=15')),
