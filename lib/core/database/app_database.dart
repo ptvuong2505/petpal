@@ -205,7 +205,11 @@ class AppDatabase {
     int newVersion,
   ) async {
     if (oldVersion < 2) {
-      await db.execute('ALTER TABLE bookings ADD COLUMN staff_id INTEGER');
+      await db.execute('''
+        ALTER TABLE bookings
+        ADD COLUMN staff_id INTEGER
+        REFERENCES users (id) ON DELETE SET NULL
+      ''');
       await _createStaffTables(db);
       await _createStaffIndexes(db);
     }

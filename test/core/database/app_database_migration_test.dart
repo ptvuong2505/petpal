@@ -54,6 +54,43 @@ void main() {
       contains('staff_id'),
     );
 
+    final bookingForeignKeys = await migratedDatabase.rawQuery(
+      'PRAGMA foreign_key_list(bookings)',
+    );
+    expect(
+      bookingForeignKeys,
+      contains(
+        allOf(
+          containsPair('from', 'staff_id'),
+          containsPair('table', 'users'),
+          containsPair('to', 'id'),
+          containsPair('on_delete', 'SET NULL'),
+        ),
+      ),
+    );
+    expect(
+      bookingForeignKeys,
+      contains(
+        allOf(
+          containsPair('from', 'user_id'),
+          containsPair('table', 'users'),
+          containsPair('to', 'id'),
+          containsPair('on_delete', 'CASCADE'),
+        ),
+      ),
+    );
+    expect(
+      bookingForeignKeys,
+      contains(
+        allOf(
+          containsPair('from', 'pet_id'),
+          containsPair('table', 'pets'),
+          containsPair('to', 'id'),
+          containsPair('on_delete', 'CASCADE'),
+        ),
+      ),
+    );
+
     final tables = await migratedDatabase.rawQuery(
       "SELECT name FROM sqlite_master WHERE type = 'table'",
     );
@@ -70,6 +107,20 @@ void main() {
     expect(booking['service_name'], 'Legacy health check');
     expect(booking['status'], 'completed');
     expect(booking['staff_id'], isNull);
+
+    await migratedDatabase.update(
+      'bookings',
+      {'staff_id': 2},
+      where: 'id = ?',
+      whereArgs: [1],
+    );
+    await migratedDatabase.delete('users', where: 'id = ?', whereArgs: [2]);
+    final bookingAfterStaffDeletion = (await migratedDatabase.query(
+      'bookings',
+      where: 'id = ?',
+      whereArgs: [1],
+    )).single;
+    expect(bookingAfterStaffDeletion['staff_id'], isNull);
 
     final indexes = await migratedDatabase.rawQuery(
       "SELECT name FROM sqlite_master WHERE type = 'index'",
@@ -170,6 +221,12 @@ Future<void> _createVersionOneDatabase(Database db, int version) async {
     'full_name': 'Legacy owner',
     'email': 'legacy@example.com',
     'role': 'user',
+  });
+  await db.insert('users', {
+    'id': 2,
+    'full_name': 'Legacy staff',
+    'email': 'legacy.staff@example.com',
+    'role': 'staff',
   });
   await db.insert('pets', {'id': 1, 'user_id': 1, 'name': 'Legacy pet'});
   await db.insert('bookings', {
