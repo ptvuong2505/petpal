@@ -27,8 +27,9 @@ class AppBottomNavigationBar extends StatelessWidget {
   Widget build(BuildContext context) {
     AuthProvider auth = context.watch<AuthProvider>();
     List<AppBottomNavItem> items = _buildBottomNavItems(auth);
+    final selectedRouteName = _selectedRouteName(auth, currentRouteName);
     final currentIndex = items.indexWhere(
-      (item) => item.routeName == currentRouteName,
+      (item) => item.routeName == selectedRouteName,
     );
 
     return BottomNavigationBar(
@@ -128,14 +129,9 @@ class AppBottomNavigationBar extends StatelessWidget {
             routeName: AppRoutes.staffNotifications,
           ),
           AppBottomNavItem(
-            label: 'Thống kê',
-            icon: Icons.bar_chart,
-            routeName: AppRoutes.staffStatistics,
-          ),
-          AppBottomNavItem(
-            label: 'Hồ sơ',
-            icon: Icons.person,
-            routeName: AppRoutes.staffProfile,
+            label: 'Thêm',
+            icon: Icons.more_horiz,
+            routeName: AppRoutes.staffMore,
           ),
         ];
 
@@ -169,5 +165,15 @@ class AppBottomNavigationBar extends StatelessWidget {
           ),
         ];
     }
+  }
+
+  String _selectedRouteName(AuthProvider auth, String routeName) {
+    if (auth.currentRole == 'staff' &&
+        (routeName == AppRoutes.staffStatistics ||
+            routeName == AppRoutes.staffProfile ||
+            routeName == AppRoutes.editStaffProfile)) {
+      return AppRoutes.staffMore;
+    }
+    return routeName;
   }
 }

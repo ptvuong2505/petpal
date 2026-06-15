@@ -189,7 +189,7 @@ class AppRouteCatalog {
     ),
     AppRouteInfo(
       name: AppRoutes.staffDashboard,
-      location: '/staff',
+      location: '/staff/dashboard',
       title: 'Staff Dashboard',
     ),
     AppRouteInfo(
@@ -209,7 +209,7 @@ class AppRouteCatalog {
     ),
     AppRouteInfo(
       name: AppRoutes.examinationResultDetail,
-      location: '/staff/examination-results/detail',
+      location: '/staff/examination/result',
       title: 'Examination Result Detail',
     ),
     AppRouteInfo(
@@ -224,7 +224,7 @@ class AppRouteCatalog {
     ),
     AppRouteInfo(
       name: AppRoutes.staffPetSearch,
-      location: '/staff/pets',
+      location: '/staff/pets/search',
       title: 'Pet Search',
     ),
     AppRouteInfo(
@@ -251,6 +251,11 @@ class AppRouteCatalog {
       name: AppRoutes.editStaffProfile,
       location: '/staff/profile/edit',
       title: 'Edit Staff Profile',
+    ),
+    AppRouteInfo(
+      name: AppRoutes.staffMore,
+      location: '/staff/more',
+      title: 'More',
     ),
     AppRouteInfo(
       name: AppRoutes.reminderList,

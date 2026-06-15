@@ -33,11 +33,13 @@ import '../features/staff_examination/pages/staff_booking_detail_page.dart';
 import '../features/staff_examination/pages/staff_booking_list_page.dart';
 import '../features/staff_examination/pages/staff_dashboard_page.dart';
 import '../features/staff_notifications/pages/staff_notifications_page.dart';
+import '../features/staff_portal/pages/staff_more_page.dart';
 import '../features/staff_pet_search/pages/staff_pet_medical_profile_page.dart';
 import '../features/staff_pet_search/pages/staff_pet_search_page.dart';
 import '../features/staff_profile/pages/edit_staff_profile_page.dart';
 import '../features/staff_profile/pages/staff_profile_page.dart';
 import '../features/staff_schedule/pages/staff_schedule_page.dart';
+import '../features/staff_schedule/pages/staff_shift_request_page.dart';
 import '../features/staff_statistics/pages/staff_statistics_page.dart';
 import '../features/time_slot/pages/create_time_slot_page.dart';
 import '../features/time_slot/pages/edit_time_slot_page.dart';
@@ -260,8 +262,9 @@ class AppRouter extends RouterDelegate<AppRoutePath>
         }
         return ExaminationResultDetailPage(resultId: resultId);
       case AppRoutes.staffSchedule:
-      case AppRoutes.staffShiftRequest:
         return const StaffSchedulePage();
+      case AppRoutes.staffShiftRequest:
+        return const StaffShiftRequestPage();
       case AppRoutes.staffPetSearch:
         return const StaffPetSearchPage();
       case AppRoutes.staffPetDetail:
@@ -281,6 +284,8 @@ class AppRouter extends RouterDelegate<AppRoutePath>
         return const StaffProfilePage();
       case AppRoutes.editStaffProfile:
         return const EditStaffProfilePage();
+      case AppRoutes.staffMore:
+        return const StaffMorePage();
       case AppRoutes.reminderList:
         return const ReminderListPage();
       case AppRoutes.createReminder:

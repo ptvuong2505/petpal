@@ -37,6 +37,7 @@ class AppRoutes {
   static const String staffStatistics = 'staffStatistics';
   static const String staffProfile = 'staffProfile';
   static const String editStaffProfile = 'editStaffProfile';
+  static const String staffMore = 'staffMore';
   static const String reminderList = 'reminderList';
   static const String createReminder = 'createReminder';
   static const String editReminder = 'editReminder';
@@ -99,6 +100,7 @@ class AppRoutes {
       case staffStatistics:
       case staffProfile:
       case editStaffProfile:
+      case staffMore:
         return true;
       default:
         return false;
@@ -130,6 +132,7 @@ class AppRoutes {
       case staffNotifications:
       case staffStatistics:
       case staffProfile:
+      case staffMore:
         return true;
       default:
         return false;

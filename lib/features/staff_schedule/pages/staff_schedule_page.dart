@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../core/constants/app_routes.dart';
+import '../../../core/services/navigation_service.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../staff_portal/data/staff_portal_dao.dart';
 
@@ -42,76 +44,6 @@ class _StaffSchedulePageState extends State<StaffSchedulePage> {
     if (_loading) _load();
   }
 
-  Future<void> _request() async {
-    final id = context.read<AuthProvider>().currentUser?.id;
-    if (id == null) return;
-    final date = TextEditingController(text: _day(_date));
-    final start = TextEditingController(text: '08:00');
-    final end = TextEditingController(text: '12:00');
-    final note = TextEditingController();
-    await showDialog<void>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Đăng ký ca trực'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: date,
-                decoration: const InputDecoration(
-                  labelText: 'Ngày (YYYY-MM-DD)',
-                ),
-              ),
-              TextField(
-                controller: start,
-                decoration: const InputDecoration(labelText: 'Bắt đầu'),
-              ),
-              TextField(
-                controller: end,
-                decoration: const InputDecoration(labelText: 'Kết thúc'),
-              ),
-              TextField(
-                controller: note,
-                decoration: const InputDecoration(labelText: 'Ghi chú'),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Hủy'),
-          ),
-          FilledButton(
-            onPressed: () async {
-              try {
-                await _dao.requestShift(
-                  staffId: id,
-                  date: date.text,
-                  start: start.text,
-                  end: end.text,
-                  note: note.text,
-                );
-                if (dialogContext.mounted) {
-                  Navigator.pop(dialogContext);
-                }
-                await _load();
-              } catch (error) {
-                if (mounted) {
-                  ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(SnackBar(content: Text('$error')));
-                }
-              }
-            },
-            child: const Text('Gửi yêu cầu'),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -146,7 +78,8 @@ class _StaffSchedulePageState extends State<StaffSchedulePage> {
               icon: const Icon(Icons.chevron_right),
             ),
             IconButton(
-              onPressed: _request,
+              onPressed: () =>
+                  NavigationService.goTo(context, AppRoutes.staffShiftRequest),
               icon: const Icon(Icons.add_circle_outline),
             ),
           ],
