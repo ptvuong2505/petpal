@@ -97,24 +97,26 @@ class AppDatabase {
 
     await db.execute('''
       CREATE TABLE bookings (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER NOT NULL,
-        pet_id INTEGER NOT NULL,
-        service_id INTEGER,
-        time_slot_id INTEGER,
-        service_name TEXT NOT NULL,
-        booking_date TEXT,
-        note TEXT,
-        total_price REAL DEFAULT 0,
-        status TEXT NOT NULL DEFAULT 'pending',
-        created_at TEXT,
-        updated_at TEXT,
-        FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
-        FOREIGN KEY (pet_id) REFERENCES pets (id) ON DELETE CASCADE,
-        FOREIGN KEY (service_id) REFERENCES services (id) ON DELETE SET NULL,
-        FOREIGN KEY (time_slot_id) REFERENCES time_slots (id) ON DELETE SET NULL
-      )
-    ''');
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    pet_id INTEGER NOT NULL,
+    service_id INTEGER,
+    time_slot_id INTEGER,
+    staff_id INTEGER, -- <--- BẮT BUỘC PHẢI THÊM DÒNG NÀY VÀO ĐÂY
+    service_name TEXT NOT NULL,
+    booking_date TEXT,
+    note TEXT,
+    total_price REAL DEFAULT 0,
+    status TEXT NOT NULL DEFAULT 'pending',
+    created_at TEXT,
+    updated_at TEXT,
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+    FOREIGN KEY (pet_id) REFERENCES pets (id) ON DELETE CASCADE,
+    FOREIGN KEY (service_id) REFERENCES services (id) ON DELETE SET NULL,
+    FOREIGN KEY (time_slot_id) REFERENCES time_slots (id) ON DELETE SET NULL,
+    FOREIGN KEY (staff_id) REFERENCES users (id) ON DELETE SET NULL
+  )
+''');
 
     await db.execute('''
       CREATE TABLE health_records (
@@ -184,6 +186,38 @@ class AppDatabase {
         booking_policy TEXT,
         logo_path TEXT,
         updated_at TEXT
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE staff_schedules (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        staff_id INTEGER NOT NULL UNIQUE,
+        work_start_time TEXT NOT NULL DEFAULT '08:30',
+        work_end_time TEXT NOT NULL DEFAULT '21:00',
+        off_days TEXT,
+        max_daily_appointments INTEGER DEFAULT 10,
+        notes TEXT,
+        created_at TEXT,
+        updated_at TEXT,
+        FOREIGN KEY (staff_id) REFERENCES users (id) ON DELETE CASCADE
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE staff_slot_assignments (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        staff_id INTEGER NOT NULL,
+        time_slot_id INTEGER NOT NULL,
+        booking_id INTEGER,
+        assignment_date TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'available',
+        created_at TEXT,
+        updated_at TEXT,
+        UNIQUE(staff_id, time_slot_id, assignment_date),
+        FOREIGN KEY (staff_id) REFERENCES users (id) ON DELETE CASCADE,
+        FOREIGN KEY (time_slot_id) REFERENCES time_slots (id) ON DELETE CASCADE,
+        FOREIGN KEY (booking_id) REFERENCES bookings (id) ON DELETE SET NULL
       )
     ''');
 
