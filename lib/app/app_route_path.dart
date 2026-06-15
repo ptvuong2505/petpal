@@ -5,35 +5,51 @@ class AppRoutePath {
     required this.routeName,
     required this.location,
     required this.pageTitle,
+    this.queryParameters = const {},
   });
 
   factory AppRoutePath.home() {
     return AppRoutePath.byName(AppRoutes.home);
   }
 
-  factory AppRoutePath.byName(String routeName) {
+  factory AppRoutePath.byName(
+    String routeName, {
+    Map<String, String> queryParameters = const {},
+  }) {
     final route = AppRouteCatalog.findByName(routeName);
+    final uri = Uri(
+      path: route.location,
+      queryParameters: queryParameters.isEmpty ? null : queryParameters,
+    );
     return AppRoutePath._(
       routeName: route.name,
-      location: route.location,
+      location: uri.toString(),
       pageTitle: route.title,
+      queryParameters: queryParameters,
     );
   }
 
   factory AppRoutePath.byLocation(String location) {
-    final route = AppRouteCatalog.findByLocation(location);
+    final uri = Uri.parse(location);
+    final route = AppRouteCatalog.findByLocation(uri.path);
     return AppRoutePath._(
       routeName: route.name,
-      location: route.location,
+      location: route.name == AppRoutes.home ? route.location : uri.toString(),
       pageTitle: route.title,
+      queryParameters: uri.queryParameters,
     );
   }
 
   final String routeName;
   final String location;
   final String pageTitle;
+  final Map<String, String> queryParameters;
 
   bool get isHome => routeName == AppRoutes.home;
+
+  int? get bookingId => int.tryParse(queryParameters['bookingId'] ?? '');
+  int? get resultId => int.tryParse(queryParameters['resultId'] ?? '');
+  int? get petId => int.tryParse(queryParameters['petId'] ?? '');
 }
 
 class AppRouteInfo {
@@ -187,6 +203,46 @@ class AppRouteCatalog {
       name: AppRoutes.examinationResultDetail,
       location: '/staff/examination-results/detail',
       title: 'Examination Result Detail',
+    ),
+    AppRouteInfo(
+      name: AppRoutes.staffSchedule,
+      location: '/staff/schedule',
+      title: 'Staff Schedule',
+    ),
+    AppRouteInfo(
+      name: AppRoutes.staffShiftRequest,
+      location: '/staff/schedule/request',
+      title: 'Shift Request',
+    ),
+    AppRouteInfo(
+      name: AppRoutes.staffPetSearch,
+      location: '/staff/pets',
+      title: 'Pet Search',
+    ),
+    AppRouteInfo(
+      name: AppRoutes.staffPetDetail,
+      location: '/staff/pets/detail',
+      title: 'Pet Medical Profile',
+    ),
+    AppRouteInfo(
+      name: AppRoutes.staffNotifications,
+      location: '/staff/notifications',
+      title: 'Staff Notifications',
+    ),
+    AppRouteInfo(
+      name: AppRoutes.staffStatistics,
+      location: '/staff/statistics',
+      title: 'Staff Statistics',
+    ),
+    AppRouteInfo(
+      name: AppRoutes.staffProfile,
+      location: '/staff/profile',
+      title: 'Staff Profile',
+    ),
+    AppRouteInfo(
+      name: AppRoutes.editStaffProfile,
+      location: '/staff/profile/edit',
+      title: 'Edit Staff Profile',
     ),
     AppRouteInfo(
       name: AppRoutes.reminderList,

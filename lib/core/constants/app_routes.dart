@@ -29,6 +29,14 @@ class AppRoutes {
   static const String staffBookingDetail = 'staffBookingDetail';
   static const String createExaminationResult = 'createExaminationResult';
   static const String examinationResultDetail = 'examinationResultDetail';
+  static const String staffSchedule = 'staffSchedule';
+  static const String staffShiftRequest = 'staffShiftRequest';
+  static const String staffPetSearch = 'staffPetSearch';
+  static const String staffPetDetail = 'staffPetDetail';
+  static const String staffNotifications = 'staffNotifications';
+  static const String staffStatistics = 'staffStatistics';
+  static const String staffProfile = 'staffProfile';
+  static const String editStaffProfile = 'editStaffProfile';
   static const String reminderList = 'reminderList';
   static const String createReminder = 'createReminder';
   static const String editReminder = 'editReminder';
@@ -83,6 +91,14 @@ class AppRoutes {
       case staffBookingDetail:
       case createExaminationResult:
       case examinationResultDetail:
+      case staffSchedule:
+      case staffShiftRequest:
+      case staffPetSearch:
+      case staffPetDetail:
+      case staffNotifications:
+      case staffStatistics:
+      case staffProfile:
+      case editStaffProfile:
         return true;
       default:
         return false;
@@ -104,5 +120,19 @@ class AppRoutes {
 
   static bool shouldShowBottomNav(String routeName) {
     return !isAuthRoute(routeName);
+  }
+
+  static bool isStaffPrimaryRoute(String routeName) {
+    switch (routeName) {
+      case staffDashboard:
+      case staffSchedule:
+      case staffPetSearch:
+      case staffNotifications:
+      case staffStatistics:
+      case staffProfile:
+        return true;
+      default:
+        return false;
+    }
   }
 }
