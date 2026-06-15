@@ -105,4 +105,15 @@ class AppRoutes {
   static bool shouldShowBottomNav(String routeName) {
     return !isAuthRoute(routeName);
   }
+
+  static String loginDestinationForRole(String? role) {
+    switch (role) {
+      case 'admin':
+        return adminDashboard;
+      case 'staff':
+        return staffDashboard;
+      default:
+        return home;
+    }
+  }
 }
