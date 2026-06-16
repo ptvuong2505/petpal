@@ -83,7 +83,7 @@ class _BookingConfirmPageState extends State<BookingConfirmPage> {
       final serviceNames = _serviceDetails.values
           .map((s) => (s['name'] as String?) ?? '')
           .join(', ');
-      await db.insert('bookings', {
+      final bookingId = await db.insert('bookings', {
         'user_id': userId,
         'pet_id': petId,
         'service_id': provider.selectedServiceIds.isNotEmpty
@@ -109,13 +109,14 @@ class _BookingConfirmPageState extends State<BookingConfirmPage> {
           whereArgs: [timeSlotId],
         );
       }
+      provider.lastCreatedBookingId = bookingId;
       provider.resetBookingFlow();
       if (mounted) {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(const SnackBar(content: Text('Đặt lịch thành công')));
         await Future.delayed(const Duration(milliseconds: 500));
-        if (mounted) NavigationService.goTo(context, AppRoutes.home);
+        if (mounted) NavigationService.goTo(context, AppRoutes.createReview);
       }
     } catch (e) {
       if (mounted) {

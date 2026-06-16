@@ -8,6 +8,9 @@ class Review {
     this.comment,
     this.createdAt,
     this.updatedAt,
+    this.userName,
+    this.serviceName,
+    this.petName,
   });
 
   final int? id;
@@ -18,6 +21,11 @@ class Review {
   final String? comment;
   final String? createdAt;
   final String? updatedAt;
+
+  // Additional fields for display
+  final String? userName;
+  final String? serviceName;
+  final String? petName;
 
   Map<String, Object?> toMap() {
     return {
@@ -42,6 +50,9 @@ class Review {
       comment: map['comment'] as String?,
       createdAt: map['created_at'] as String?,
       updatedAt: map['updated_at'] as String?,
+      userName: map['user_name'] as String?,
+      serviceName: map['service_name'] as String?,
+      petName: map['pet_name'] as String?,
     );
   }
 }

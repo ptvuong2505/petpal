@@ -12,4 +12,10 @@ class AppColors {
   static const Color textDark = Color(0xFF1B1C1C);
   static const Color textMuted = Color(0xFF707974);
   static const Color border = Color(0xFFBCCCA2);
+
+  // New colors from UI design
+  static const Color onSurface = Color(0xFF1B1C1C);
+  static const Color onSurfaceVariant = Color(0xFF404945);
+  static const Color outline = Color(0xFF707974);
+  static const Color outlineVariant = Color(0xFFBFC9C3);
 }

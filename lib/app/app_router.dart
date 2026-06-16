@@ -22,6 +22,7 @@ import '../features/pet_profile/pages/pet_list_page.dart';
 import '../features/reminder/pages/create_reminder_page.dart';
 import '../features/reminder/pages/edit_reminder_page.dart';
 import '../features/reminder/pages/reminder_list_page.dart';
+import '../features/review/models/review.dart';
 import '../features/review/pages/create_review_page.dart';
 import '../features/review/pages/my_reviews_page.dart';
 import '../features/review/pages/review_detail_page.dart';
@@ -124,8 +125,8 @@ class AppRouter extends RouterDelegate<AppRoutePath>
   }
 
   @override
-  void goTo(String routeName) {
-    _currentPath = AppRoutePath.byName(routeName);
+  void goTo(String routeName, {Object? arguments}) {
+    _currentPath = AppRoutePath.byName(routeName, arguments: arguments);
     notifyListeners();
   }
 
@@ -135,7 +136,7 @@ class AppRouter extends RouterDelegate<AppRoutePath>
   }
 
   Widget _buildPageWithLayout(String routeName) {
-    final page = _buildPage(routeName);
+    final page = _buildPage(routeName, _currentPath.arguments);
     final path = AppRoutePath.byName(routeName);
 
     if (AppRoutes.isAuthRoute(routeName)) {
@@ -165,7 +166,7 @@ class AppRouter extends RouterDelegate<AppRoutePath>
     );
   }
 
-  Widget _buildPage(String routeName) {
+  Widget _buildPage(String routeName, [Object? arguments]) {
     switch (routeName) {
       case AppRoutes.login:
         return const LoginPage();
@@ -212,7 +213,10 @@ class AppRouter extends RouterDelegate<AppRoutePath>
       case AppRoutes.reviewDetail:
         return const ReviewDetailPage();
       case AppRoutes.createReview:
-        return const CreateReviewPage();
+        if (arguments is Review) {
+          return CreateReviewPage(review: arguments);
+        }
+        return CreateReviewPage(bookingId: arguments as int?);
       case AppRoutes.myReviews:
         return const MyReviewsPage();
       case AppRoutes.staffDashboard:
