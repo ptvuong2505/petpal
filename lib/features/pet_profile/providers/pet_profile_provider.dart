@@ -12,18 +12,22 @@ class PetProfileProvider extends ChangeNotifier {
   List<Pet> pets = [];
   bool isLoading = false;
 
-  Future<void> loadPets() async {
+  Future<void> loadPets(int userId) async {
     isLoading = true;
     notifyListeners();
 
-    pets = await _repository.getPets();
-
-    isLoading = false;
-    notifyListeners();
+    try {
+      pets = await _repository.getPets(userId);
+    } catch (e) {
+      debugPrint('Error loading pets: $e');
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
   }
 
   Future<void> addPet(Pet pet) async {
     await _repository.addPet(pet);
-    await loadPets();
+    await loadPets(pet.userId);
   }
 }

@@ -6,8 +6,8 @@ class PetProfileRepository {
 
   final PetProfileDao _dao;
 
-  Future<List<Pet>> getPets() {
-    return _dao.getPets();
+  Future<List<Pet>> getPets(int userId) {
+    return _dao.getPetsByUserId(userId);
   }
 
   Future<int> addPet(Pet pet) {

@@ -9,9 +9,14 @@ class PetProfileDao {
 
   final AppDatabase _database;
 
-  Future<List<Pet>> getPets() async {
+  Future<List<Pet>> getPetsByUserId(int userId) async {
     final db = await _database.database;
-    final rows = await db.query('pets', orderBy: 'name ASC');
+    final rows = await db.query(
+      'pets',
+      where: 'user_id = ?',
+      whereArgs: [userId],
+      orderBy: 'name ASC',
+    );
     return rows.map(Pet.fromMap).toList();
   }
 
