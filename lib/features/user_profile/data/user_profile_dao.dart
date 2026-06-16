@@ -1,5 +1,4 @@
 import 'package:sqflite/sqflite.dart';
-
 import '../../../core/database/app_database.dart';
 import '../models/user_profile.dart';
 
@@ -16,7 +15,6 @@ class UserProfileDao {
     if (rows.isEmpty) {
       return null;
     }
-
     return UserProfile.fromMap(rows.first);
   }
 
