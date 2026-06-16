@@ -26,8 +26,23 @@ class PetProfileProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> addPet(Pet pet) async {
-    await _repository.addPet(pet);
-    await loadPets(pet.userId);
+  Future<String?> addPet(Pet pet) async {
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      final id = await _repository.addPet(pet);
+      if (id > 0) {
+        await loadPets(pet.userId);
+        return null; // Success
+      }
+      return 'Không thể thêm thú cưng';
+    } catch (e) {
+      debugPrint('Error adding pet: $e');
+      return 'Có lỗi xảy ra: $e';
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
   }
 }

@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
@@ -129,7 +130,7 @@ class _PetCard extends StatelessWidget {
               ),
               child: ClipOval(
                 child: pet.imagePath != null && pet.imagePath!.isNotEmpty
-                    ? Image.network(pet.imagePath!, fit: BoxFit.cover)
+                    ? Image.file(File(pet.imagePath!), fit: BoxFit.cover)
                     : const Icon(
                         Icons.pets,
                         size: 40,
