@@ -142,13 +142,16 @@ class _PetCard extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 16),
-            // Info
+            // Info - Sử dụng Expanded để tránh lỗi tràn màn hình (Overflow)
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     pet.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -158,6 +161,8 @@ class _PetCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     pet.breed ?? pet.species ?? 'Chưa xác định',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       color: AppColors.textMuted,
                       fontSize: 14,
@@ -170,7 +175,7 @@ class _PetCard extends StatelessWidget {
                         Icons.cake_outlined,
                         _calculateAge(pet.birthDate),
                       ),
-                      const SizedBox(width: 20),
+                      const SizedBox(width: 12),
                       _buildMiniInfo(
                         Icons.monitor_weight_outlined,
                         '${pet.weight ?? 0}kg',
@@ -180,9 +185,62 @@ class _PetCard extends StatelessWidget {
                 ],
               ),
             ),
-            const Icon(Icons.more_vert, color: AppColors.textMuted),
+            // Nút xóa được đặt cố định bên phải
+            IconButton(
+              onPressed: () => _showDeleteDialog(context),
+              icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+            ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showDeleteDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Xóa thú cưng'),
+        content: Text('Bạn có chắc chắn muốn xóa bé ${pet.name} không?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text(
+              'HỦY',
+              style: TextStyle(color: AppColors.textMuted),
+            ),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(dialogContext);
+              final error = await context.read<PetProfileProvider>().deletePet(
+                pet.id!,
+                pet.userId,
+              );
+
+              if (context.mounted) {
+                if (error == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Đã xóa thú cưng'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(error), backgroundColor: Colors.red),
+                  );
+                }
+              }
+            },
+            child: const Text(
+              'XÓA',
+              style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
       ),
     );
   }

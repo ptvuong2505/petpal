@@ -28,4 +28,9 @@ class PetProfileDao {
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
+
+  Future<int> deletePet(int petId) async {
+    final db = await _database.database;
+    return db.delete('pets', where: 'id = ?', whereArgs: [petId]);
+  }
 }

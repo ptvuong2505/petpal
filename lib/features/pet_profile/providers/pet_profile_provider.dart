@@ -51,4 +51,24 @@ class PetProfileProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<String?> deletePet(int petId, int userId) async {
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      final rowsAffected = await _repository.deletePet(petId);
+      if (rowsAffected > 0) {
+        await loadPets(userId);
+        return null;
+      }
+      return 'Không thể xóa thú cưng';
+    } catch (e) {
+      debugPrint('Error deleting pet: $e');
+      return 'Có lỗi xảy ra khi xóa: $e';
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
 }
