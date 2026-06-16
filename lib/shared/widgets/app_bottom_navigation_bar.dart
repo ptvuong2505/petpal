@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:petpal/features/auth/providers/auth_provider.dart';
+import 'package:petpal/features/booking/providers/booking_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/constants/app_colors.dart';
@@ -27,8 +28,9 @@ class AppBottomNavigationBar extends StatelessWidget {
   Widget build(BuildContext context) {
     AuthProvider auth = context.watch<AuthProvider>();
     List<AppBottomNavItem> items = _buildBottomNavItems(auth);
+    final selectedRouteName = _selectedRouteName(auth, currentRouteName);
     final currentIndex = items.indexWhere(
-      (item) => item.routeName == currentRouteName,
+      (item) => item.routeName == selectedRouteName,
     );
 
     return BottomNavigationBar(
@@ -41,6 +43,10 @@ class AppBottomNavigationBar extends StatelessWidget {
 
         if (routeName == currentRouteName) {
           return;
+        }
+
+        if (routeName == AppRoutes.bookingService) {
+          context.read<BookingProvider>().resetBookingFlow();
         }
 
         NavigationService.goTo(context, routeName);
@@ -108,29 +114,29 @@ class AppBottomNavigationBar extends StatelessWidget {
       case 'staff':
         return const [
           AppBottomNavItem(
-            label: 'Home',
-            icon: Icons.home,
-            routeName: AppRoutes.home,
-          ),
-          AppBottomNavItem(
-            label: 'Staff',
+            label: 'Tổng quan',
             icon: Icons.dashboard,
             routeName: AppRoutes.staffDashboard,
           ),
           AppBottomNavItem(
-            label: 'Bookings',
-            icon: Icons.assignment,
-            routeName: AppRoutes.staffBookingList,
+            label: 'Lịch',
+            icon: Icons.calendar_month,
+            routeName: AppRoutes.staffSchedule,
           ),
           AppBottomNavItem(
-            label: 'Pets',
+            label: 'Thú cưng',
             icon: Icons.pets,
-            routeName: AppRoutes.petList,
+            routeName: AppRoutes.staffPetSearch,
           ),
           AppBottomNavItem(
-            label: 'Profile',
-            icon: Icons.person,
-            routeName: AppRoutes.userProfile,
+            label: 'Thông báo',
+            icon: Icons.notifications,
+            routeName: AppRoutes.staffNotifications,
+          ),
+          AppBottomNavItem(
+            label: 'Thêm',
+            icon: Icons.more_horiz,
+            routeName: AppRoutes.staffMore,
           ),
         ];
 
@@ -164,5 +170,15 @@ class AppBottomNavigationBar extends StatelessWidget {
           ),
         ];
     }
+  }
+
+  String _selectedRouteName(AuthProvider auth, String routeName) {
+    if (auth.currentRole == 'staff' &&
+        (routeName == AppRoutes.staffStatistics ||
+            routeName == AppRoutes.staffProfile ||
+            routeName == AppRoutes.editStaffProfile)) {
+      return AppRoutes.staffMore;
+    }
+    return routeName;
   }
 }

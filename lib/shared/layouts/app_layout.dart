@@ -9,6 +9,7 @@ class AppLayout extends StatelessWidget {
     required this.child,
     this.currentRouteName,
     this.showBottomNav = true,
+    this.constrainTitle = false,
     this.actions,
     super.key,
   });
@@ -17,6 +18,7 @@ class AppLayout extends StatelessWidget {
   final Widget child;
   final String? currentRouteName;
   final bool showBottomNav;
+  final bool constrainTitle;
   final List<Widget>? actions;
 
   @override
@@ -32,13 +34,26 @@ class AppLayout extends StatelessWidget {
               child: Icon(Icons.person, color: AppColors.primary),
             ),
             const SizedBox(width: 12),
-            Text(
-              title,
-              style: TextStyle(
-                color: AppColors.primary,
-                fontWeight: FontWeight.bold,
+            if (constrainTitle)
+              Expanded(
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              )
+            else
+              Text(
+                title,
+                style: TextStyle(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
           ],
         ),
         actions:

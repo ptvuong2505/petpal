@@ -1,40 +1,54 @@
-import 'package:path/path.dart' as p;
-import 'package:sqflite/sqflite.dart';
+// file: lib/core/database/app_database.dart
+import 'package:path/path.dart' as p; //
+import 'package:sqflite/sqflite.dart'; //
 
-import '../constants/app_constants.dart';
-import 'database_seed.dart';
+import '../constants/app_constants.dart'; //
+import 'database_seed.dart'; //
 
 class AppDatabase {
-  AppDatabase._();
+  AppDatabase._(); //
 
-  static final AppDatabase instance = AppDatabase._();
+  static final AppDatabase instance = AppDatabase._(); //
+  static const int schemaVersion = 2; //
 
   Database? _database;
+  // Khai báo thêm biến Future để giữ trạng thái mở DB, chống tình trạng Deadlock khi gọi đồng thời
+  Future<Database>? _openDatabaseFuture;
 
   Future<Database> get database async {
     if (_database != null) {
-      return _database!;
+      return _database!; //
     }
 
-    _database = await _openDatabase();
-    return _database!;
+    // Nếu database đang trong quá trình mở bởi một tiến trình khác, đợi tiến trình đó hoàn thành
+    _openDatabaseFuture ??= _openDatabase();
+    _database = await _openDatabaseFuture;
+
+    return _database!; //
   }
 
   Future<Database> _openDatabase() async {
-    final dbPath = await getDatabasesPath();
-    final filePath = p.join(dbPath, AppConstants.databaseName);
+    //
+    final dbPath = await getDatabasesPath(); //
+    final filePath = p.join(dbPath, AppConstants.databaseName); //
 
     return openDatabase(
-      filePath,
-      version: 1,
-      onConfigure: (db) async {
-        await db.execute('PRAGMA foreign_keys = ON');
-      },
-      onCreate: _createTables,
-    );
+      //
+      filePath, //
+      version: schemaVersion, //
+      onConfigure: configure, //
+      onCreate: createSchema, //
+      onUpgrade: upgradeSchema, //
+    ); //
   }
 
-  Future<void> _createTables(Database db, int version) async {
+  static Future<void> configure(Database db) async {
+    //
+    await db.execute('PRAGMA foreign_keys = ON'); //
+  }
+
+  static Future<void> createSchema(Database db, int version) async {
+    //
     await db.execute('''
       CREATE TABLE users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -47,7 +61,7 @@ class AppDatabase {
         created_at TEXT,
         updated_at TEXT
       )
-    ''');
+    '''); //
 
     await db.execute('''
       CREATE TABLE pets (
@@ -65,7 +79,7 @@ class AppDatabase {
         updated_at TEXT,
         FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
       )
-    ''');
+    '''); //
 
     await db.execute('''
       CREATE TABLE services (
@@ -79,7 +93,7 @@ class AppDatabase {
         created_at TEXT,
         updated_at TEXT
       )
-    ''');
+    '''); //
 
     await db.execute('''
       CREATE TABLE time_slots (
@@ -93,30 +107,30 @@ class AppDatabase {
         created_at TEXT,
         updated_at TEXT
       )
-    ''');
+    '''); //
 
     await db.execute('''
       CREATE TABLE bookings (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL,
-    pet_id INTEGER NOT NULL,
-    service_id INTEGER,
-    time_slot_id INTEGER,
-    staff_id INTEGER, -- <--- BẮT BUỘC PHẢI THÊM DÒNG NÀY VÀO ĐÂY
-    service_name TEXT NOT NULL,
-    booking_date TEXT,
-    note TEXT,
-    total_price REAL DEFAULT 0,
-    status TEXT NOT NULL DEFAULT 'pending',
-    created_at TEXT,
-    updated_at TEXT,
-    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
-    FOREIGN KEY (pet_id) REFERENCES pets (id) ON DELETE CASCADE,
-    FOREIGN KEY (service_id) REFERENCES services (id) ON DELETE SET NULL,
-    FOREIGN KEY (time_slot_id) REFERENCES time_slots (id) ON DELETE SET NULL,
-    FOREIGN KEY (staff_id) REFERENCES users (id) ON DELETE SET NULL
-  )
-''');
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        pet_id INTEGER NOT NULL,
+        service_id INTEGER,
+        time_slot_id INTEGER,
+        staff_id INTEGER, 
+        service_name TEXT NOT NULL,
+        booking_date TEXT,
+        note TEXT,
+        total_price REAL DEFAULT 0,
+        status TEXT NOT NULL DEFAULT 'pending',
+        created_at TEXT,
+        updated_at TEXT,
+        FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+        FOREIGN KEY (pet_id) REFERENCES pets (id) ON DELETE CASCADE,
+        FOREIGN KEY (service_id) REFERENCES services (id) ON DELETE SET NULL,
+        FOREIGN KEY (time_slot_id) REFERENCES time_slots (id) ON DELETE SET NULL,
+        FOREIGN KEY (staff_id) REFERENCES users (id) ON DELETE SET NULL
+      )
+    '''); //
 
     await db.execute('''
       CREATE TABLE health_records (
@@ -138,7 +152,7 @@ class AppDatabase {
         FOREIGN KEY (booking_id) REFERENCES bookings (id) ON DELETE SET NULL,
         FOREIGN KEY (staff_id) REFERENCES users (id) ON DELETE SET NULL
       )
-    ''');
+    '''); //
 
     await db.execute('''
       CREATE TABLE reviews (
@@ -154,7 +168,7 @@ class AppDatabase {
         FOREIGN KEY (pet_id) REFERENCES pets (id) ON DELETE SET NULL,
         FOREIGN KEY (booking_id) REFERENCES bookings (id) ON DELETE CASCADE
       )
-    ''');
+    '''); //
 
     await db.execute('''
       CREATE TABLE reminders (
@@ -171,7 +185,7 @@ class AppDatabase {
         FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
         FOREIGN KEY (pet_id) REFERENCES pets (id) ON DELETE CASCADE
       )
-    ''');
+    '''); //
 
     await db.execute('''
       CREATE TABLE shop_settings (
@@ -187,7 +201,7 @@ class AppDatabase {
         logo_path TEXT,
         updated_at TEXT
       )
-    ''');
+    '''); //
 
     await db.execute('''
       CREATE TABLE staff_schedules (
@@ -202,7 +216,7 @@ class AppDatabase {
         updated_at TEXT,
         FOREIGN KEY (staff_id) REFERENCES users (id) ON DELETE CASCADE
       )
-    ''');
+    '''); //
 
     await db.execute('''
       CREATE TABLE staff_slot_assignments (
@@ -219,8 +233,116 @@ class AppDatabase {
         FOREIGN KEY (time_slot_id) REFERENCES time_slots (id) ON DELETE CASCADE,
         FOREIGN KEY (booking_id) REFERENCES bookings (id) ON DELETE SET NULL
       )
-    ''');
+    '''); //
 
-    await DatabaseSeed.insertDefaultData(db);
+    await _createStaffTables(db); //
+    await _createStaffIndexes(db); //
+
+    await DatabaseSeed.insertDefaultData(db); //
+  }
+
+  // SỬA: Bổ sung từ khóa 'async' để xử lý bất đồng bộ hợp lệ
+  static Future<void> upgradeSchema(
+    Database db,
+    int oldVersion,
+    int newVersion,
+  ) async {
+    //
+    if (oldVersion < 2) {
+      // SỬA: Thay đổi cú pháp ALTER TABLE phù hợp với tiêu chuẩn SQLite (Bỏ đoạn REFERENCES trực tiếp)
+      await db.execute('''
+        ALTER TABLE bookings
+        ADD COLUMN staff_id INTEGER
+      '''); //
+
+      await db.execute('''
+        UPDATE bookings
+        SET staff_id = (
+          SELECT hr.staff_id
+          FROM health_records hr
+          WHERE hr.booking_id = bookings.id
+            AND hr.staff_id IS NOT NULL
+          LIMIT 1
+        )
+        WHERE staff_id IS NULL
+          AND EXISTS (
+            SELECT 1
+            FROM health_records hr
+            WHERE hr.booking_id = bookings.id
+              AND hr.staff_id IS NOT NULL
+          )
+      '''); //
+
+      await _createStaffTables(db); //
+      await _createStaffIndexes(db); //
+    }
+  }
+
+  static Future<void> _createStaffTables(Database db) async {
+    //
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS staff_profiles (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL UNIQUE,
+        specialty TEXT,
+        experience_years INTEGER,
+        bio TEXT,
+        certificate_names TEXT,
+        certificate_details TEXT,
+        created_at TEXT,
+        updated_at TEXT,
+        FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+      )
+    '''); //
+
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS staff_shifts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        staff_id INTEGER NOT NULL,
+        shift_date TEXT NOT NULL,
+        start_time TEXT NOT NULL,
+        end_time TEXT NOT NULL,
+        status TEXT NOT NULL,
+        request_type TEXT NOT NULL,
+        source_shift_id INTEGER,
+        request_note TEXT,
+        review_note TEXT,
+        created_at TEXT,
+        updated_at TEXT,
+        FOREIGN KEY (staff_id) REFERENCES users (id) ON DELETE CASCADE,
+        FOREIGN KEY (source_shift_id) REFERENCES staff_shifts (id) ON DELETE SET NULL
+      )
+    '''); //
+
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS staff_notification_reads (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        staff_id INTEGER NOT NULL,
+        notification_key TEXT NOT NULL,
+        read_at TEXT,
+        UNIQUE (staff_id, notification_key),
+        FOREIGN KEY (staff_id) REFERENCES users (id) ON DELETE CASCADE
+      )
+    '''); //
+  }
+
+  static Future<void> _createStaffIndexes(Database db) async {
+    //
+    await db.execute('''
+      CREATE INDEX IF NOT EXISTS idx_bookings_staff_date_status
+      ON bookings (staff_id, booking_date, status)
+    '''); //
+    await db.execute('''
+      CREATE INDEX IF NOT EXISTS idx_health_records_pet_date
+      ON health_records (pet_id, record_date)
+    '''); //
+    await db.execute('''
+      CREATE INDEX IF NOT EXISTS idx_staff_shifts_staff_date_status
+      ON staff_shifts (staff_id, shift_date, status)
+    '''); //
+    await db.execute('''
+      CREATE INDEX IF NOT EXISTS idx_notification_reads_staff_key
+      ON staff_notification_reads (staff_id, notification_key)
+    '''); //
   }
 }
