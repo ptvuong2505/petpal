@@ -52,6 +52,27 @@ class PetProfileProvider extends ChangeNotifier {
     }
   }
 
+  Future<String?> updatePet(Pet pet) async {
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      final rowsAffected = await _repository.updatePet(pet);
+      if (rowsAffected > 0) {
+        await loadPets(pet.userId);
+        selectedPet = pet; // Cập nhật pet đang chọn
+        return null; // Success
+      }
+      return 'Không thể cập nhật thông tin thú cưng';
+    } catch (e) {
+      debugPrint('Error updating pet: $e');
+      return 'Có lỗi xảy ra: $e';
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
   Future<String?> deletePet(int petId, int userId) async {
     isLoading = true;
     notifyListeners();

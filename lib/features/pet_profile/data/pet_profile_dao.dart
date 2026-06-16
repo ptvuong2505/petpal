@@ -29,6 +29,16 @@ class PetProfileDao {
     );
   }
 
+  Future<int> updatePet(Pet pet) async {
+    final db = await _database.database;
+    return db.update(
+      'pets',
+      pet.toMap(),
+      where: 'id = ?',
+      whereArgs: [pet.id],
+    );
+  }
+
   Future<int> deletePet(int petId) async {
     final db = await _database.database;
     return db.delete('pets', where: 'id = ?', whereArgs: [petId]);

@@ -14,6 +14,10 @@ class PetProfileRepository {
     return _dao.insertPet(pet);
   }
 
+  Future<int> updatePet(Pet pet) {
+    return _dao.updatePet(pet);
+  }
+
   Future<int> deletePet(int petId) {
     return _dao.deletePet(petId);
   }
