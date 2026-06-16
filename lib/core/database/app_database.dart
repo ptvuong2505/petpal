@@ -247,7 +247,35 @@ class AppDatabase {
     int newVersion,
   ) async {
     if (oldVersion < 2) {
-      // 1. Khởi tạo bảng bookings mới với đầy đủ ràng buộc khóa ngoại (SQLite không hỗ trợ ADD COLUMN kèm FOREIGN KEY)
+      // 1. Tạo các bảng nghiệp vụ mới của V2 TRƯỚC (để tránh lỗi Foreign Key khi tạo bảng bookings)
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS services (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT NOT NULL,
+          description TEXT,
+          price REAL NOT NULL DEFAULT 0,
+          duration_minutes INTEGER NOT NULL DEFAULT 30,
+          image_path TEXT,
+          status TEXT NOT NULL DEFAULT 'active',
+          created_at TEXT,
+          updated_at TEXT
+        )
+      ''');
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS time_slots (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          slot_date TEXT NOT NULL,
+          start_time TEXT NOT NULL,
+          end_time TEXT NOT NULL,
+          max_booking INTEGER NOT NULL DEFAULT 1,
+          booked_count INTEGER NOT NULL DEFAULT 0,
+          status TEXT NOT NULL DEFAULT 'available',
+          created_at TEXT,
+          updated_at TEXT
+        )
+      ''');
+
+      // 2. Khởi tạo bảng bookings mới với đầy đủ ràng buộc khóa ngoại (SQLite không hỗ trợ ADD COLUMN kèm FOREIGN KEY)
       // Sử dụng quy trình: Đổi tên bảng cũ -> Tạo bảng mới chuẩn V2 -> Chép dữ liệu -> Xóa bảng cũ
       await db.execute('ALTER TABLE bookings RENAME TO bookings_old');
 
@@ -274,14 +302,14 @@ class AppDatabase {
         )
       ''');
 
-      // 2. Chuyển dữ liệu từ bảng cũ sang bảng mới
+      // 3. Chuyển dữ liệu từ bảng cũ sang bảng mới
       await db.execute('''
         INSERT INTO bookings (id, user_id, pet_id, service_name, booking_date, status, created_at, updated_at)
         SELECT id, user_id, pet_id, service_name, booking_date, status, created_at, updated_at
         FROM bookings_old
       ''');
 
-      // 3. Cập nhật staff_id từ health_records (Logic di trú dữ liệu cũ sang hệ thống Staff Portal)
+      // 4. Cập nhật staff_id từ health_records (Logic di trú dữ liệu cũ sang hệ thống Staff Portal)
       await db.execute('''
         UPDATE bookings
         SET staff_id = (
@@ -301,7 +329,7 @@ class AppDatabase {
 
       await db.execute('DROP TABLE bookings_old');
 
-      // 4. Tạo các bảng mới bổ sung cho tính năng Staff Portal và các bảng mới khác của V2
+      // 5. Tạo các bảng mới bổ sung cho tính năng Staff Portal và các bảng mới khác của V2
       await _createStaffTables(db);
       await _createStaffIndexes(db);
 
@@ -357,33 +385,7 @@ class AppDatabase {
         );
       } catch (_) {}
 
-      // Tạo các bảng nghiệp vụ mới của V2
-      await db.execute('''
-        CREATE TABLE IF NOT EXISTS services (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          name TEXT NOT NULL,
-          description TEXT,
-          price REAL NOT NULL DEFAULT 0,
-          duration_minutes INTEGER NOT NULL DEFAULT 30,
-          image_path TEXT,
-          status TEXT NOT NULL DEFAULT 'active',
-          created_at TEXT,
-          updated_at TEXT
-        )
-      ''');
-      await db.execute('''
-        CREATE TABLE IF NOT EXISTS time_slots (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          slot_date TEXT NOT NULL,
-          start_time TEXT NOT NULL,
-          end_time TEXT NOT NULL,
-          max_booking INTEGER NOT NULL DEFAULT 1,
-          booked_count INTEGER NOT NULL DEFAULT 0,
-          status TEXT NOT NULL DEFAULT 'available',
-          created_at TEXT,
-          updated_at TEXT
-        )
-      ''');
+      // Tạo các bảng nghiệp vụ mới còn lại của V2
       await db.execute(
         'CREATE TABLE IF NOT EXISTS reviews (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL, pet_id INTEGER, booking_id INTEGER NOT NULL UNIQUE, rating INTEGER NOT NULL, comment TEXT, created_at TEXT, updated_at TEXT, FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE, FOREIGN KEY (pet_id) REFERENCES pets (id) ON DELETE SET NULL, FOREIGN KEY (booking_id) REFERENCES bookings (id) ON DELETE CASCADE)',
       );
