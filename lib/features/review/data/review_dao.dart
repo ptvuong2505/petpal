@@ -30,4 +30,19 @@ class ReviewDao {
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
+
+  Future<int> updateReview(Review review) async {
+    final db = await _database.database;
+    return db.update(
+      'reviews',
+      review.toMap(),
+      where: 'id = ?',
+      whereArgs: [review.id],
+    );
+  }
+
+  Future<int> deleteReview(int id) async {
+    final db = await _database.database;
+    return db.delete('reviews', where: 'id = ?', whereArgs: [id]);
+  }
 }

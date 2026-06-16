@@ -5,18 +5,20 @@ class AppRoutePath {
     required this.routeName,
     required this.location,
     required this.pageTitle,
+    this.arguments,
   });
 
   factory AppRoutePath.home() {
     return AppRoutePath.byName(AppRoutes.home);
   }
 
-  factory AppRoutePath.byName(String routeName) {
+  factory AppRoutePath.byName(String routeName, {Object? arguments}) {
     final route = AppRouteCatalog.findByName(routeName);
     return AppRoutePath._(
       routeName: route.name,
       location: route.location,
       pageTitle: route.title,
+      arguments: arguments,
     );
   }
 
@@ -32,6 +34,7 @@ class AppRoutePath {
   final String routeName;
   final String location;
   final String pageTitle;
+  final Object? arguments;
 
   bool get isHome => routeName == AppRoutes.home;
 }

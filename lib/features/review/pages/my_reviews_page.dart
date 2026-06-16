@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/app_routes.dart';
+import '../../../core/services/navigation_service.dart';
 import '../models/review.dart';
 import '../providers/review_provider.dart';
 
@@ -23,30 +25,64 @@ class _MyReviewsPageState extends State<MyReviewsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ReviewProvider>(
-      builder: (context, provider, child) {
-        if (provider.isLoading) {
-          return const Center(child: CircularProgressIndicator());
-        }
+    return Scaffold(
+      backgroundColor: Colors.transparent, // Use layout background
+      body: Consumer<ReviewProvider>(
+        builder: (context, provider, child) {
+          if (provider.isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-        if (provider.reviews.isEmpty) {
-          return _buildEmptyState();
-        }
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildSummaryStats(provider),
+                const SizedBox(height: 24),
+                _buildHeaderActions(context),
+                const SizedBox(height: 16),
+                _buildFilters(),
+                const SizedBox(height: 16),
+                if (provider.reviews.isEmpty)
+                  _buildEmptyState()
+                else
+                  ...provider.reviews.map((review) => _buildReviewCard(review)),
+              ],
+            ),
+          );
+        },
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => NavigationService.goTo(context, AppRoutes.myBookings),
+        label: const Text('Viết đánh giá'),
+        icon: const Icon(Icons.edit),
+        backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
+      ),
+    );
+  }
 
-        return SingleChildScrollView(
-          padding: const EdgeInsets.all(0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildSummaryStats(provider),
-              const SizedBox(height: 24),
-              _buildFilters(),
-              const SizedBox(height: 16),
-              ...provider.reviews.map((review) => _buildReviewCard(review)),
-            ],
+  Widget _buildHeaderActions(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        const Text(
+          'Đánh giá của bạn',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF1B1C1C),
           ),
-        );
-      },
+        ),
+        TextButton.icon(
+          onPressed: () =>
+              NavigationService.goTo(context, AppRoutes.reviewList),
+          icon: const Icon(Icons.public, size: 18),
+          label: const Text('Xem cộng đồng'),
+          style: TextButton.styleFrom(foregroundColor: AppColors.primary),
+        ),
+      ],
     );
   }
 
@@ -167,6 +203,34 @@ class _MyReviewsPageState extends State<MyReviewsPage> {
     );
   }
 
+  void _showDeleteDialog(BuildContext context, Review review) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Xóa đánh giá'),
+        content: const Text('Bạn có chắc chắn muốn xóa đánh giá này không?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Hủy'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              await context.read<ReviewProvider>().deleteReview(review.id!);
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Đã xóa đánh giá')),
+                );
+              }
+            },
+            child: const Text('Xóa', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildReviewCard(Review review) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -236,12 +300,18 @@ class _MyReviewsPageState extends State<MyReviewsPage> {
                 children: [
                   IconButton(
                     icon: const Icon(Icons.edit, size: 18),
-                    onPressed: () {},
+                    onPressed: () {
+                      NavigationService.goTo(
+                        context,
+                        AppRoutes.createReview,
+                        arguments: review,
+                      );
+                    },
                     visualDensity: VisualDensity.compact,
                   ),
                   IconButton(
                     icon: const Icon(Icons.delete, size: 18, color: Colors.red),
-                    onPressed: () {},
+                    onPressed: () => _showDeleteDialog(context, review),
                     visualDensity: VisualDensity.compact,
                   ),
                 ],
@@ -277,7 +347,10 @@ class _MyReviewsPageState extends State<MyReviewsPage> {
                 const SizedBox(width: 8),
                 Text(
                   'Reviewed for ${review.petName ?? 'Pet'}',
-                  style: TextStyle(fontSize: 12, color: Color(0xFF404945)),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Color(0xFF404945),
+                  ),
                 ),
               ],
             ),
@@ -292,6 +365,7 @@ class _MyReviewsPageState extends State<MyReviewsPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          const SizedBox(height: 40),
           Container(
             width: 96,
             height: 96,

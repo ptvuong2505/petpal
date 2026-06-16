@@ -13,4 +13,12 @@ class ReviewRepository {
   Future<int> createReview(Review review) {
     return _dao.insertReview(review);
   }
+
+  Future<int> updateReview(Review review) {
+    return _dao.updateReview(review);
+  }
+
+  Future<int> deleteReview(int id) {
+    return _dao.deleteReview(id);
+  }
 }

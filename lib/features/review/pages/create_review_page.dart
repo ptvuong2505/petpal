@@ -12,9 +12,10 @@ import '../models/review.dart';
 import '../providers/review_provider.dart';
 
 class CreateReviewPage extends StatefulWidget {
-  const CreateReviewPage({super.key, this.bookingId});
+  const CreateReviewPage({super.key, this.bookingId, this.review});
 
   final int? bookingId;
+  final Review? review;
 
   @override
   State<CreateReviewPage> createState() => _CreateReviewPageState();
@@ -38,12 +39,19 @@ class _CreateReviewPageState extends State<CreateReviewPage> {
   @override
   void initState() {
     super.initState();
+    if (widget.review != null) {
+      _rating = widget.review!.rating;
+      _commentController.text = widget.review!.comment ?? '';
+    }
     _loadBooking();
   }
 
   Future<void> _loadBooking() async {
     final bookingProvider = context.read<BookingProvider>();
-    final bId = widget.bookingId ?? bookingProvider.lastCreatedBookingId;
+    final bId =
+        widget.review?.bookingId ??
+        widget.bookingId ??
+        bookingProvider.lastCreatedBookingId;
 
     if (bId == null) {
       setState(() => _isLoadingBooking = false);
@@ -83,21 +91,42 @@ class _CreateReviewPageState extends State<CreateReviewPage> {
       final authProvider = context.read<AuthProvider>();
       final reviewProvider = context.read<ReviewProvider>();
 
-      final review = Review(
-        userId: authProvider.currentUser?.id ?? 0,
-        bookingId: _booking?.id ?? 0,
-        petId: _booking?.petId,
-        rating: _rating,
-        comment: _commentController.text,
-        createdAt: DateTime.now().toIso8601String(),
-        updatedAt: DateTime.now().toIso8601String(),
-      );
-
-      await reviewProvider.createReview(review);
+      if (widget.review != null) {
+        // Update existing review
+        final updatedReview = Review(
+          id: widget.review!.id,
+          userId: widget.review!.userId,
+          bookingId: widget.review!.bookingId,
+          petId: widget.review!.petId,
+          rating: _rating,
+          comment: _commentController.text,
+          createdAt: widget.review!.createdAt,
+          updatedAt: DateTime.now().toIso8601String(),
+        );
+        await reviewProvider.updateReview(updatedReview);
+      } else {
+        // Create new review
+        final review = Review(
+          userId: authProvider.currentUser?.id ?? 0,
+          bookingId: _booking?.id ?? 0,
+          petId: _booking?.petId,
+          rating: _rating,
+          comment: _commentController.text,
+          createdAt: DateTime.now().toIso8601String(),
+          updatedAt: DateTime.now().toIso8601String(),
+        );
+        await reviewProvider.createReview(review);
+      }
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Gửi đánh giá thành công!')),
+          SnackBar(
+            content: Text(
+              widget.review != null
+                  ? 'Cập nhật đánh giá thành công!'
+                  : 'Gửi đánh giá thành công!',
+            ),
+          ),
         );
         NavigationService.goTo(context, AppRoutes.myReviews);
       }
@@ -197,9 +226,11 @@ class _CreateReviewPageState extends State<CreateReviewPage> {
           const SizedBox(height: 24),
 
           // Rating Section
-          const Text(
-            'Bạn đánh giá dịch vụ thế nào?',
-            style: TextStyle(
+          Text(
+            widget.review != null
+                ? 'Chỉnh sửa đánh giá của bạn'
+                : 'Bạn đánh giá dịch vụ thế nào?',
+            style: const TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w600,
               color: AppColors.onSurface,
@@ -305,9 +336,9 @@ class _CreateReviewPageState extends State<CreateReviewPage> {
                       width: 20,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Text(
-                      'Gửi đánh giá',
-                      style: TextStyle(
+                  : Text(
+                      widget.review != null ? 'Cập nhật' : 'Gửi đánh giá',
+                      style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                       ),
