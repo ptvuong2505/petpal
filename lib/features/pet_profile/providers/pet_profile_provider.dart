@@ -10,7 +10,13 @@ class PetProfileProvider extends ChangeNotifier {
   final PetProfileRepository _repository;
 
   List<Pet> pets = [];
+  Pet? selectedPet;
   bool isLoading = false;
+
+  void selectPet(Pet pet) {
+    selectedPet = pet;
+    notifyListeners();
+  }
 
   Future<void> loadPets(int userId) async {
     isLoading = true;

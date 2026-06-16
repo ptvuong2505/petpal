@@ -103,7 +103,10 @@ class _PetCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () => NavigationService.goTo(context, AppRoutes.petDetail),
+      onTap: () {
+        context.read<PetProfileProvider>().selectPet(pet);
+        NavigationService.goTo(context, AppRoutes.petDetail);
+      },
       borderRadius: BorderRadius.circular(16),
       child: Container(
         padding: const EdgeInsets.all(16),
