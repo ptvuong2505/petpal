@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../auth/providers/auth_provider.dart';
-import '../models/pet.dart';
 import '../providers/pet_profile_provider.dart';
 
 class EditPetPage extends StatelessWidget {
@@ -164,18 +162,18 @@ class _EditPetViewState extends State<_EditPetView> {
                               child: Image.file(_imageFile!, fit: BoxFit.cover),
                             )
                           : (_existingImagePath != null &&
-                                  _existingImagePath!.isNotEmpty)
-                              ? ClipOval(
-                                  child: Image.file(
-                                    File(_existingImagePath!),
-                                    fit: BoxFit.cover,
-                                  ),
-                                )
-                              : const Icon(
-                                  Icons.camera_alt,
-                                  size: 40,
-                                  color: Colors.grey,
-                                ),
+                                _existingImagePath!.isNotEmpty)
+                          ? ClipOval(
+                              child: Image.file(
+                                File(_existingImagePath!),
+                                fit: BoxFit.cover,
+                              ),
+                            )
+                          : const Icon(
+                              Icons.camera_alt,
+                              size: 40,
+                              color: Colors.grey,
+                            ),
                     ),
                     Positioned(
                       bottom: 0,
@@ -186,7 +184,11 @@ class _EditPetViewState extends State<_EditPetView> {
                           color: AppColors.primary,
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.edit, color: Colors.white, size: 20),
+                        child: const Icon(
+                          Icons.edit,
+                          color: Colors.white,
+                          size: 20,
+                        ),
                       ),
                     ),
                   ],
@@ -217,7 +219,7 @@ class _EditPetViewState extends State<_EditPetView> {
               children: [
                 Expanded(
                   child: DropdownButtonFormField<String>(
-                    value: _selectedSpecies,
+                    initialValue: _selectedSpecies,
                     decoration: const InputDecoration(
                       labelText: 'Loài',
                       border: OutlineInputBorder(),
@@ -231,7 +233,7 @@ class _EditPetViewState extends State<_EditPetView> {
                 const SizedBox(width: 16),
                 Expanded(
                   child: DropdownButtonFormField<String>(
-                    value: _selectedGender,
+                    initialValue: _selectedGender,
                     decoration: const InputDecoration(
                       labelText: 'Giới tính',
                       border: OutlineInputBorder(),
