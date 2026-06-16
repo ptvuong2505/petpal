@@ -11,7 +11,6 @@ class BookingProvider extends ChangeNotifier {
 
   List<Booking> bookings = [];
   bool isLoading = false;
-  int? lastCreatedBookingId;
 
   // Booking flow selections
   final Set<int> _selectedServiceIds = {};
