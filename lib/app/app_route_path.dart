@@ -146,7 +146,7 @@ class AppRouteCatalog {
     AppRouteInfo(
       name: AppRoutes.reviewList,
       location: '/reviews',
-      title: 'Review List',
+      title: 'Danh sách đánh giá',
     ),
     AppRouteInfo(
       name: AppRoutes.reviewDetail,
@@ -156,12 +156,12 @@ class AppRouteCatalog {
     AppRouteInfo(
       name: AppRoutes.createReview,
       location: '/reviews/create',
-      title: 'Create Review',
+      title: 'Đánh giá dịch vụ',
     ),
     AppRouteInfo(
       name: AppRoutes.myReviews,
       location: '/reviews/my',
-      title: 'My Reviews',
+      title: 'Đánh giá của tôi',
     ),
     AppRouteInfo(
       name: AppRoutes.staffDashboard,
