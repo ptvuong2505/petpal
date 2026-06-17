@@ -1,19 +1,259 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
-
+import 'package:provider/provider.dart';
+import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_routes.dart';
-import '../../../shared/widgets/app_page.dart';
+import '../../../core/services/navigation_service.dart';
+import '../../auth/providers/auth_provider.dart';
+import '../models/pet.dart';
+import '../providers/pet_profile_provider.dart';
 
-class PetListPage extends StatelessWidget {
+class PetListPage extends StatefulWidget {
   const PetListPage({super.key});
 
   @override
+  State<PetListPage> createState() => _PetListPageState();
+}
+
+class _PetListPageState extends State<PetListPage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final userId = context.read<AuthProvider>().currentUser?.id;
+      if (userId != null) {
+        context.read<PetProfileProvider>().loadPets(userId);
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return const AppPage(
-      title: 'Pet List',
-      message: 'Pet List Page',
-      actions: [
-        PageAction(label: 'Add Pet', routeName: AppRoutes.addPet),
-        PageAction(label: 'Pet Detail', routeName: AppRoutes.petDetail),
+    final petProvider = context.watch<PetProfileProvider>();
+    final pets = petProvider.pets;
+
+    // Trả về nội dung trực tiếp, Scaffold và AppBar đã được AppLayout bọc ở ngoài
+    return Scaffold(
+      backgroundColor:
+          Colors.transparent, // Để màu nền đồng nhất với Layout chính
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 16),
+        child: FloatingActionButton(
+          onPressed: () => NavigationService.goTo(context, AppRoutes.addPet),
+          backgroundColor: AppColors.primaryContainer,
+          child: const Icon(Icons.add, color: AppColors.primary),
+        ),
+      ),
+      body: petProvider.isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : pets.isEmpty
+          ? _buildEmptyState()
+          : ListView.separated(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              itemCount: pets.length,
+              separatorBuilder: (context, index) => const SizedBox(height: 12),
+              itemBuilder: (context, index) {
+                final pet = pets[index];
+                return _PetCard(pet: pet);
+              },
+            ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.pets, size: 80, color: Colors.grey.withValues(alpha: 0.3)),
+          const SizedBox(height: 16),
+          const Text(
+            'Bạn chưa có thú cưng nào',
+            style: TextStyle(color: AppColors.textMuted, fontSize: 16),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PetCard extends StatelessWidget {
+  const _PetCard({required this.pet});
+
+  final Pet pet;
+
+  String _calculateAge(String? birthDate) {
+    if (birthDate == null || birthDate.isEmpty) return 'Không rõ tuổi';
+    try {
+      final birth = DateTime.parse(birthDate);
+      final now = DateTime.now();
+      int years = now.year - birth.year;
+      int months = now.month - birth.month;
+      if (months < 0) {
+        years--;
+        months += 12;
+      }
+      if (years > 0) return '$years tuổi';
+      return '$months tháng';
+    } catch (e) {
+      return 'Không rõ tuổi';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        context.read<PetProfileProvider>().selectPet(pet);
+        NavigationService.goTo(context, AppRoutes.petDetail);
+      },
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            // Avatar
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: AppColors.secondaryContainer.withValues(alpha: 0.3),
+                shape: BoxShape.circle,
+              ),
+              child: ClipOval(
+                child: pet.imagePath != null && pet.imagePath!.isNotEmpty
+                    ? Image.file(File(pet.imagePath!), fit: BoxFit.cover)
+                    : const Icon(
+                        Icons.pets,
+                        size: 40,
+                        color: AppColors.primary,
+                      ),
+              ),
+            ),
+            const SizedBox(width: 16),
+            // Info - Sử dụng Expanded để tránh lỗi tràn màn hình (Overflow)
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    pet.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textDark,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    pet.breed ?? pet.species ?? 'Chưa xác định',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: AppColors.textMuted,
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      _buildMiniInfo(
+                        Icons.cake_outlined,
+                        _calculateAge(pet.birthDate),
+                      ),
+                      const SizedBox(width: 12),
+                      _buildMiniInfo(
+                        Icons.monitor_weight_outlined,
+                        '${pet.weight ?? 0}kg',
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            // Nút xóa được đặt cố định bên phải
+            IconButton(
+              onPressed: () => _showDeleteDialog(context),
+              icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showDeleteDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Xóa thú cưng'),
+        content: Text('Bạn có chắc chắn muốn xóa bé ${pet.name} không?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text(
+              'HỦY',
+              style: TextStyle(color: AppColors.textMuted),
+            ),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(dialogContext);
+              final error = await context.read<PetProfileProvider>().deletePet(
+                pet.id!,
+                pet.userId,
+              );
+
+              if (context.mounted) {
+                if (error == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Đã xóa thú cưng'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(error), backgroundColor: Colors.red),
+                  );
+                }
+              }
+            },
+            child: const Text(
+              'XÓA',
+              style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMiniInfo(IconData icon, String label) {
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: AppColors.primary),
+        const SizedBox(width: 6),
+        Text(
+          label,
+          style: const TextStyle(fontSize: 13, color: AppColors.textDark),
+        ),
       ],
     );
   }

@@ -6,11 +6,19 @@ class PetProfileRepository {
 
   final PetProfileDao _dao;
 
-  Future<List<Pet>> getPets() {
-    return _dao.getPets();
+  Future<List<Pet>> getPets(int userId) {
+    return _dao.getPetsByUserId(userId);
   }
 
   Future<int> addPet(Pet pet) {
     return _dao.insertPet(pet);
+  }
+
+  Future<int> updatePet(Pet pet) {
+    return _dao.updatePet(pet);
+  }
+
+  Future<int> deletePet(int petId) {
+    return _dao.deletePet(petId);
   }
 }
