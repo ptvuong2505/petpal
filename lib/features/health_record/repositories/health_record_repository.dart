@@ -10,6 +10,10 @@ class HealthRecordRepository {
     return _dao.getRecords();
   }
 
+  Future<List<HealthRecord>> getRecordsByPetId(int petId) {
+    return _dao.getRecordsByPetId(petId);
+  }
+
   Future<int> addRecord(HealthRecord record) {
     return _dao.insertRecord(record);
   }
