@@ -43,3 +43,6 @@ app.*.map.json
 
 .env
 .env.*
+
+.codegraph
+devtools_options.yaml
