@@ -11,6 +11,7 @@ class AppLayout extends StatelessWidget {
     this.showBottomNav = true,
     this.constrainTitle = false,
     this.actions,
+    this.floatingActionButton,
     super.key,
   });
 
@@ -20,6 +21,7 @@ class AppLayout extends StatelessWidget {
   final bool showBottomNav;
   final bool constrainTitle;
   final List<Widget>? actions;
+  final Widget? floatingActionButton;
 
   @override
   Widget build(BuildContext context) {
@@ -69,6 +71,7 @@ class AppLayout extends StatelessWidget {
             ],
       ),
       body: Padding(padding: const EdgeInsets.all(16), child: child),
+      floatingActionButton: floatingActionButton,
       bottomNavigationBar: showBottomNav
           ? AppBottomNavigationBar(
               currentRouteName: currentRouteName ?? "Petpal",
