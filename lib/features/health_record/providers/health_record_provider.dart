@@ -22,8 +22,22 @@ class HealthRecordProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> loadRecordsByPetId(int petId) async {
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      records = await _repository.getRecordsByPetId(petId);
+    } catch (e) {
+      debugPrint('Error loading records: $e');
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
   Future<void> addRecord(HealthRecord record) async {
     await _repository.addRecord(record);
-    await loadRecords();
+    await loadRecordsByPetId(record.petId);
   }
 }
