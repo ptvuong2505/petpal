@@ -334,6 +334,7 @@ class DatabaseSeed {
       'id': 1,
       'user_id': 1,
       'pet_id': 1,
+      'staff_id': 3,
       'service_id': 1,
       'time_slot_id': 1,
       'service_name': 'Grooming',
@@ -349,6 +350,7 @@ class DatabaseSeed {
       'id': 2,
       'user_id': 1,
       'pet_id': 2,
+      'staff_id': 3,
       'service_id': 3,
       'time_slot_id': 2,
       'service_name': 'Health Check',
@@ -364,6 +366,7 @@ class DatabaseSeed {
       'id': 3,
       'user_id': 2,
       'pet_id': 3,
+      'staff_id': 3,
       'service_id': 4,
       'time_slot_id': 3,
       'service_name': 'Vaccination',
@@ -379,6 +382,7 @@ class DatabaseSeed {
       'id': 4,
       'user_id': 2,
       'pet_id': 4,
+      'staff_id': 3,
       'service_id': 5,
       'time_slot_id': 5,
       'service_name': 'Nail & Ear Cleaning',
@@ -394,6 +398,7 @@ class DatabaseSeed {
       'id': 5,
       'user_id': 5,
       'pet_id': 5,
+      'staff_id': 3,
       'service_id': 2,
       'time_slot_id': 4,
       'service_name': 'Pet Hotel',
@@ -409,6 +414,7 @@ class DatabaseSeed {
       'id': 6,
       'user_id': 1,
       'pet_id': 1,
+      'staff_id': 3,
       'service_id': 6,
       'time_slot_id': null,
       'service_name': 'Dental Care',
@@ -592,6 +598,66 @@ class DatabaseSeed {
           .toIso8601String(),
       'note': 'Khách đón pet vào cuối ngày.',
       'status': 'done',
+      'created_at': nowText,
+      'updated_at': nowText,
+    });
+
+    // =========================
+    // Staff Profile and Shifts
+    // =========================
+    await db.insert('staff_profiles', {
+      'id': 1,
+      'user_id': 3,
+      'specialty': 'Chăm sóc và khám sức khỏe thú cưng',
+      'experience_years': 5,
+      'bio': 'Phụ trách khám tổng quát, tư vấn và theo dõi sau điều trị.',
+      'certificate_names': '["Chứng chỉ chăm sóc thú y cơ bản"]',
+      'certificate_details': '["Cấp năm 2023"]',
+      'created_at': nowText,
+      'updated_at': nowText,
+    });
+
+    await db.insert('staff_shifts', {
+      'id': 1,
+      'staff_id': 3,
+      'shift_date': dateText(tomorrow),
+      'start_time': '08:00',
+      'end_time': '16:00',
+      'status': 'approved',
+      'request_type': 'assigned',
+      'source_shift_id': null,
+      'request_note': '',
+      'review_note': 'Ca trực đã được phân công.',
+      'created_at': nowText,
+      'updated_at': nowText,
+    });
+
+    await db.insert('staff_shifts', {
+      'id': 2,
+      'staff_id': 3,
+      'shift_date': dateText(nextDay),
+      'start_time': '16:00',
+      'end_time': '20:00',
+      'status': 'pending',
+      'request_type': 'register',
+      'source_shift_id': null,
+      'request_note': 'Đăng ký hỗ trợ ca chiều.',
+      'review_note': '',
+      'created_at': nowText,
+      'updated_at': nowText,
+    });
+
+    await db.insert('staff_shifts', {
+      'id': 3,
+      'staff_id': 3,
+      'shift_date': dateText(today.subtract(const Duration(days: 1))),
+      'start_time': '13:00',
+      'end_time': '17:00',
+      'status': 'rejected',
+      'request_type': 'register',
+      'source_shift_id': null,
+      'request_note': 'Đăng ký ca bổ sung.',
+      'review_note': 'Ca đã đủ nhân sự.',
       'created_at': nowText,
       'updated_at': nowText,
     });
