@@ -12,7 +12,6 @@ import '../features/booking/pages/booking_pet_page.dart';
 import '../features/booking/pages/booking_service_page.dart';
 import '../features/booking/pages/booking_time_slot_page.dart';
 import '../features/booking/pages/my_bookings_page.dart';
-import '../features/health_record/models/health_record.dart';
 import '../features/health_record/pages/health_record_detail_page.dart';
 import '../features/health_record/pages/health_record_list_page.dart';
 import '../features/home/pages/home_page.dart';
@@ -23,7 +22,6 @@ import '../features/pet_profile/pages/pet_list_page.dart';
 import '../features/reminder/pages/create_reminder_page.dart';
 import '../features/reminder/pages/edit_reminder_page.dart';
 import '../features/reminder/pages/reminder_list_page.dart';
-import '../features/review/models/review.dart';
 import '../features/review/pages/create_review_page.dart';
 import '../features/review/pages/my_reviews_page.dart';
 import '../features/review/pages/review_detail_page.dart';
@@ -34,6 +32,15 @@ import '../features/staff_examination/pages/examination_result_detail_page.dart'
 import '../features/staff_examination/pages/staff_booking_detail_page.dart';
 import '../features/staff_examination/pages/staff_booking_list_page.dart';
 import '../features/staff_examination/pages/staff_dashboard_page.dart';
+import '../features/staff_notifications/pages/staff_notifications_page.dart';
+import '../features/staff_portal/pages/staff_more_page.dart';
+import '../features/staff_pet_search/pages/staff_pet_medical_profile_page.dart';
+import '../features/staff_pet_search/pages/staff_pet_search_page.dart';
+import '../features/staff_profile/pages/edit_staff_profile_page.dart';
+import '../features/staff_profile/pages/staff_profile_page.dart';
+import '../features/staff_schedule/pages/staff_schedule_page.dart';
+import '../features/staff_schedule/pages/staff_shift_request_page.dart';
+import '../features/staff_statistics/pages/staff_statistics_page.dart';
 import '../features/time_slot/pages/create_time_slot_page.dart';
 import '../features/time_slot/pages/edit_time_slot_page.dart';
 import '../features/time_slot/pages/time_slot_management_page.dart';
@@ -94,16 +101,16 @@ class AppRouter extends RouterDelegate<AppRoutePath>
       MaterialPage(
         key: const ValueKey(AppRoutes.home),
         name: AppRoutes.home,
-        child: _buildPageWithLayout(AppRoutes.home),
+        child: _buildPageWithLayout(AppRoutePath.home()),
       ),
     ];
 
     if (!_currentPath.isHome) {
       pages.add(
         MaterialPage(
-          key: ValueKey(_currentPath.routeName),
+          key: ValueKey(_currentPath.location),
           name: _currentPath.location,
-          child: _buildPageWithLayout(_currentPath.routeName),
+          child: _buildPageWithLayout(_currentPath),
         ),
       );
     }
@@ -126,8 +133,16 @@ class AppRouter extends RouterDelegate<AppRoutePath>
   }
 
   @override
-  void goTo(String routeName, {Object? arguments}) {
-    _currentPath = AppRoutePath.byName(routeName, arguments: arguments);
+  void goTo(
+    String routeName, {
+    Object? arguments,
+    Map<String, String> queryParameters = const {},
+  }) {
+    _currentPath = AppRoutePath.byName(
+      routeName,
+      arguments: arguments,
+      queryParameters: queryParameters,
+    );
     notifyListeners();
   }
 
@@ -136,9 +151,9 @@ class AppRouter extends RouterDelegate<AppRoutePath>
     notifyListeners();
   }
 
-  Widget _buildPageWithLayout(String routeName) {
-    final page = _buildPage(routeName, _currentPath.arguments);
-    final path = AppRoutePath.byName(routeName);
+  Widget _buildPageWithLayout(AppRoutePath path) {
+    final routeName = path.routeName;
+    final page = _buildPage(path);
 
     if (AppRoutes.isAuthRoute(routeName)) {
       return page;
@@ -167,7 +182,8 @@ class AppRouter extends RouterDelegate<AppRoutePath>
     );
   }
 
-  Widget _buildPage(String routeName, [Object? arguments]) {
+  Widget _buildPage(AppRoutePath path) {
+    final routeName = path.routeName;
     switch (routeName) {
       case AppRoutes.login:
         return const LoginPage();
@@ -190,7 +206,7 @@ class AppRouter extends RouterDelegate<AppRoutePath>
       case AppRoutes.healthRecordList:
         return const HealthRecordListPage();
       case AppRoutes.healthRecordDetail:
-        return HealthRecordDetailPage(record: arguments as HealthRecord?);
+        return const HealthRecordDetailPage();
       case AppRoutes.bookingService:
         return const BookingServicePage();
       case AppRoutes.bookingPet:
@@ -214,10 +230,7 @@ class AppRouter extends RouterDelegate<AppRoutePath>
       case AppRoutes.reviewDetail:
         return const ReviewDetailPage();
       case AppRoutes.createReview:
-        if (arguments is Review) {
-          return CreateReviewPage(review: arguments);
-        }
-        return CreateReviewPage(bookingId: arguments as int?);
+        return const CreateReviewPage();
       case AppRoutes.myReviews:
         return const MyReviewsPage();
       case AppRoutes.staffDashboard:
@@ -225,11 +238,57 @@ class AppRouter extends RouterDelegate<AppRoutePath>
       case AppRoutes.staffBookingList:
         return const StaffBookingListPage();
       case AppRoutes.staffBookingDetail:
-        return const StaffBookingDetailPage();
+        final bookingId = path.bookingId;
+        if (bookingId == null) {
+          return const AppPage(
+            title: 'Staff Booking Detail',
+            message: 'Thiếu hoặc sai bookingId.',
+          );
+        }
+        return StaffBookingDetailPage(bookingId: bookingId);
       case AppRoutes.createExaminationResult:
-        return const CreateExaminationResultPage();
+        final bookingId = path.bookingId;
+        if (bookingId == null) {
+          return const AppPage(
+            title: 'Create Examination Result',
+            message: 'Thiếu hoặc sai bookingId.',
+          );
+        }
+        return CreateExaminationResultPage(bookingId: bookingId);
       case AppRoutes.examinationResultDetail:
-        return const ExaminationResultDetailPage();
+        final resultId = path.resultId;
+        if (resultId == null) {
+          return const AppPage(
+            title: 'Examination Result Detail',
+            message: 'Thiếu hoặc sai resultId.',
+          );
+        }
+        return ExaminationResultDetailPage(resultId: resultId);
+      case AppRoutes.staffSchedule:
+        return const StaffSchedulePage();
+      case AppRoutes.staffShiftRequest:
+        return const StaffShiftRequestPage();
+      case AppRoutes.staffPetSearch:
+        return const StaffPetSearchPage();
+      case AppRoutes.staffPetDetail:
+        final petId = path.petId;
+        if (petId == null) {
+          return const AppPage(
+            title: 'Pet Medical Profile',
+            message: 'Thiếu hoặc sai petId.',
+          );
+        }
+        return StaffPetMedicalProfilePage(petId: petId);
+      case AppRoutes.staffNotifications:
+        return const StaffNotificationsPage();
+      case AppRoutes.staffStatistics:
+        return const StaffStatisticsPage();
+      case AppRoutes.staffProfile:
+        return const StaffProfilePage();
+      case AppRoutes.editStaffProfile:
+        return const EditStaffProfilePage();
+      case AppRoutes.staffMore:
+        return const StaffMorePage();
       case AppRoutes.reminderList:
         return const ReminderListPage();
       case AppRoutes.createReminder:

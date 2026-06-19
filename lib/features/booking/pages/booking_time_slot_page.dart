@@ -1,10 +1,10 @@
+// file: lib/features/booking/pages/booking_time_slot_page.dart
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_routes.dart';
-import '../../../core/database/app_database.dart';
 import '../../../core/services/navigation_service.dart';
-import 'package:provider/provider.dart';
 import '../providers/booking_provider.dart';
 
 class BookingTimeSlotPage extends StatefulWidget {
@@ -16,19 +16,20 @@ class BookingTimeSlotPage extends StatefulWidget {
 
 class _BookingTimeSlotPageState extends State<BookingTimeSlotPage> {
   DateTime _selectedDate = DateTime.now();
-  List<Map<String, Object?>> _timeSlots = [];
-  int? _selectedSlotId;
-  bool _isLoading = true;
+  final bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _loadSlotsForDate(_selectedDate);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Chỉ cần cập nhật ngày để đồng bộ danh sách bận của nhân viên qua Provider
+      context.read<BookingProvider>().updateBookingDate(
+        _dateKey(_selectedDate),
+      );
+    });
   }
 
-  String _monthLabel(DateTime d) {
-    return '${_monthName(d.month)}, ${d.year}';
-  }
+  String _monthLabel(DateTime d) => '${_monthName(d.month)}, ${d.year}';
 
   String _monthName(int m) {
     const names = [
@@ -51,40 +52,14 @@ class _BookingTimeSlotPageState extends State<BookingTimeSlotPage> {
 
   String _dateKey(DateTime d) => d.toIso8601String().substring(0, 10);
 
-  Future<void> _loadSlotsForDate(DateTime date) async {
-    setState(() {
-      _isLoading = true;
-      _selectedSlotId = null;
-    });
-
-    final db = await AppDatabase.instance.database;
-    final rows = await db.query(
-      'time_slots',
-      where: 'slot_date = ?',
-      whereArgs: [_dateKey(date)],
-    );
-
-    setState(() {
-      _timeSlots = rows;
-      _isLoading = false;
-    });
-  }
-
-  void _selectSlot(int id) {
-    setState(() {
-      _selectedSlotId = id;
-    });
-    context.read<BookingProvider>().selectTimeSlot(id);
-  }
-
   void _continue() {
-    if (_selectedSlotId == null) {
+    final provider = context.read<BookingProvider>();
+    if (provider.selectedTimeSlotId == null) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Vui lòng chọn khung giờ')));
       return;
     }
-
     NavigationService.goTo(context, AppRoutes.bookingConfirm);
   }
 
@@ -97,10 +72,10 @@ class _BookingTimeSlotPageState extends State<BookingTimeSlotPage> {
     );
   }
 
-  List<Map<String, Object?>> _filterSession(String session) {
-    // session: morning(<12), afternoon(12-17), evening(>=17)
-    return _timeSlots.where((row) {
-      final start = (row['start_time'] as String?) ?? '00:00';
+  // Lọc danh sách mốc giờ mặc định theo buổi dựa trên chuỗi thời gian cứng
+  List<Map<String, dynamic>> _filterSession(String session) {
+    return BookingProvider.defaultTimeSlots.where((row) {
+      final start = row['start_time'] as String;
       final hour = int.tryParse(start.split(':').first) ?? 0;
       if (session == 'morning') return hour < 12;
       if (session == 'afternoon') return hour >= 12 && hour < 17;
@@ -112,15 +87,11 @@ class _BookingTimeSlotPageState extends State<BookingTimeSlotPage> {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final slotDay = DateTime(slotDate.year, slotDate.month, slotDate.day);
-
-    // If the slot is not today, it's not in the past
     if (slotDay != today) return false;
-
     try {
       final parts = startTime.split(':');
       final hour = int.parse(parts[0]);
       final minute = parts.length > 1 ? int.parse(parts[1]) : 0;
-
       final slotTime = DateTime(now.year, now.month, now.day, hour, minute);
       return now.isAfter(slotTime);
     } catch (_) {
@@ -128,28 +99,77 @@ class _BookingTimeSlotPageState extends State<BookingTimeSlotPage> {
     }
   }
 
-  int _availableCount(List<Map<String, Object?>> rows) {
+  int _availableCount(List<Map<String, dynamic>> rows) {
+    final provider = context.read<BookingProvider>();
     var sum = 0;
     for (final r in rows) {
-      final maxB = (r['max_booking'] as int?) ?? 1;
-      final booked = (r['booked_count'] as int?) ?? 0;
-      final startTime = (r['start_time'] as String?) ?? '';
-      final slotDate = _selectedDate;
+      final id = r['id'] as int;
+      final startTime = r['start_time'] as String;
 
-      final status = (r['status'] as String?) == 'available';
-      final hasSpace = booked < maxB;
-      final notPassed = !_isTimePassed(startTime, slotDate);
+      final notPassed = !_isTimePassed(startTime, _selectedDate);
+      final isSlotDisabledByStaff = provider.busySlotIds.contains(id);
 
-      if (status && hasSpace && notPassed) {
-        sum += (maxB - booked);
+      if (notPassed && !isSlotDisabledByStaff) {
+        sum += 1; // Mỗi ô giờ mặc định đại diện cho 1 slot trống khả dụng
       }
     }
     return sum;
   }
 
+  Widget _buildStaffSelector() {
+    final provider = context.watch<BookingProvider>();
+    if (provider.allStaff.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Chọn Nhân viên / Kỹ thuật viên (Tùy chọn)',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        ),
+        const SizedBox(height: 10),
+        SizedBox(
+          height: 44,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemCount: provider.allStaff.length,
+            separatorBuilder: (_, _) => const SizedBox(width: 10),
+            itemBuilder: (context, index) {
+              final staff = provider.allStaff[index];
+              final staffId = staff['id'] as int;
+              final staffName = staff['full_name'] as String;
+              final isStaffDisabled = provider.busyStaffIds.contains(staffId);
+              final isSelected = provider.selectedStaffId == staffId;
+
+              return ChoiceChip(
+                label: Text(staffName),
+                selected: isSelected,
+                onSelected: isStaffDisabled
+                    ? null
+                    : (selected) {
+                        provider.selectStaff(selected ? staffId : null);
+                      },
+                selectedColor: AppColors.primaryContainer,
+                disabledColor: Colors.grey.shade200,
+                labelStyle: TextStyle(
+                  color: isStaffDisabled
+                      ? Colors.grey.shade400
+                      : (isSelected ? AppColors.primary : AppColors.textDark),
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                ),
+              );
+            },
+          ),
+        ),
+        const Divider(height: 32, thickness: 1),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final dates = _buildDateList();
+    final provider = context.watch<BookingProvider>();
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -166,7 +186,6 @@ class _BookingTimeSlotPageState extends State<BookingTimeSlotPage> {
                     ? const Center(child: CircularProgressIndicator())
                     : ListView(
                         children: [
-                          // Month label
                           Text(
                             _monthLabel(_selectedDate),
                             style: const TextStyle(
@@ -176,8 +195,6 @@ class _BookingTimeSlotPageState extends State<BookingTimeSlotPage> {
                             ),
                           ),
                           const SizedBox(height: 12),
-
-                          // Date selector
                           SizedBox(
                             height: 92,
                             child: ListView.separated(
@@ -204,7 +221,9 @@ class _BookingTimeSlotPageState extends State<BookingTimeSlotPage> {
                                     setState(() {
                                       _selectedDate = d;
                                     });
-                                    _loadSlotsForDate(d);
+                                    context
+                                        .read<BookingProvider>()
+                                        .updateBookingDate(_dateKey(d));
                                   },
                                   child: Container(
                                     width: 64,
@@ -219,17 +238,6 @@ class _BookingTimeSlotPageState extends State<BookingTimeSlotPage> {
                                           : Border.all(
                                               color: const Color(0xFFBFC9C3),
                                             ),
-                                      boxShadow: isSelected
-                                          ? [
-                                              BoxShadow(
-                                                color: Colors.black.withValues(
-                                                  alpha: 0.05,
-                                                ),
-                                                blurRadius: 12,
-                                                offset: const Offset(0, 4),
-                                              ),
-                                            ]
-                                          : null,
                                     ),
                                     child: Column(
                                       mainAxisAlignment:
@@ -265,10 +273,10 @@ class _BookingTimeSlotPageState extends State<BookingTimeSlotPage> {
                               },
                             ),
                           ),
-
                           const SizedBox(height: 20),
 
-                          // Sessions
+                          _buildStaffSelector(),
+
                           _sessionSection(
                             'Buổi sáng',
                             _filterSession('morning'),
@@ -284,80 +292,48 @@ class _BookingTimeSlotPageState extends State<BookingTimeSlotPage> {
                             _filterSession('evening'),
                           ),
                           const SizedBox(height: 28),
-
-                          // Legend
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              _legendItem(AppColors.surface, 'Trống'),
-                              const SizedBox(width: 16),
-                              _legendItem(AppColors.primary, 'Đã chọn'),
-                              const SizedBox(width: 16),
-                              _legendItem(AppColors.surface, 'Kín', dim: true),
-                            ],
-                          ),
-                          const SizedBox(height: 28),
                         ],
                       ),
               ),
             ),
-
-            // Bottom action
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Color(0x0A000000),
-                    blurRadius: 12,
-                    offset: Offset(0, -4),
-                  ),
-                ],
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
+              decoration: const BoxDecoration(color: Colors.white),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Thời gian đã chọn',
-                            style: TextStyle(
-                              color: AppColors.textMuted,
-                              fontSize: 12,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            _selectedSlotId == null
-                                ? 'Chưa chọn'
-                                : _slotSummary(_selectedSlotId!),
-                            style: const TextStyle(fontWeight: FontWeight.w600),
-                          ),
-                        ],
+                      const Text(
+                        'Thời gian đã chọn',
+                        style: TextStyle(
+                          color: AppColors.textMuted,
+                          fontSize: 12,
+                        ),
                       ),
-                      ElevatedButton(
-                        onPressed: _continue,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primaryContainer,
-                          foregroundColor: AppColors.primary,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(999),
-                          ),
-                        ),
-                        child: Row(
-                          children: const [
-                            Text('Tiếp tục'),
-                            SizedBox(width: 8),
-                            Icon(Icons.arrow_forward, size: 18),
-                          ],
-                        ),
+                      const SizedBox(height: 4),
+                      Text(
+                        provider.selectedTimeSlotId == null
+                            ? 'Chưa chọn'
+                            : _slotSummary(provider.selectedTimeSlotId!),
+                        style: const TextStyle(fontWeight: FontWeight.w600),
                       ),
                     ],
+                  ),
+                  ElevatedButton(
+                    onPressed: _continue,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primaryContainer,
+                      foregroundColor: AppColors.primary,
+                    ),
+                    child: Row(
+                      children: const [
+                        Text('Tiếp tục'),
+                        SizedBox(width: 8),
+                        Icon(Icons.arrow_forward, size: 18),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -368,7 +344,8 @@ class _BookingTimeSlotPageState extends State<BookingTimeSlotPage> {
     );
   }
 
-  Widget _sessionSection(String title, List<Map<String, Object?>> rows) {
+  Widget _sessionSection(String title, List<Map<String, dynamic>> rows) {
+    final provider = context.watch<BookingProvider>();
     final avail = _availableCount(rows);
 
     return Column(
@@ -400,43 +377,33 @@ class _BookingTimeSlotPageState extends State<BookingTimeSlotPage> {
           ),
           itemBuilder: (context, index) {
             final row = rows[index];
-            final id = (row['id'] as int?) ?? 0;
-            final start = (row['start_time'] as String?) ?? '';
-            final maxB = (row['max_booking'] as int?) ?? 1;
-            final booked = (row['booked_count'] as int?) ?? 0;
-            final status = (row['status'] as String?) ?? 'available';
+            final id = row['id'] as int;
+            final start = row['start_time'] as String;
             final isPassed = _isTimePassed(start, _selectedDate);
-            final available =
-                status == 'available' && booked < maxB && !isPassed;
 
-            final isSelected = _selectedSlotId == id;
+            // Loại trừ chéo từ chuỗi giờ bận của nhân viên (Tính từ BookingProvider)
+            final isSlotDisabledByStaff = provider.busySlotIds.contains(id);
+
+            final available = !isPassed && !isSlotDisabledByStaff;
+            final isSelected = provider.selectedTimeSlotId == id;
 
             return ElevatedButton(
-              onPressed: available ? () => _selectSlot(id) : null,
+              onPressed: available ? () => provider.selectTimeSlot(id) : null,
               style: ElevatedButton.styleFrom(
                 backgroundColor: isSelected
                     ? AppColors.primary
-                    : (available
-                          ? AppColors.surface
-                          : AppColors.surface.withValues(alpha: 0.9)),
-                foregroundColor: isSelected ? Colors.white : AppColors.textDark,
-                elevation: isSelected ? 6 : 0,
+                    : (available ? AppColors.surface : Colors.grey.shade200),
+                foregroundColor: isSelected
+                    ? Colors.white
+                    : (available ? AppColors.textDark : Colors.grey.shade400),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
-                ),
-                side: BorderSide(
-                  color: available
-                      ? AppColors.primaryContainer
-                      : Colors.transparent,
                 ),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  if (isSelected)
-                    const Icon(Icons.check, size: 16)
-                  else
-                    const SizedBox.shrink(),
+                  if (isSelected) const Icon(Icons.check, size: 16),
                   Text(
                     start,
                     style: const TextStyle(fontWeight: FontWeight.w600),
@@ -451,13 +418,13 @@ class _BookingTimeSlotPageState extends State<BookingTimeSlotPage> {
   }
 
   String _slotSummary(int slotId) {
-    final row = _timeSlots.firstWhere(
-      (r) => (r['id'] as int?) == slotId,
+    final row = BookingProvider.defaultTimeSlots.firstWhere(
+      (r) => (r['id'] as int) == slotId,
       orElse: () => {},
     );
     if (row.isEmpty) return 'Không xác định';
-    final time = row['start_time'] as String? ?? '';
-    final date = row['slot_date'] as String? ?? _dateKey(_selectedDate);
+    final time = row['start_time'] as String;
+    final date = _dateKey(_selectedDate);
     return '$time, ${_formatDateLabel(date)}';
   }
 
@@ -468,28 +435,5 @@ class _BookingTimeSlotPageState extends State<BookingTimeSlotPage> {
     } catch (_) {
       return dateIso;
     }
-  }
-
-  Widget _legendItem(Color color, String label, {bool dim = false}) {
-    return Row(
-      children: [
-        Container(
-          width: 14,
-          height: 14,
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(4),
-            border: Border.all(
-              color: dim ? const Color(0xFFBFC9C3) : Colors.transparent,
-            ),
-          ),
-        ),
-        const SizedBox(width: 6),
-        Text(
-          label,
-          style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
-        ),
-      ],
-    );
   }
 }

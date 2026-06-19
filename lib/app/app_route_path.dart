@@ -6,28 +6,48 @@ class AppRoutePath {
     required this.location,
     required this.pageTitle,
     this.arguments,
+    this.queryParameters = const {},
   });
 
   factory AppRoutePath.home() {
     return AppRoutePath.byName(AppRoutes.home);
   }
 
-  factory AppRoutePath.byName(String routeName, {Object? arguments}) {
+  factory AppRoutePath.byName(
+    String routeName, {
+    Object? arguments,
+    Map<String, String> queryParameters = const {},
+  }) {
     final route = AppRouteCatalog.findByName(routeName);
+    final copiedQueryParameters = Map<String, String>.unmodifiable(
+      Map<String, String>.of(queryParameters),
+    );
+    final uri = Uri(
+      path: route.location,
+      queryParameters: copiedQueryParameters.isEmpty
+          ? null
+          : copiedQueryParameters,
+    );
     return AppRoutePath._(
       routeName: route.name,
-      location: route.location,
+      location: uri.toString(),
       pageTitle: route.title,
       arguments: arguments,
+      queryParameters: copiedQueryParameters,
     );
   }
 
   factory AppRoutePath.byLocation(String location) {
-    final route = AppRouteCatalog.findByLocation(location);
+    final uri = Uri.parse(location);
+    final route = AppRouteCatalog.findByLocation(uri.path);
+    final queryParameters = Map<String, String>.unmodifiable(
+      Map<String, String>.of(uri.queryParameters),
+    );
     return AppRoutePath._(
       routeName: route.name,
-      location: route.location,
+      location: route.name == AppRoutes.home ? route.location : uri.toString(),
       pageTitle: route.title,
+      queryParameters: queryParameters,
     );
   }
 
@@ -35,8 +55,13 @@ class AppRoutePath {
   final String location;
   final String pageTitle;
   final Object? arguments;
+  final Map<String, String> queryParameters;
 
   bool get isHome => routeName == AppRoutes.home;
+
+  int? get bookingId => int.tryParse(queryParameters['bookingId'] ?? '');
+  int? get resultId => int.tryParse(queryParameters['resultId'] ?? '');
+  int? get petId => int.tryParse(queryParameters['petId'] ?? '');
 }
 
 class AppRouteInfo {
@@ -168,7 +193,7 @@ class AppRouteCatalog {
     ),
     AppRouteInfo(
       name: AppRoutes.staffDashboard,
-      location: '/staff',
+      location: '/staff/dashboard',
       title: 'Staff Dashboard',
     ),
     AppRouteInfo(
@@ -188,8 +213,53 @@ class AppRouteCatalog {
     ),
     AppRouteInfo(
       name: AppRoutes.examinationResultDetail,
-      location: '/staff/examination-results/detail',
+      location: '/staff/examination/result',
       title: 'Examination Result Detail',
+    ),
+    AppRouteInfo(
+      name: AppRoutes.staffSchedule,
+      location: '/staff/schedule',
+      title: 'Staff Schedule',
+    ),
+    AppRouteInfo(
+      name: AppRoutes.staffShiftRequest,
+      location: '/staff/schedule/request',
+      title: 'Shift Request',
+    ),
+    AppRouteInfo(
+      name: AppRoutes.staffPetSearch,
+      location: '/staff/pets/search',
+      title: 'Pet Search',
+    ),
+    AppRouteInfo(
+      name: AppRoutes.staffPetDetail,
+      location: '/staff/pets/detail',
+      title: 'Pet Medical Profile',
+    ),
+    AppRouteInfo(
+      name: AppRoutes.staffNotifications,
+      location: '/staff/notifications',
+      title: 'Staff Notifications',
+    ),
+    AppRouteInfo(
+      name: AppRoutes.staffStatistics,
+      location: '/staff/statistics',
+      title: 'Staff Statistics',
+    ),
+    AppRouteInfo(
+      name: AppRoutes.staffProfile,
+      location: '/staff/profile',
+      title: 'Staff Profile',
+    ),
+    AppRouteInfo(
+      name: AppRoutes.editStaffProfile,
+      location: '/staff/profile/edit',
+      title: 'Edit Staff Profile',
+    ),
+    AppRouteInfo(
+      name: AppRoutes.staffMore,
+      location: '/staff/more',
+      title: 'More',
     ),
     AppRouteInfo(
       name: AppRoutes.reminderList,
