@@ -12,6 +12,7 @@ import '../features/booking/pages/booking_pet_page.dart';
 import '../features/booking/pages/booking_service_page.dart';
 import '../features/booking/pages/booking_time_slot_page.dart';
 import '../features/booking/pages/my_bookings_page.dart';
+import '../features/health_record/models/health_record.dart';
 import '../features/health_record/pages/health_record_detail_page.dart';
 import '../features/health_record/pages/health_record_list_page.dart';
 import '../features/home/pages/home_page.dart';
@@ -189,7 +190,7 @@ class AppRouter extends RouterDelegate<AppRoutePath>
       case AppRoutes.healthRecordList:
         return const HealthRecordListPage();
       case AppRoutes.healthRecordDetail:
-        return const HealthRecordDetailPage();
+        return HealthRecordDetailPage(record: arguments as HealthRecord?);
       case AppRoutes.bookingService:
         return const BookingServicePage();
       case AppRoutes.bookingPet:

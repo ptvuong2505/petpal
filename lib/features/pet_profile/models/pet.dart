@@ -60,4 +60,34 @@ class Pet {
       updatedAt: map['updated_at'] as String?,
     );
   }
+
+  Pet copyWith({
+    int? id,
+    int? userId,
+    String? name,
+    String? species,
+    String? breed,
+    String? gender,
+    String? birthDate,
+    double? weight,
+    String? imagePath,
+    String? note,
+    String? createdAt,
+    String? updatedAt,
+  }) {
+    return Pet(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      name: name ?? this.name,
+      species: species ?? this.species,
+      breed: breed ?? this.breed,
+      gender: gender ?? this.gender,
+      birthDate: birthDate ?? this.birthDate,
+      weight: weight ?? this.weight,
+      imagePath: imagePath ?? this.imagePath,
+      note: note ?? this.note,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
 }
