@@ -32,9 +32,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<AdminDashboardProvider>();
-    final summary =
-        provider.summary ??
-        const DashboardSummary(totalPets: 0, totalBookings: 0, totalReviews: 0);
+    final summary = provider.summary ?? DashboardSummary.empty;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -71,9 +69,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                     const SizedBox(height: 20),
                     _SummaryGrid(summary: summary),
                     const SizedBox(height: 20),
-                    const _SectionCard(
+                    _SectionCard(
                       title: 'Booking theo ngày',
-                      child: _BookingChart(),
+                      child: _BookingChart(items: summary.dailyBookings),
                     ),
                     const SizedBox(height: 20),
                     LayoutBuilder(
@@ -86,32 +84,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                               label: 'View All',
                               routeName: AppRoutes.timeSlotManagement,
                             ),
-                            child: Column(
-                              children: const [
-                                _BookingItem(
-                                  icon: Icons.content_cut,
-                                  title: 'Grooming - Milo',
-                                  subtitle: 'Hôm nay, 08:00',
-                                  status: 'Confirmed',
-                                  statusColor: AppColors.primaryContainer,
-                                ),
-                                SizedBox(height: 8),
-                                _BookingItem(
-                                  icon: Icons.medical_services,
-                                  title: 'Health Check - Mimi',
-                                  subtitle: 'Hôm nay, 09:00',
-                                  status: 'Completed',
-                                  statusColor: AppColors.secondaryContainer,
-                                ),
-                                SizedBox(height: 8),
-                                _BookingItem(
-                                  icon: Icons.vaccines,
-                                  title: 'Vaccination - Lucky',
-                                  subtitle: 'Hôm nay, 10:00',
-                                  status: 'Pending',
-                                  statusColor: AppColors.tertiaryContainer,
-                                ),
-                              ],
+                            child: _RecentBookingsList(
+                              bookings: summary.recentBookings,
                             ),
                           ),
                           _SectionCard(
@@ -120,24 +94,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                               label: 'Manage',
                               routeName: AppRoutes.reviewList,
                             ),
-                            child: Column(
-                              children: const [
-                                _ReviewItem(
-                                  name: 'Sarah J.',
-                                  time: '2h ago',
-                                  rating: 5,
-                                  comment:
-                                      'Dịch vụ rất tốt, nhân viên chăm sóc pet kỹ và đúng giờ.',
-                                ),
-                                SizedBox(height: 8),
-                                _ReviewItem(
-                                  name: 'Mike T.',
-                                  time: '1d ago',
-                                  rating: 4,
-                                  comment:
-                                      'Grooming ổn, chỉ hơi trễ lịch bắt đầu một chút.',
-                                ),
-                              ],
+                            child: _RecentReviewsList(
+                              reviews: summary.recentReviews,
                             ),
                           ),
                         ];
@@ -185,29 +143,29 @@ class _SummaryGrid extends StatelessWidget {
         label: 'Tổng Pet',
         value: summary.totalPets.toString(),
         icon: Icons.pets,
-        trend: '+5%',
+        trend: 'Từ database',
         trendColor: AppColors.primary,
       ),
       _StatItem(
         label: 'Tổng Booking',
         value: summary.totalBookings.toString(),
         icon: Icons.calendar_month,
-        trend: '+12%',
+        trend: 'Từ database',
         trendColor: AppColors.primary,
       ),
       _StatItem(
         label: 'Tổng Review',
         value: summary.totalReviews.toString(),
         icon: Icons.rate_review,
-        trend: '+4%',
+        trend: 'Từ database',
         trendColor: AppColors.primary,
       ),
-      const _StatItem(
+      _StatItem(
         label: 'Tác vụ',
-        value: '3',
+        value: summary.openTasks.toString(),
         icon: Icons.dashboard_customize,
-        trend: 'Admin',
-        trendColor: AppColors.textMuted,
+        trend: 'Cần xử lý',
+        trendColor: AppColors.primary,
       ),
     ];
 
@@ -388,13 +346,17 @@ class _SectionCard extends StatelessWidget {
 }
 
 class _BookingChart extends StatelessWidget {
-  const _BookingChart();
+  const _BookingChart({required this.items});
 
-  static const _bars = [0.40, 0.60, 0.45, 0.80, 0.95, 0.70, 0.50];
-  static const _labels = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
+  final List<DailyBookingCount> items;
 
   @override
   Widget build(BuildContext context) {
+    final maxCount = items.fold<int>(
+      0,
+      (max, item) => item.count > max ? item.count : max,
+    );
+
     return Column(
       children: [
         Container(
@@ -407,10 +369,10 @@ class _BookingChart extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              for (var index = 0; index < _bars.length; index++) ...[
+              for (var index = 0; index < items.length; index++) ...[
                 Expanded(
                   child: FractionallySizedBox(
-                    heightFactor: _bars[index],
+                    heightFactor: _heightFactor(items[index].count, maxCount),
                     alignment: Alignment.bottomCenter,
                     child: Container(
                       decoration: BoxDecoration(
@@ -435,7 +397,7 @@ class _BookingChart extends StatelessWidget {
                     ),
                   ),
                 ),
-                if (index != _bars.length - 1) const SizedBox(width: 6),
+                if (index != items.length - 1) const SizedBox(width: 6),
               ],
             ],
           ),
@@ -443,21 +405,219 @@ class _BookingChart extends StatelessWidget {
         const SizedBox(height: 8),
         Row(
           children: [
-            for (var index = 0; index < _labels.length; index++)
+            for (var index = 0; index < items.length; index++)
               Expanded(
                 child: Text(
-                  _labels[index],
+                  _weekdayLabel(items[index].date),
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: index == 4 ? AppColors.primary : AppColors.subText,
+                    color: _isToday(items[index].date)
+                        ? AppColors.primary
+                        : AppColors.subText,
                     fontSize: 12,
-                    fontWeight: index == 4 ? FontWeight.w700 : FontWeight.w500,
+                    fontWeight: _isToday(items[index].date)
+                        ? FontWeight.w700
+                        : FontWeight.w500,
                   ),
                 ),
               ),
           ],
         ),
       ],
+    );
+  }
+
+  double _heightFactor(int count, int maxCount) {
+    if (maxCount == 0) {
+      return 0.08;
+    }
+    return (count / maxCount).clamp(0.08, 1.0).toDouble();
+  }
+
+  bool _isToday(DateTime date) {
+    final today = DateTime.now();
+    return date.year == today.year &&
+        date.month == today.month &&
+        date.day == today.day;
+  }
+
+  String _weekdayLabel(DateTime date) {
+    switch (date.weekday) {
+      case DateTime.monday:
+        return 'T2';
+      case DateTime.tuesday:
+        return 'T3';
+      case DateTime.wednesday:
+        return 'T4';
+      case DateTime.thursday:
+        return 'T5';
+      case DateTime.friday:
+        return 'T6';
+      case DateTime.saturday:
+        return 'T7';
+      default:
+        return 'CN';
+    }
+  }
+}
+
+class _RecentBookingsList extends StatelessWidget {
+  const _RecentBookingsList({required this.bookings});
+
+  final List<RecentBooking> bookings;
+
+  @override
+  Widget build(BuildContext context) {
+    if (bookings.isEmpty) {
+      return const _EmptyDashboardMessage(message: 'Chưa có booking nào.');
+    }
+
+    return Column(
+      children: [
+        for (var index = 0; index < bookings.length; index++) ...[
+          _BookingItem(
+            icon: _serviceIcon(bookings[index].serviceName),
+            title:
+                '${bookings[index].serviceName} - ${bookings[index].petName}',
+            subtitle: _bookingSubtitle(bookings[index]),
+            status: _statusLabel(bookings[index].status),
+            statusColor: _statusColor(bookings[index].status),
+          ),
+          if (index != bookings.length - 1) const SizedBox(height: 8),
+        ],
+      ],
+    );
+  }
+
+  IconData _serviceIcon(String serviceName) {
+    final value = serviceName.toLowerCase();
+    if (value.contains('health') || value.contains('khám')) {
+      return Icons.medical_services;
+    }
+    if (value.contains('vaccin') || value.contains('tiêm')) {
+      return Icons.vaccines;
+    }
+    if (value.contains('hotel') || value.contains('lưu trú')) {
+      return Icons.home_work;
+    }
+    if (value.contains('dental') || value.contains('răng')) {
+      return Icons.health_and_safety;
+    }
+    return Icons.content_cut;
+  }
+
+  String _bookingSubtitle(RecentBooking booking) {
+    final date = _formatDate(booking.bookingDate);
+    final time = booking.startTime;
+    if (time == null || time.isEmpty) {
+      return date;
+    }
+    return '$date, $time';
+  }
+
+  String _formatDate(String value) {
+    final date = DateTime.tryParse(value);
+    if (date == null) {
+      return value.isEmpty ? 'Chưa có ngày' : value;
+    }
+    final day = date.day.toString().padLeft(2, '0');
+    final month = date.month.toString().padLeft(2, '0');
+    return '$day/$month/${date.year}';
+  }
+
+  String _statusLabel(String status) {
+    switch (status) {
+      case 'confirmed':
+        return 'Confirmed';
+      case 'completed':
+        return 'Completed';
+      case 'cancelled':
+        return 'Cancelled';
+      case 'pending':
+      default:
+        return 'Pending';
+    }
+  }
+
+  Color _statusColor(String status) {
+    switch (status) {
+      case 'confirmed':
+        return AppColors.primaryContainer;
+      case 'completed':
+        return AppColors.secondaryContainer;
+      case 'cancelled':
+        return const Color(0xFFFEE2E2);
+      case 'pending':
+      default:
+        return AppColors.tertiaryContainer;
+    }
+  }
+}
+
+class _RecentReviewsList extends StatelessWidget {
+  const _RecentReviewsList({required this.reviews});
+
+  final List<RecentReview> reviews;
+
+  @override
+  Widget build(BuildContext context) {
+    if (reviews.isEmpty) {
+      return const _EmptyDashboardMessage(message: 'Chưa có review nào.');
+    }
+
+    return Column(
+      children: [
+        for (var index = 0; index < reviews.length; index++) ...[
+          _ReviewItem(
+            name: reviews[index].customerName,
+            time: _relativeTime(reviews[index].createdAt),
+            rating: reviews[index].rating,
+            comment: reviews[index].comment,
+          ),
+          if (index != reviews.length - 1) const SizedBox(height: 8),
+        ],
+      ],
+    );
+  }
+
+  String _relativeTime(DateTime? value) {
+    if (value == null) {
+      return '';
+    }
+
+    final difference = DateTime.now().difference(value);
+    if (difference.inMinutes < 1) {
+      return 'Vừa xong';
+    }
+    if (difference.inHours < 1) {
+      return '${difference.inMinutes}m ago';
+    }
+    if (difference.inDays < 1) {
+      return '${difference.inHours}h ago';
+    }
+    return '${difference.inDays}d ago';
+  }
+}
+
+class _EmptyDashboardMessage extends StatelessWidget {
+  const _EmptyDashboardMessage({required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF5F3F3),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        message,
+        textAlign: TextAlign.center,
+        style: const TextStyle(color: AppColors.subText, fontSize: 13),
+      ),
     );
   }
 }
