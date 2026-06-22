@@ -1,5 +1,5 @@
+// file: lib/features/booking/data/booking_dao.dart
 import 'package:sqflite/sqflite.dart';
-
 import '../../../core/database/app_database.dart';
 import '../models/booking.dart';
 
@@ -8,6 +8,57 @@ class BookingDao {
     : _database = database ?? AppDatabase.instance;
 
   final AppDatabase _database;
+
+  // Lấy toàn bộ danh sách nhân viên để hiển thị trên UI
+  Future<List<Map<String, Object?>>> getAllStaff() async {
+    final db = await _database.database;
+    return db.query('users', where: 'role = ?', whereArgs: ['staff']);
+  }
+
+  // CHIỀU 1: Lấy danh sách ID nhân viên đã bị khóa hoặc đặt lịch tại một hoặc nhiều mốc thời gian
+  Future<List<int>> getBusyStaffIds({
+    required String date,
+    required List<String> startTimes,
+  }) async {
+    if (startTimes.isEmpty) return [];
+    final db = await _database.database;
+
+    final placeholders = List.filled(startTimes.length, '?').join(', ');
+    final List<Map<String, Object?>> rows = await db.rawQuery(
+      '''
+      SELECT DISTINCT ssa.staff_id 
+      FROM staff_slot_assignments ssa
+      INNER JOIN time_slots ts ON ssa.time_slot_id = ts.id
+      WHERE ssa.assignment_date = ? 
+        AND ts.start_time IN ($placeholders)
+        AND (ssa.status = 'booked' OR ssa.booking_id IS NOT NULL)
+    ''',
+      [date, ...startTimes],
+    );
+
+    return rows.map((row) => row['staff_id'] as int).toList();
+  }
+
+  // CHIỀU 2: Lấy danh sách các mốc giờ (start_time) mà nhân viên đã bận thực tế trong DB
+  Future<List<String>> getBusyStartTimesForStaff({
+    required String date,
+    required int staffId,
+  }) async {
+    final db = await _database.database;
+    final List<Map<String, Object?>> rows = await db.rawQuery(
+      '''
+      SELECT ts.start_time 
+      FROM staff_slot_assignments ssa
+      INNER JOIN time_slots ts ON ssa.time_slot_id = ts.id
+      WHERE ssa.assignment_date = ? 
+        AND ssa.staff_id = ? 
+        AND (ssa.status = 'booked' OR ssa.booking_id IS NOT NULL)
+    ''',
+      [date, staffId],
+    );
+
+    return rows.map((row) => row['start_time'] as String).toList();
+  }
 
   Future<List<Booking>> getBookings() async {
     final db = await _database.database;

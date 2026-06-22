@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_routes.dart';
 import '../../../core/services/navigation_service.dart';
+import '../../booking/providers/booking_provider.dart';
 
 class AppHomePage extends StatelessWidget {
   const AppHomePage({super.key});
@@ -205,7 +207,12 @@ class AppHomePage extends StatelessWidget {
         final service = services[index];
 
         return InkWell(
-          onTap: () => NavigationService.goTo(context, service.routeName),
+          onTap: () {
+            if (service.routeName == AppRoutes.bookingService) {
+              context.read<BookingProvider>().resetBookingFlow();
+            }
+            NavigationService.goTo(context, service.routeName);
+          },
           borderRadius: BorderRadius.circular(16),
           child: Column(
             children: [
@@ -240,8 +247,10 @@ class AppHomePage extends StatelessWidget {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton.icon(
-        onPressed: () =>
-            NavigationService.goTo(context, AppRoutes.bookingService),
+        onPressed: () {
+          context.read<BookingProvider>().resetBookingFlow();
+          NavigationService.goTo(context, AppRoutes.bookingService);
+        },
         icon: const Icon(Icons.calendar_month),
         label: const Text('Đặt lịch ngay'),
         style: ElevatedButton.styleFrom(

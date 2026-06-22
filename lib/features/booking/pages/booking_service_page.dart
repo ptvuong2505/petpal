@@ -19,22 +19,8 @@ class _BookingServicePageState extends State<BookingServicePage> {
   List<_ServiceItem> _services = [];
   bool _isLoading = true;
 
-  final Set<String> _selected = {};
-
-  void _toggle(String id) {
-    setState(() {
-      if (_selected.contains(id)) {
-        _selected.remove(id);
-      } else {
-        _selected.add(id);
-      }
-    });
-
-    // update provider
-    final serviceId = int.tryParse(id);
-    if (serviceId != null) {
-      context.read<BookingProvider>().toggleService(serviceId);
-    }
+  void _toggle(int serviceId) {
+    context.read<BookingProvider>().toggleService(serviceId);
   }
 
   @override
@@ -83,7 +69,7 @@ class _BookingServicePageState extends State<BookingServicePage> {
       }
 
       return _ServiceItem(
-        id: '${s.id}',
+        id: s.id ?? 0,
         title: s.name,
         description: s.description ?? '',
         priceLabel: s.price > 0 ? 'Từ ${s.price.toInt()}đ' : 'Liên hệ',
@@ -99,7 +85,8 @@ class _BookingServicePageState extends State<BookingServicePage> {
   }
 
   void _continue() {
-    if (_selected.isEmpty) {
+    final selectedIds = context.read<BookingProvider>().selectedServiceIds;
+    if (selectedIds.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Vui lòng chọn ít nhất một dịch vụ')),
       );
@@ -113,6 +100,9 @@ class _BookingServicePageState extends State<BookingServicePage> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final selectedServiceIds = context
+        .watch<BookingProvider>()
+        .selectedServiceIds;
 
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
@@ -138,7 +128,7 @@ class _BookingServicePageState extends State<BookingServicePage> {
             itemCount: _services.length,
             itemBuilder: (context, index) {
               final s = _services[index];
-              final selected = _selected.contains(s.id);
+              final selected = selectedServiceIds.contains(s.id);
 
               return GestureDetector(
                 onTap: () => _toggle(s.id),
@@ -265,7 +255,7 @@ class _ServiceItem {
     required this.bgColor,
   });
 
-  final String id;
+  final int id;
   final String title;
   final String description;
   final String priceLabel;

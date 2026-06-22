@@ -12,7 +12,7 @@ class AppRouteParser extends RouteInformationParser<AppRoutePath> {
       return AppRoutePath.home();
     }
 
-    return AppRoutePath.byLocation('/${uri.pathSegments.join('/')}');
+    return AppRoutePath.byLocation(uri.toString());
   }
 
   @override

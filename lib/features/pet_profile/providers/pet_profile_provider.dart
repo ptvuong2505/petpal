@@ -10,20 +10,86 @@ class PetProfileProvider extends ChangeNotifier {
   final PetProfileRepository _repository;
 
   List<Pet> pets = [];
+  Pet? selectedPet;
   bool isLoading = false;
 
-  Future<void> loadPets() async {
-    isLoading = true;
-    notifyListeners();
-
-    pets = await _repository.getPets();
-
-    isLoading = false;
+  void selectPet(Pet pet) {
+    selectedPet = pet;
     notifyListeners();
   }
 
-  Future<void> addPet(Pet pet) async {
-    await _repository.addPet(pet);
-    await loadPets();
+  Future<void> loadPets(int userId) async {
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      pets = await _repository.getPets(userId);
+    } catch (e) {
+      debugPrint('Error loading pets: $e');
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<String?> addPet(Pet pet) async {
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      final id = await _repository.addPet(pet);
+      if (id > 0) {
+        await loadPets(pet.userId);
+        return null; // Success
+      }
+      return 'Không thể thêm thú cưng';
+    } catch (e) {
+      debugPrint('Error adding pet: $e');
+      return 'Có lỗi xảy ra: $e';
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<String?> updatePet(Pet pet) async {
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      final rowsAffected = await _repository.updatePet(pet);
+      if (rowsAffected > 0) {
+        await loadPets(pet.userId);
+        selectedPet = pet; // Cập nhật pet đang chọn
+        return null; // Success
+      }
+      return 'Không thể cập nhật thông tin thú cưng';
+    } catch (e) {
+      debugPrint('Error updating pet: $e');
+      return 'Có lỗi xảy ra: $e';
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<String?> deletePet(int petId, int userId) async {
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      final rowsAffected = await _repository.deletePet(petId);
+      if (rowsAffected > 0) {
+        await loadPets(userId);
+        return null;
+      }
+      return 'Không thể xóa thú cưng';
+    } catch (e) {
+      debugPrint('Error deleting pet: $e');
+      return 'Có lỗi xảy ra khi xóa: $e';
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
   }
 }
