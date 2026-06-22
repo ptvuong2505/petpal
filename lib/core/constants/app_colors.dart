@@ -7,6 +7,10 @@ class AppColors {
   static const Color tertiaryContainer = Color(0xFFFDD1B4);
   static const Color background = Color(0xFFFBF9F8);
   static const Color surface = Colors.white;
+  static const Color surfaceContainerLow = Color(0xFFF5F3F3);
+  static const Color surfaceVariant = Color(0xFFE4E2E2);
+  static const Color errorContainer = Color(0xFFFEE2E2);
+  static const Color onPrimary = Colors.white;
   static const Color text = Color(0xFF1B1C1C);
   static const Color subText = Color(0xFF404945);
   static const Color textDark = Color(0xFF1B1C1C);

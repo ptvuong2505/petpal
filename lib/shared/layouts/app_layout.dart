@@ -70,7 +70,11 @@ class AppLayout extends StatelessWidget {
               ),
             ],
       ),
-      body: Padding(padding: const EdgeInsets.all(16), child: child),
+      body: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+        child: Padding(padding: const EdgeInsets.all(16), child: child),
+      ),
       floatingActionButton: floatingActionButton,
       bottomNavigationBar: showBottomNav
           ? AppBottomNavigationBar(

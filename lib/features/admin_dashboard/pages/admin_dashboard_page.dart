@@ -218,7 +218,7 @@ class _StatCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xFFE4E2E2)),
+        border: Border.all(color: AppColors.surfaceVariant),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -309,7 +309,7 @@ class _SectionCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xFFE4E2E2)),
+        border: Border.all(color: AppColors.surfaceVariant),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
@@ -363,7 +363,7 @@ class _BookingChart extends StatelessWidget {
           height: 190,
           padding: const EdgeInsets.fromLTRB(8, 12, 8, 8),
           decoration: BoxDecoration(
-            color: const Color(0xFFF5F3F3),
+            color: AppColors.surfaceContainerLow,
             borderRadius: BorderRadius.circular(8),
           ),
           child: Row(
@@ -546,7 +546,7 @@ class _RecentBookingsList extends StatelessWidget {
       case 'completed':
         return AppColors.secondaryContainer;
       case 'cancelled':
-        return const Color(0xFFFEE2E2);
+        return AppColors.errorContainer;
       case 'pending':
       default:
         return AppColors.tertiaryContainer;
@@ -610,7 +610,7 @@ class _EmptyDashboardMessage extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF5F3F3),
+        color: AppColors.surfaceContainerLow,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
@@ -642,7 +642,7 @@ class _BookingItem extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: const Color(0xFFF5F3F3),
+        color: AppColors.surfaceContainerLow,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
@@ -725,7 +725,7 @@ class _ReviewItem extends StatelessWidget {
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xFFE4E2E2)),
+        border: Border.all(color: AppColors.surfaceVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
