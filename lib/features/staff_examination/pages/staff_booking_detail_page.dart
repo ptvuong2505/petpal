@@ -4,8 +4,8 @@ import 'package:provider/provider.dart';
 import '../../../core/constants/app_routes.dart';
 import '../../../core/services/navigation_service.dart';
 import '../../../shared/widgets/app_button.dart';
-import '../../../shared/widgets/app_empty_state.dart';
-import '../../../shared/widgets/app_loading.dart';
+import '../../staff_portal/widgets/staff_access_guard.dart';
+import '../../staff_portal/widgets/staff_state_view.dart';
 import '../models/examination_result.dart';
 import '../models/staff_booking.dart';
 import '../providers/staff_examination_provider.dart';
@@ -22,42 +22,34 @@ class StaffBookingDetailPage extends StatefulWidget {
 
 class _StaffBookingDetailPageState extends State<StaffBookingDetailPage> {
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<StaffExaminationProvider>().loadBookingDetail(
-        widget.bookingId,
-      );
-    });
+  Widget build(BuildContext context) {
+    return StaffAccessGuard(
+      onAllowed: _loadBooking,
+      child: Builder(builder: _buildContent),
+    );
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildContent(BuildContext context) {
     final provider = context.watch<StaffExaminationProvider>();
 
     if (provider.isLoading ||
         provider.selectedBooking?.id != widget.bookingId) {
       if (provider.errorMessage != null && !provider.isLoading) {
-        return Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(provider.errorMessage!, textAlign: TextAlign.center),
-              const SizedBox(height: 12),
-              AppButton(
-                label: 'Thử lại',
-                onPressed: () => provider.loadBookingDetail(widget.bookingId),
-              ),
-            ],
-          ),
+        return StaffErrorState(
+          message: provider.errorMessage!,
+          onRetry: _loadBooking,
         );
       }
-      return const AppLoading();
+      return const StaffLoadingState();
     }
 
     final booking = provider.selectedBooking;
     if (booking == null) {
-      return const AppEmptyState(message: 'Không tìm thấy lịch hẹn.');
+      return StaffEmptyState(
+        icon: Icons.event_busy_outlined,
+        message: 'Không tìm thấy lịch hẹn.',
+        onRetry: _loadBooking,
+      );
     }
     final previousRecords = provider.petHealthRecords
         .where((record) => record.id != provider.selectedResult?.id)
@@ -190,6 +182,12 @@ class _StaffBookingDetailPageState extends State<StaffBookingDetailPage> {
           ],
         ),
       ),
+    );
+  }
+
+  Future<void> _loadBooking() {
+    return context.read<StaffExaminationProvider>().loadBookingDetail(
+      widget.bookingId,
     );
   }
 

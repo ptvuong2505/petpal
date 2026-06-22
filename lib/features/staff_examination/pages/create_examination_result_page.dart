@@ -6,8 +6,10 @@ import '../../../core/services/navigation_service.dart';
 import '../../../features/auth/providers/auth_provider.dart';
 import '../../../shared/widgets/app_button.dart';
 import '../../../shared/widgets/app_loading.dart';
+import '../../staff_portal/widgets/staff_access_guard.dart';
 import '../models/examination_result.dart';
 import '../providers/staff_examination_provider.dart';
+import '../validators/examination_result_validation.dart';
 
 class CreateExaminationResultPage extends StatefulWidget {
   const CreateExaminationResultPage({required this.bookingId, super.key});
@@ -29,12 +31,7 @@ class _CreateExaminationResultPageState
   final _medicineController = TextEditingController();
   final _noteController = TextEditingController();
   final _nextVisitController = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _loadBooking());
-  }
+  bool _isConfirming = false;
 
   @override
   void dispose() {
@@ -50,6 +47,13 @@ class _CreateExaminationResultPageState
 
   @override
   Widget build(BuildContext context) {
+    return StaffAccessGuard(
+      onAllowed: _loadBooking,
+      child: Builder(builder: _buildContent),
+    );
+  }
+
+  Widget _buildContent(BuildContext context) {
     final provider = context.watch<StaffExaminationProvider>();
     final booking = provider.selectedBooking;
 
@@ -117,25 +121,28 @@ class _CreateExaminationResultPageState
                       controller: _symptomController,
                       label: 'Triệu chứng *',
                       maxLines: 3,
-                      validator: _required('Vui lòng nhập triệu chứng.'),
+                      validator: (value) => validateRequiredText(
+                        value,
+                        'Vui lòng nhập triệu chứng.',
+                      ),
                     ),
                     _field(
                       controller: _diagnosisController,
                       label: 'Chẩn đoán *',
                       maxLines: 3,
-                      validator: _required('Vui lòng nhập chẩn đoán.'),
+                      validator: (value) => validateRequiredText(
+                        value,
+                        'Vui lòng nhập chẩn đoán.',
+                      ),
                     ),
                     _field(
                       controller: _treatmentController,
-                      label: 'Hướng xử lý',
+                      label: 'Hướng điều trị *',
                       maxLines: 3,
-                      validator: (_) {
-                        if (_treatmentController.text.trim().isEmpty &&
-                            _noteController.text.trim().isEmpty) {
-                          return 'Nhập hướng xử lý hoặc ghi chú.';
-                        }
-                        return null;
-                      },
+                      validator: (value) => validateRequiredText(
+                        value,
+                        'Vui lòng nhập hướng điều trị.',
+                      ),
                     ),
                     _field(
                       controller: _medicineController,
@@ -151,14 +158,7 @@ class _CreateExaminationResultPageState
                       controller: _nextVisitController,
                       label: 'Ngày tái khám (YYYY-MM-DD)',
                       keyboardType: TextInputType.datetime,
-                      validator: (value) {
-                        final text = value?.trim() ?? '';
-                        if (text.isNotEmpty &&
-                            DateTime.tryParse(text) == null) {
-                          return 'Ngày tái khám không hợp lệ.';
-                        }
-                        return null;
-                      },
+                      validator: validateNextVisitDate,
                     ),
                     if (provider.errorMessage != null) ...[
                       Text(
@@ -172,9 +172,13 @@ class _CreateExaminationResultPageState
                     AppButton(
                       label: provider.isSubmitting
                           ? 'Đang lưu...'
+                          : _isConfirming
+                          ? 'Đang xác nhận...'
                           : 'Lưu kết quả',
                       icon: Icons.save_outlined,
-                      onPressed: provider.isSubmitting ? null : _submit,
+                      onPressed: provider.isSubmitting || _isConfirming
+                          ? null
+                          : _submit,
                     ),
                     const SizedBox(height: 24),
                   ],
@@ -200,6 +204,7 @@ class _CreateExaminationResultPageState
         controller: controller,
         maxLines: maxLines,
         keyboardType: keyboardType,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
         validator: validator,
         decoration: InputDecoration(
           labelText: label,
@@ -232,6 +237,7 @@ class _CreateExaminationResultPageState
     final provider = context.read<StaffExaminationProvider>();
     final booking = provider.selectedBooking;
     final staffId = context.read<AuthProvider>().currentUser?.id;
+    if (_isConfirming || provider.isSubmitting) return;
     if (booking == null || booking.id != widget.bookingId) return;
     if (staffId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -239,6 +245,30 @@ class _CreateExaminationResultPageState
       );
       return;
     }
+
+    setState(() => _isConfirming = true);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Hoàn tất lịch khám?'),
+        content: const Text(
+          'Lưu kết quả này sẽ đánh dấu lịch hẹn là hoàn thành.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Quay lại'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Xác nhận lưu'),
+          ),
+        ],
+      ),
+    );
+    if (!mounted) return;
+    setState(() => _isConfirming = false);
+    if (confirmed != true || provider.isSubmitting) return;
 
     final now = DateTime.now();
     final result = ExaminationResult(

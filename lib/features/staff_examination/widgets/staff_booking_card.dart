@@ -17,9 +17,14 @@ class StaffBookingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final timeRange = booking.startTime == null
+        ? null
+        : booking.endTime == null
+        ? booking.startTime
+        : '${booking.startTime} - ${booking.endTime}';
     final time = <String?>[
       booking.bookingDate,
-      booking.startTime,
+      timeRange,
     ].whereType<String>().join(' • ');
 
     return Card(

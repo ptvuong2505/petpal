@@ -4,8 +4,8 @@ import 'package:provider/provider.dart';
 import '../../../core/constants/app_routes.dart';
 import '../../../core/services/navigation_service.dart';
 import '../../../shared/widgets/app_button.dart';
-import '../../../shared/widgets/app_empty_state.dart';
-import '../../../shared/widgets/app_loading.dart';
+import '../../staff_portal/widgets/staff_access_guard.dart';
+import '../../staff_portal/widgets/staff_state_view.dart';
 import '../models/staff_booking.dart';
 import '../providers/staff_examination_provider.dart';
 import '../widgets/staff_booking_card.dart';
@@ -24,22 +24,26 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
   void initState() {
     super.initState();
     _today = _dateValue(DateTime.now());
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<StaffExaminationProvider>().loadBookings(date: _today);
-    });
   }
 
   @override
   Widget build(BuildContext context) {
+    return StaffAccessGuard(
+      onAllowed: _loadBookings,
+      child: Builder(builder: _buildContent),
+    );
+  }
+
+  Widget _buildContent(BuildContext context) {
     final provider = context.watch<StaffExaminationProvider>();
 
     if (provider.isLoading && provider.bookings.isEmpty) {
-      return const AppLoading();
+      return const StaffLoadingState();
     }
     if (provider.errorMessage != null && provider.bookings.isEmpty) {
-      return _DashboardError(
+      return StaffErrorState(
         message: provider.errorMessage!,
-        onRetry: () => provider.loadBookings(date: _today),
+        onRetry: _loadBookings,
       );
     }
 
@@ -57,7 +61,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     return SafeArea(
       top: false,
       child: RefreshIndicator(
-        onRefresh: () => provider.loadBookings(date: _today),
+        onRefresh: _loadBookings,
         child: ListView(
           padding: const EdgeInsets.only(bottom: 16),
           physics: const AlwaysScrollableScrollPhysics(),
@@ -139,9 +143,13 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             ),
             const SizedBox(height: 8),
             if (bookings.isEmpty)
-              const SizedBox(
+              SizedBox(
                 height: 180,
-                child: AppEmptyState(message: 'Hôm nay chưa có lịch hẹn.'),
+                child: StaffEmptyState(
+                  icon: Icons.event_available_outlined,
+                  message: 'Hôm nay chưa có lịch hẹn.',
+                  onRetry: _loadBookings,
+                ),
               )
             else
               ...bookings
@@ -172,6 +180,10 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       AppRoutes.staffBookingDetail,
       queryParameters: {'bookingId': booking.id.toString()},
     );
+  }
+
+  Future<void> _loadBookings() {
+    return context.read<StaffExaminationProvider>().loadBookings(date: _today);
   }
 
   String _dateValue(DateTime date) {
@@ -224,27 +236,6 @@ class _StatCard extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _DashboardError extends StatelessWidget {
-  const _DashboardError({required this.message, required this.onRetry});
-
-  final String message;
-  final VoidCallback onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(message, textAlign: TextAlign.center),
-          const SizedBox(height: 12),
-          AppButton(label: 'Thử lại', onPressed: onRetry),
-        ],
       ),
     );
   }

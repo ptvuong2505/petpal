@@ -3,9 +3,8 @@ import 'package:provider/provider.dart';
 
 import '../../../core/constants/app_routes.dart';
 import '../../../core/services/navigation_service.dart';
-import '../../../shared/widgets/app_button.dart';
-import '../../../shared/widgets/app_empty_state.dart';
-import '../../../shared/widgets/app_loading.dart';
+import '../../staff_portal/widgets/staff_access_guard.dart';
+import '../../staff_portal/widgets/staff_state_view.dart';
 import '../providers/staff_examination_provider.dart';
 import '../widgets/staff_booking_card.dart';
 
@@ -21,13 +20,14 @@ class _StaffBookingListPageState extends State<StaffBookingListPage> {
   String? _selectedStatus;
 
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _loadBookings());
+  Widget build(BuildContext context) {
+    return StaffAccessGuard(
+      onAllowed: _loadBookings,
+      child: Builder(builder: _buildPage),
+    );
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildPage(BuildContext context) {
     final provider = context.watch<StaffExaminationProvider>();
 
     return SafeArea(
@@ -92,22 +92,20 @@ class _StaffBookingListPageState extends State<StaffBookingListPage> {
 
   Widget _buildContent(StaffExaminationProvider provider) {
     if (provider.isLoading && provider.bookings.isEmpty) {
-      return const AppLoading();
+      return const StaffLoadingState();
     }
     if (provider.errorMessage != null && provider.bookings.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(provider.errorMessage!, textAlign: TextAlign.center),
-            const SizedBox(height: 12),
-            AppButton(label: 'Thử lại', onPressed: _loadBookings),
-          ],
-        ),
+      return StaffErrorState(
+        message: provider.errorMessage!,
+        onRetry: _loadBookings,
       );
     }
     if (provider.bookings.isEmpty) {
-      return const AppEmptyState(message: 'Không có lịch hẹn phù hợp.');
+      return StaffEmptyState(
+        icon: Icons.event_busy_outlined,
+        message: 'Không có lịch hẹn phù hợp.',
+        onRetry: _loadBookings,
+      );
     }
 
     return RefreshIndicator(
