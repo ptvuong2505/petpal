@@ -629,39 +629,6 @@ class _ReviewItem extends StatelessWidget {
   }
 }
 
-class _ActionButton extends StatelessWidget {
-  const _ActionButton({
-    required this.icon,
-    required this.label,
-    required this.routeName,
-  });
-
-  final IconData icon;
-  final String label;
-  final String routeName;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 44,
-      child: OutlinedButton.icon(
-        onPressed: () => NavigationService.goTo(context, routeName),
-        style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.primary,
-          side: const BorderSide(color: AppColors.border),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        ),
-        icon: Icon(icon, size: 18),
-        label: Text(
-          label,
-          overflow: TextOverflow.ellipsis,
-          style: const TextStyle(fontWeight: FontWeight.w700),
-        ),
-      ),
-    );
-  }
-}
-
 class _TextAction extends StatelessWidget {
   const _TextAction({required this.label, required this.routeName});
 

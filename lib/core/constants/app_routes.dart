@@ -138,4 +138,15 @@ class AppRoutes {
         return false;
     }
   }
+
+  static String loginDestinationForRole(String? role) {
+    switch (role) {
+      case 'admin':
+        return adminDashboard;
+      case 'staff':
+        return staffDashboard;
+      default:
+        return home;
+    }
+  }
 }
