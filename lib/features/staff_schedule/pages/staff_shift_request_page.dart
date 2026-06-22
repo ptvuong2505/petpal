@@ -95,6 +95,26 @@ class _StaffShiftRequestPageState extends State<StaffShiftRequestPage> {
     _formKey.currentState?.validate();
   }
 
+  Future<void> _pickTime(TextEditingController controller) async {
+    final parts = controller.text.trim().split(':');
+    final hour = int.tryParse(parts.first);
+    final minute = parts.length == 2 ? int.tryParse(parts.last) : null;
+    final selected = await showTimePicker(
+      context: context,
+      initialTime: hour == null || minute == null
+          ? TimeOfDay.now()
+          : TimeOfDay(hour: hour, minute: minute),
+    );
+    if (selected == null || !mounted) return;
+    setState(() {
+      controller.text = formatShiftTime(
+        hour: selected.hour,
+        minute: selected.minute,
+      );
+    });
+    _formKey.currentState?.validate();
+  }
+
   @override
   Widget build(BuildContext context) {
     return StaffAccessGuard(
@@ -132,11 +152,13 @@ class _StaffShiftRequestPageState extends State<StaffShiftRequestPage> {
               TextFormField(
                 controller: _start,
                 enabled: !_submitting,
-                keyboardType: TextInputType.datetime,
+                readOnly: true,
+                onTap: _submitting ? null : () => _pickTime(_start),
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 validator: validateShiftTime,
                 decoration: const InputDecoration(
                   labelText: 'Bắt đầu (HH:mm)',
+                  suffixIcon: Icon(Icons.schedule_outlined),
                   border: OutlineInputBorder(),
                 ),
               ),
@@ -144,7 +166,8 @@ class _StaffShiftRequestPageState extends State<StaffShiftRequestPage> {
               TextFormField(
                 controller: _end,
                 enabled: !_submitting,
-                keyboardType: TextInputType.datetime,
+                readOnly: true,
+                onTap: _submitting ? null : () => _pickTime(_end),
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 validator: (value) =>
                     validateShiftTime(value) ??
@@ -154,6 +177,7 @@ class _StaffShiftRequestPageState extends State<StaffShiftRequestPage> {
                     ),
                 decoration: const InputDecoration(
                   labelText: 'Kết thúc (HH:mm)',
+                  suffixIcon: Icon(Icons.schedule_outlined),
                   border: OutlineInputBorder(),
                 ),
               ),

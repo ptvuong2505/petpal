@@ -26,6 +26,10 @@ String? validateShiftTime(String? value) {
   return minutes == null ? 'Giờ không hợp lệ.' : null;
 }
 
+String formatShiftTime({required int hour, required int minute}) {
+  return '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
+}
+
 String? validateShiftTimeRange({required String start, required String end}) {
   final startMinutes = _minutes(start.trim());
   final endMinutes = _minutes(end.trim());

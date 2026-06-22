@@ -38,4 +38,9 @@ void main() {
     expect(validateShiftNote('a' * 500), isNull);
     expect(validateShiftNote('a' * 501), 'Ghi chú tối đa 500 ký tự.');
   });
+
+  test('formats a TimePicker selection as HH:mm', () {
+    expect(formatShiftTime(hour: 8, minute: 5), '08:05');
+    expect(formatShiftTime(hour: 18, minute: 30), '18:30');
+  });
 }
