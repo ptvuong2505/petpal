@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../shared/widgets/app_button.dart';
-import '../../../shared/widgets/app_empty_state.dart';
-import '../../../shared/widgets/app_loading.dart';
+import '../../staff_portal/widgets/staff_access_guard.dart';
+import '../../staff_portal/widgets/staff_state_view.dart';
 import '../providers/staff_examination_provider.dart';
 
 class ExaminationResultDetailPage extends StatefulWidget {
@@ -18,12 +17,6 @@ class ExaminationResultDetailPage extends StatefulWidget {
 
 class _ExaminationResultDetailPageState
     extends State<ExaminationResultDetailPage> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _load());
-  }
-
   Future<void> _load() {
     return context.read<StaffExaminationProvider>().loadResultDetail(
       widget.resultId,
@@ -32,63 +25,68 @@ class _ExaminationResultDetailPageState
 
   @override
   Widget build(BuildContext context) {
+    return StaffAccessGuard(
+      onAllowed: _load,
+      child: Builder(builder: _buildContent),
+    );
+  }
+
+  Widget _buildContent(BuildContext context) {
     final provider = context.watch<StaffExaminationProvider>();
-    if (provider.isLoadingResultDetail) return const AppLoading();
+    if (provider.isLoadingResultDetail) return const StaffLoadingState();
     if (provider.errorMessage != null) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(provider.errorMessage!, textAlign: TextAlign.center),
-            const SizedBox(height: 12),
-            AppButton(label: 'Thử lại', onPressed: _load),
-          ],
-        ),
-      );
+      return StaffErrorState(message: provider.errorMessage!, onRetry: _load);
     }
     final result = provider.resultDetail;
     if (result == null) {
-      return const AppEmptyState(message: 'Không tìm thấy kết quả khám.');
+      return StaffEmptyState(
+        icon: Icons.description_outlined,
+        message: 'Không tìm thấy kết quả khám.',
+        onRetry: _load,
+      );
     }
 
-    return ListView(
-      padding: const EdgeInsets.only(bottom: 24),
-      children: [
-        Text(
-          result.title,
-          style: Theme.of(
-            context,
-          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 12),
-        _section('Thông tin chung', [
-          _row('Thú cưng', _text(result.petName)),
-          _row(
-            'Giống loài',
-            [result.petSpecies, result.petBreed]
-                .where((value) => value != null && value.trim().isNotEmpty)
-                .join(' - '),
+    return SafeArea(
+      top: false,
+      child: ListView(
+        padding: const EdgeInsets.only(bottom: 24),
+        children: [
+          Text(
+            result.title,
+            style: Theme.of(
+              context,
+            ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
           ),
-          _row('Chủ nuôi', _text(result.ownerName)),
-          _row('Dịch vụ', _text(result.serviceName)),
-          _row('Bác sĩ/Nhân viên', _text(result.staffName)),
-          _row('Ngày khám', _text(result.recordDate ?? result.bookingDate)),
-          _row(
-            'Khung giờ',
-            result.startTime == null
-                ? 'Không có thông tin'
-                : '${result.startTime} - ${result.endTime ?? ''}',
-          ),
-        ]),
-        _medical('Triệu chứng', result.symptom),
-        _medical('Chẩn đoán', result.diagnosis),
-        _medical('Hướng điều trị', result.treatment),
-        _medical('Đơn thuốc', result.medicine),
-        _medical('Dặn dò sau khám', result.note),
-        _section('Tái khám', [
-          _row('Ngày tái khám', _text(result.nextVisitDate)),
-        ]),
-      ],
+          const SizedBox(height: 12),
+          _section('Thông tin chung', [
+            _row('Thú cưng', _text(result.petName)),
+            _row(
+              'Giống loài',
+              [result.petSpecies, result.petBreed]
+                  .where((value) => value != null && value.trim().isNotEmpty)
+                  .join(' - '),
+            ),
+            _row('Chủ nuôi', _text(result.ownerName)),
+            _row('Dịch vụ', _text(result.serviceName)),
+            _row('Bác sĩ/Nhân viên', _text(result.staffName)),
+            _row('Ngày khám', _text(result.recordDate ?? result.bookingDate)),
+            _row(
+              'Khung giờ',
+              result.startTime == null
+                  ? 'Không có thông tin'
+                  : '${result.startTime} - ${result.endTime ?? ''}',
+            ),
+          ]),
+          _medical('Triệu chứng', result.symptom),
+          _medical('Chẩn đoán', result.diagnosis),
+          _medical('Hướng điều trị', result.treatment),
+          _medical('Đơn thuốc', result.medicine),
+          _medical('Dặn dò sau khám', result.note),
+          _section('Tái khám', [
+            _row('Ngày tái khám', _text(result.nextVisitDate)),
+          ]),
+        ],
+      ),
     );
   }
 
