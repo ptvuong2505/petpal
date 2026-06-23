@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/constants/app_routes.dart';
+import '../../../core/services/navigation_service.dart';
 import '../../staff_portal/data/staff_portal_dao.dart';
 import '../../staff_portal/widgets/staff_access_guard.dart';
+import '../../staff_portal/widgets/staff_content.dart';
 import '../../staff_portal/widgets/staff_state_view.dart';
 
 class StaffPetMedicalProfilePage extends StatefulWidget {
@@ -45,7 +48,7 @@ class _State extends State<StaffPetMedicalProfilePage> {
   }
 
   Widget _buildContent(BuildContext context) {
-    if (_loading) return const StaffLoadingState();
+    if (_loading) return const StaffLoadingState(skeleton: true);
     if (_errorMessage != null) {
       return StaffErrorState(message: _errorMessage!, onRetry: _load);
     }
@@ -66,30 +69,54 @@ class _State extends State<StaffPetMedicalProfilePage> {
       child: ListView(
         padding: const EdgeInsets.only(bottom: 24),
         children: [
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '${data['name'] ?? 'Chưa đặt tên'}',
-                    style: Theme.of(context).textTheme.headlineSmall,
-                  ),
-                  Text(
+          StaffInfoSection(
+            title: '${data['name'] ?? 'Chưa đặt tên'}',
+            icon: Icons.pets_outlined,
+            children: [
+              StaffInfoRow(
+                label: 'Loài / giống',
+                value:
                     '${data['species'] ?? 'Chưa cập nhật'} • ${data['breed'] ?? 'Chưa cập nhật'}',
-                  ),
-                  const Divider(),
-                  Text('Chủ nuôi: ${data['owner_name'] ?? 'Chưa cập nhật'}'),
-                  Text(
-                    '${data['owner_phone'] ?? '-'} • ${data['owner_email'] ?? '-'}',
-                  ),
-                  if ('${data['note'] ?? ''}'.trim().isNotEmpty)
-                    Text('Lưu ý: ${data['note']}'),
-                ],
               ),
-            ),
+              if ('${data['gender'] ?? ''}'.trim().isNotEmpty)
+                StaffInfoRow(label: 'Giới tính', value: '${data['gender']}'),
+              if ('${data['birth_date'] ?? ''}'.trim().isNotEmpty)
+                StaffInfoRow(
+                  label: 'Ngày sinh',
+                  value: '${data['birth_date']}',
+                ),
+              if (data['weight'] != null)
+                StaffInfoRow(label: 'Cân nặng', value: '${data['weight']} kg'),
+            ],
           ),
+          StaffInfoSection(
+            title: 'Chủ nuôi',
+            icon: Icons.person_outline,
+            children: [
+              StaffInfoRow(
+                label: 'Họ tên',
+                value: '${data['owner_name'] ?? 'Chưa cập nhật'}',
+              ),
+              StaffInfoRow(
+                label: 'Điện thoại',
+                value: '${data['owner_phone'] ?? '-'}',
+              ),
+              StaffInfoRow(
+                label: 'Email',
+                value: '${data['owner_email'] ?? '-'}',
+              ),
+            ],
+          ),
+          if ('${data['note'] ?? ''}'.trim().isNotEmpty)
+            Container(
+              margin: const EdgeInsets.only(bottom: 16),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.tertiaryContainer,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Text('Lưu ý chăm sóc: ${data['note']}'),
+            ),
           const SizedBox(height: 8),
           Text(
             'Lịch sử bệnh án',
@@ -100,8 +127,9 @@ class _State extends State<StaffPetMedicalProfilePage> {
               padding: EdgeInsets.all(24),
               child: Center(child: Text('Chưa có bệnh án.')),
             ),
-          ...records.map(
-            (record) => Card(
+          ...records.map((record) {
+            final resultId = record['id'] as int?;
+            return Card(
               child: ListTile(
                 leading: const Icon(Icons.medical_information_outlined),
                 title: Text('${record['title'] ?? 'Kết quả khám'}'),
@@ -111,9 +139,19 @@ class _State extends State<StaffPetMedicalProfilePage> {
                   'Điều trị: ${record['treatment'] ?? 'Chưa có thông tin'}',
                 ),
                 isThreeLine: true,
+                trailing: resultId == null
+                    ? null
+                    : const Icon(Icons.chevron_right),
+                onTap: resultId == null
+                    ? null
+                    : () => NavigationService.goTo(
+                        context,
+                        AppRoutes.examinationResultDetail,
+                        queryParameters: {'resultId': resultId.toString()},
+                      ),
               ),
-            ),
-          ),
+            );
+          }),
         ],
       ),
     );

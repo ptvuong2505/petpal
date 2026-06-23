@@ -3,8 +3,8 @@ import 'package:provider/provider.dart';
 
 import '../../../core/constants/app_routes.dart';
 import '../../../core/services/navigation_service.dart';
-import '../../../shared/widgets/app_button.dart';
 import '../../staff_portal/widgets/staff_access_guard.dart';
+import '../../staff_portal/widgets/staff_content.dart';
 import '../../staff_portal/widgets/staff_state_view.dart';
 import '../models/staff_booking.dart';
 import '../providers/staff_examination_provider.dart';
@@ -38,7 +38,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     final provider = context.watch<StaffExaminationProvider>();
 
     if (provider.isLoading && provider.bookings.isEmpty) {
-      return const StaffLoadingState();
+      return const StaffLoadingState(skeleton: true);
     }
     if (provider.errorMessage != null && provider.bookings.isEmpty) {
       return StaffErrorState(
@@ -48,11 +48,11 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     }
 
     final bookings = provider.bookings;
-    final waiting = bookings
-        .where(
-          (booking) =>
-              booking.status == 'pending' || booking.status == 'confirmed',
-        )
+    final pending = bookings
+        .where((booking) => booking.status == 'pending')
+        .length;
+    final confirmed = bookings
+        .where((booking) => booking.status == 'confirmed')
         .length;
     final completed = bookings
         .where((booking) => booking.status == 'completed')
@@ -93,19 +93,19 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                     SizedBox(
                       width: cardWidth,
                       child: _StatCard(
-                        label: 'Hôm nay',
-                        value: bookings.length,
-                        icon: Icons.calendar_today,
-                        color: Colors.teal,
+                        label: 'Đang chờ',
+                        value: pending,
+                        icon: Icons.schedule_outlined,
+                        color: Colors.orange,
                       ),
                     ),
                     SizedBox(
                       width: cardWidth,
                       child: _StatCard(
-                        label: 'Cần xử lý',
-                        value: waiting,
-                        icon: Icons.pending_actions,
-                        color: Colors.orange,
+                        label: 'Đã xác nhận',
+                        value: confirmed,
+                        icon: Icons.event_available_outlined,
+                        color: Colors.blue,
                       ),
                     ),
                     SizedBox(
@@ -122,24 +122,13 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
               },
             ),
             const SizedBox(height: 24),
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    'Lịch hẹn hôm nay',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                TextButton(
-                  onPressed: () => NavigationService.goTo(
-                    context,
-                    AppRoutes.staffBookingList,
-                  ),
-                  child: const Text('Xem tất cả'),
-                ),
-              ],
+            StaffSectionHeader(
+              title: 'Lịch hẹn hôm nay',
+              action: TextButton(
+                onPressed: () =>
+                    NavigationService.goTo(context, AppRoutes.staffBookingList),
+                child: const Text('Xem tất cả'),
+              ),
             ),
             const SizedBox(height: 8),
             if (bookings.isEmpty)
@@ -161,13 +150,6 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                       onTap: () => _openBooking(context, booking),
                     ),
                   ),
-            const SizedBox(height: 12),
-            AppButton(
-              label: 'Xem tất cả lịch hẹn',
-              icon: Icons.list_alt,
-              onPressed: () =>
-                  NavigationService.goTo(context, AppRoutes.staffBookingList),
-            ),
           ],
         ),
       ),

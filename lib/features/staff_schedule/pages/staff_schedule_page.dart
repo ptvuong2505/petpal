@@ -82,7 +82,7 @@ class _StaffSchedulePageState extends State<StaffSchedulePage> {
                   ),
                   Expanded(
                     child: Text(
-                      'Tuần của ${_day(_date)}',
+                      _weekRangeLabel(),
                       textAlign: TextAlign.center,
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
@@ -99,6 +99,16 @@ class _StaffSchedulePageState extends State<StaffSchedulePage> {
                           },
                     icon: const Icon(Icons.chevron_right),
                   ),
+                  if (!_isCurrentWeek())
+                    TextButton(
+                      onPressed: _loading
+                          ? null
+                          : () {
+                              setState(() => _date = DateTime.now());
+                              _load();
+                            },
+                      child: const Text('Hôm nay'),
+                    ),
                   IconButton(
                     tooltip: 'Đăng ký ca trực',
                     onPressed: _loading
@@ -138,7 +148,9 @@ class _StaffSchedulePageState extends State<StaffSchedulePage> {
   }
 
   Widget _buildContent() {
-    if (_loading && _items.isEmpty) return const StaffLoadingState();
+    if (_loading && _items.isEmpty) {
+      return const StaffLoadingState(skeleton: true);
+    }
     if (_errorMessage != null && _items.isEmpty) {
       return StaffErrorState(message: _errorMessage!, onRetry: _load);
     }
@@ -152,15 +164,64 @@ class _StaffSchedulePageState extends State<StaffSchedulePage> {
       );
     }
 
+    final grouped = <String, List<Map<String, Object?>>>{};
+    for (final item in items) {
+      grouped.putIfAbsent('${item['event_date']}', () => []).add(item);
+    }
+
     return RefreshIndicator(
       onRefresh: _load,
-      child: ListView.builder(
+      child: ListView(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         physics: const AlwaysScrollableScrollPhysics(),
-        itemCount: items.length,
-        itemBuilder: (context, index) => _ScheduleCard(item: items[index]),
+        children: [
+          for (final entry in grouped.entries) ...[
+            Padding(
+              padding: const EdgeInsets.only(top: 8, bottom: 4),
+              child: Text(
+                _dayLabel(entry.key),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+              ),
+            ),
+            ...entry.value.map((item) => _ScheduleCard(item: item)),
+          ],
+        ],
       ),
     );
+  }
+
+  String _weekRangeLabel() {
+    final monday = _date.subtract(Duration(days: _date.weekday - 1));
+    final sunday = monday.add(const Duration(days: 6));
+    return '${_shortDate(monday)} – ${_shortDate(sunday)}';
+  }
+
+  bool _isCurrentWeek() {
+    final today = DateTime.now();
+    final selectedMonday = _date.subtract(Duration(days: _date.weekday - 1));
+    final currentMonday = today.subtract(Duration(days: today.weekday - 1));
+    return _day(selectedMonday) == _day(currentMonday);
+  }
+
+  String _shortDate(DateTime date) {
+    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}';
+  }
+
+  String _dayLabel(String value) {
+    final date = DateTime.tryParse(value);
+    if (date == null) return value;
+    const weekdays = [
+      'Thứ Hai',
+      'Thứ Ba',
+      'Thứ Tư',
+      'Thứ Năm',
+      'Thứ Sáu',
+      'Thứ Bảy',
+      'Chủ Nhật',
+    ];
+    return '${weekdays[date.weekday - 1]}, ${_shortDate(date)}';
   }
 
   bool _matchesFilter(Map<String, Object?> item) {
@@ -214,34 +275,50 @@ class _ScheduleCard extends StatelessWidget {
     final start = item['start_time'] ?? '--:--';
     final end = item['end_time'] ?? '--:--';
 
+    final appointmentId = item['id'] as int?;
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            CircleAvatar(
-              child: Icon(shift ? Icons.work_outline : Icons.pets_outlined),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '${item['title'] ?? (shift ? 'Ca trực' : 'Lịch hẹn')}',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text('${item['event_date']} • $start - $end'),
-                  const SizedBox(height: 10),
-                  _ScheduleStatusBadge(info: statusInfo),
-                ],
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: !shift && appointmentId != null
+            ? () => NavigationService.goTo(
+                context,
+                AppRoutes.staffBookingDetail,
+                queryParameters: {'bookingId': appointmentId.toString()},
+              )
+            : null,
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CircleAvatar(
+                child: Icon(shift ? Icons.work_outline : Icons.pets_outlined),
               ),
-            ),
-          ],
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${item['title'] ?? (shift ? 'Ca trực' : 'Lịch hẹn')}',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      shift ? 'Ca trực' : 'Lịch hẹn',
+                      style: Theme.of(context).textTheme.labelLarge,
+                    ),
+                    const SizedBox(height: 2),
+                    Text('${item['event_date']} • $start - $end'),
+                    const SizedBox(height: 10),
+                    _ScheduleStatusBadge(info: statusInfo),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

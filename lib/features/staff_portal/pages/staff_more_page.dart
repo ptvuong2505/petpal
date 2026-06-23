@@ -5,6 +5,7 @@ import '../../../core/constants/app_routes.dart';
 import '../../../core/services/navigation_service.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../widgets/staff_access_guard.dart';
+import '../widgets/staff_content.dart';
 
 class StaffMorePage extends StatefulWidget {
   const StaffMorePage({super.key});
@@ -22,41 +23,53 @@ class _StaffMorePageState extends State<StaffMorePage> {
       child: SafeArea(
         top: false,
         child: ListView(
-          padding: const EdgeInsets.symmetric(vertical: 8),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
           children: [
-            ListTile(
-              leading: const Icon(Icons.bar_chart_outlined),
-              title: const Text('Thống kê'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () =>
-                  NavigationService.goTo(context, AppRoutes.staffStatistics),
-            ),
-            ListTile(
-              leading: const Icon(Icons.person_outline),
-              title: const Text('Hồ sơ'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () =>
-                  NavigationService.goTo(context, AppRoutes.staffProfile),
-            ),
-            const Divider(),
-            ListTile(
-              enabled: !_isLoggingOut,
-              leading: _isLoggingOut
-                  ? const SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.logout, color: Colors.red),
-              title: Text(
-                _isLoggingOut ? 'Đang đăng xuất...' : 'Đăng xuất',
-                style: TextStyle(
-                  color: _isLoggingOut
-                      ? null
-                      : Theme.of(context).colorScheme.error,
-                ),
+            const StaffSectionHeader(title: 'Công việc'),
+            const SizedBox(height: 8),
+            Card(
+              child: ListTile(
+                minTileHeight: 64,
+                leading: const Icon(Icons.bar_chart_outlined),
+                title: const Text('Thống kê'),
+                subtitle: const Text('Theo dõi tiến độ và đánh giá'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () =>
+                    NavigationService.goTo(context, AppRoutes.staffStatistics),
               ),
-              onTap: _isLoggingOut ? null : _confirmLogout,
+            ),
+            const SizedBox(height: 24),
+            const StaffSectionHeader(title: 'Tài khoản'),
+            const SizedBox(height: 8),
+            Card(
+              child: ListTile(
+                minTileHeight: 64,
+                leading: const Icon(Icons.person_outline),
+                title: const Text('Hồ sơ cá nhân'),
+                subtitle: const Text('Chuyên môn và chứng chỉ'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () =>
+                    NavigationService.goTo(context, AppRoutes.staffProfile),
+              ),
+            ),
+            const SizedBox(height: 24),
+            const StaffSectionHeader(title: 'Phiên làm việc'),
+            const SizedBox(height: 8),
+            Card(
+              child: ListTile(
+                minTileHeight: 64,
+                enabled: !_isLoggingOut,
+                leading: _isLoggingOut
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.logout),
+                title: Text(_isLoggingOut ? 'Đang đăng xuất...' : 'Đăng xuất'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: _isLoggingOut ? null : _confirmLogout,
+              ),
             ),
           ],
         ),

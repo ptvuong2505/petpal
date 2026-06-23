@@ -5,6 +5,7 @@ import '../../auth/providers/auth_provider.dart';
 import '../../staff_portal/data/staff_portal_dao.dart';
 import '../../staff_portal/widgets/staff_access_guard.dart';
 import '../../staff_portal/widgets/staff_state_view.dart';
+import '../../staff_portal/widgets/staff_unread_notifier.dart';
 
 class StaffNotificationsPage extends StatefulWidget {
   const StaffNotificationsPage({super.key});
@@ -30,7 +31,10 @@ class _StaffNotificationsPageState extends State<StaffNotificationsPage> {
     });
     try {
       final items = await _dao.notifications(id);
-      if (mounted) setState(() => _items = items);
+      if (mounted) {
+        setState(() => _items = items);
+        staffUnreadNotifier.replaceItems(items);
+      }
     } catch (_) {
       if (mounted) setState(() => _errorMessage = 'Không thể tải thông báo.');
     } finally {
@@ -60,6 +64,7 @@ class _StaffNotificationsPageState extends State<StaffNotificationsPage> {
             )
             .toList();
       });
+      staffUnreadNotifier.markRead();
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -80,7 +85,9 @@ class _StaffNotificationsPageState extends State<StaffNotificationsPage> {
   }
 
   Widget _buildContent() {
-    if (_loading && _items.isEmpty) return const StaffLoadingState();
+    if (_loading && _items.isEmpty) {
+      return const StaffLoadingState(skeleton: true);
+    }
     if (_errorMessage != null && _items.isEmpty) {
       return StaffErrorState(message: _errorMessage!, onRetry: _load);
     }

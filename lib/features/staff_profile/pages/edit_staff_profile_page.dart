@@ -9,6 +9,7 @@ import '../../../core/services/navigation_service.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../staff_portal/data/staff_portal_dao.dart';
 import '../../staff_portal/widgets/staff_access_guard.dart';
+import '../../staff_portal/widgets/staff_content.dart';
 import '../../staff_portal/widgets/staff_state_view.dart';
 import '../validators/staff_profile_validation.dart';
 
@@ -117,76 +118,88 @@ class _EditStaffProfilePageState extends State<EditStaffProfilePage> {
       top: false,
       child: Form(
         key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        child: Column(
           children: [
-            Text(
-              'Hồ sơ chuyên môn',
-              style: Theme.of(
-                context,
-              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 20),
-            TextFormField(
-              controller: _specialty,
-              enabled: !_saving,
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              validator: validateSpecialty,
-              decoration: const InputDecoration(
-                labelText: 'Chuyên khoa *',
-                border: OutlineInputBorder(),
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.all(16),
+                keyboardDismissBehavior:
+                    ScrollViewKeyboardDismissBehavior.onDrag,
+                children: [
+                  Text(
+                    'Hồ sơ chuyên môn',
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  TextFormField(
+                    controller: _specialty,
+                    enabled: !_saving,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    validator: validateSpecialty,
+                    decoration: const InputDecoration(
+                      labelText: 'Chuyên khoa *',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: _experience,
+                    enabled: !_saving,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    validator: validateExperience,
+                    decoration: const InputDecoration(
+                      labelText: 'Số năm kinh nghiệm (0–80)',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: _bio,
+                    enabled: !_saving,
+                    maxLines: 5,
+                    maxLength: 500,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    validator: validateBio,
+                    decoration: const InputDecoration(
+                      labelText: 'Giới thiệu chuyên môn *',
+                      alignLabelWithHint: true,
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: _certificates,
+                    enabled: !_saving,
+                    maxLines: 5,
+                    decoration: const InputDecoration(
+                      labelText: 'Chứng chỉ',
+                      helperText: 'Mỗi dòng một chứng chỉ',
+                      alignLabelWithHint: true,
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _experience,
-              enabled: !_saving,
-              keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              validator: validateExperience,
-              decoration: const InputDecoration(
-                labelText: 'Số năm kinh nghiệm (0–80)',
-                border: OutlineInputBorder(),
+            StaffStickyActionBar(
+              child: SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  onPressed: _saving ? null : _save,
+                  icon: _saving
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.save_outlined),
+                  label: Text(_saving ? 'Đang lưu...' : 'Lưu hồ sơ'),
+                ),
               ),
-            ),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _bio,
-              enabled: !_saving,
-              maxLines: 5,
-              maxLength: 500,
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              validator: validateBio,
-              decoration: const InputDecoration(
-                labelText: 'Giới thiệu chuyên môn *',
-                alignLabelWithHint: true,
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _certificates,
-              enabled: !_saving,
-              maxLines: 5,
-              decoration: const InputDecoration(
-                labelText: 'Chứng chỉ (mỗi dòng một chứng chỉ)',
-                alignLabelWithHint: true,
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 16),
-            FilledButton.icon(
-              onPressed: _saving ? null : _save,
-              icon: _saving
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.save_outlined),
-              label: Text(_saving ? 'Đang lưu...' : 'Lưu hồ sơ'),
             ),
           ],
         ),

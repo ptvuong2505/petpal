@@ -124,15 +124,15 @@ class _StaffStatisticsPageState extends State<StaffStatisticsPage> {
                       width: width,
                     ),
                     _StatCard(
-                      label: 'Ca khám',
-                      value: '$examinations',
-                      icon: Icons.medical_services_outlined,
-                      width: width,
-                    ),
-                    _StatCard(
                       label: 'Tỷ lệ',
                       value: '${(rate * 100).toStringAsFixed(0)}%',
                       icon: Icons.percent,
+                      width: width,
+                    ),
+                    _StatCard(
+                      label: 'Ca khám',
+                      value: '$examinations',
+                      icon: Icons.medical_services_outlined,
                       width: width,
                     ),
                     _StatCard(
@@ -148,6 +148,11 @@ class _StaffStatisticsPageState extends State<StaffStatisticsPage> {
               },
             ),
             const SizedBox(height: 16),
+            Text(
+              'Tỷ lệ hoàn thành ${(rate * 100).toStringAsFixed(0)}%',
+              style: Theme.of(context).textTheme.labelLarge,
+            ),
+            const SizedBox(height: 8),
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: LinearProgressIndicator(value: rate, minHeight: 12),

@@ -13,26 +13,32 @@ class StaffStatusBadge extends StatelessWidget {
     final color = bookingStatus.color;
     final foreground = Color.lerp(color, Colors.black, 0.35)!;
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(bookingStatus.icon, size: 14, color: foreground),
-          const SizedBox(width: 4),
-          Text(
-            bookingStatus.label,
-            style: TextStyle(
-              color: foreground,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-            ),
+    return Semantics(
+      container: true,
+      label: 'Trạng thái: ${bookingStatus.label}',
+      child: ExcludeSemantics(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(20),
           ),
-        ],
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(bookingStatus.icon, size: 14, color: foreground),
+              const SizedBox(width: 4),
+              Text(
+                bookingStatus.label,
+                style: TextStyle(
+                  color: foreground,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

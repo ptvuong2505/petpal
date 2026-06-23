@@ -8,6 +8,7 @@ import '../../../core/services/navigation_service.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../staff_portal/data/staff_portal_dao.dart';
 import '../../staff_portal/widgets/staff_access_guard.dart';
+import '../../staff_portal/widgets/staff_content.dart';
 import '../../staff_portal/widgets/staff_state_view.dart';
 
 class StaffProfilePage extends StatefulWidget {
@@ -77,94 +78,99 @@ class _StaffProfilePageState extends State<StaffProfilePage> {
     final certificates = _certificates(profile['certificate_names']);
     return SafeArea(
       top: false,
-      child: ListView(
-        padding: const EdgeInsets.only(bottom: 24),
+      child: Column(
         children: [
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                children: [
-                  const CircleAvatar(
-                    radius: 38,
-                    child: Icon(Icons.medical_services, size: 38),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    _value(profile['full_name']),
-                    style: Theme.of(context).textTheme.headlineSmall,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '${_value(profile['email'])} • ${_value(profile['phone'])}',
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 12),
-                  FilledButton.icon(
-                    onPressed: () => NavigationService.goTo(
-                      context,
-                      AppRoutes.editStaffProfile,
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.only(top: 16, bottom: 24),
+              children: [
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      children: [
+                        const CircleAvatar(
+                          radius: 38,
+                          child: Icon(Icons.medical_services, size: 38),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          _value(profile['full_name']),
+                          style: Theme.of(context).textTheme.headlineSmall,
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
                     ),
-                    icon: const Icon(Icons.edit_outlined),
-                    label: const Text('Chỉnh sửa chuyên môn'),
                   ),
-                ],
-              ),
-            ),
-          ),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Chuyên môn',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(_value(profile['specialty'])),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Kinh nghiệm: ${_experience(profile['experience_years'])} năm',
-                  ),
-                  const SizedBox(height: 12),
-                  Text(_value(profile['bio'])),
-                ],
-              ),
-            ),
-          ),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Chứng chỉ',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 12),
-                  if (certificates.isEmpty)
-                    const Text('Chưa cập nhật chứng chỉ.')
-                  else
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: certificates
-                          .map(
-                            (certificate) => Chip(
-                              avatar: const Icon(
-                                Icons.workspace_premium_outlined,
-                                size: 18,
+                ),
+                const SizedBox(height: 16),
+                StaffInfoSection(
+                  title: 'Thông tin liên hệ',
+                  icon: Icons.contact_phone_outlined,
+                  children: [
+                    StaffInfoRow(
+                      label: 'Email',
+                      value: _value(profile['email']),
+                    ),
+                    StaffInfoRow(
+                      label: 'Điện thoại',
+                      value: _value(profile['phone']),
+                    ),
+                  ],
+                ),
+                StaffInfoSection(
+                  title: 'Chuyên môn',
+                  icon: Icons.medical_services_outlined,
+                  children: [
+                    StaffInfoRow(
+                      label: 'Chuyên khoa',
+                      value: _value(profile['specialty']),
+                    ),
+                    StaffInfoRow(
+                      label: 'Kinh nghiệm',
+                      value: '${_experience(profile['experience_years'])} năm',
+                    ),
+                    StaffInfoRow(
+                      label: 'Giới thiệu',
+                      value: _value(profile['bio']),
+                    ),
+                  ],
+                ),
+                StaffInfoSection(
+                  title: 'Chứng chỉ',
+                  icon: Icons.workspace_premium_outlined,
+                  children: [
+                    if (certificates.isEmpty)
+                      const Text('Chưa cập nhật chứng chỉ.')
+                    else
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: certificates
+                            .map(
+                              (certificate) => Chip(
+                                avatar: const Icon(
+                                  Icons.workspace_premium_outlined,
+                                  size: 18,
+                                ),
+                                label: Text(certificate),
                               ),
-                              label: Text(certificate),
-                            ),
-                          )
-                          .toList(),
-                    ),
-                ],
+                            )
+                            .toList(),
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          StaffStickyActionBar(
+            child: SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: () =>
+                    NavigationService.goTo(context, AppRoutes.editStaffProfile),
+                icon: const Icon(Icons.edit_outlined),
+                label: const Text('Chỉnh sửa chuyên môn'),
               ),
             ),
           ),

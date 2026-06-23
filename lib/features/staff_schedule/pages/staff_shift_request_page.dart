@@ -5,6 +5,7 @@ import '../../../core/constants/app_routes.dart';
 import '../../../core/services/navigation_service.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../staff_portal/widgets/staff_access_guard.dart';
+import '../../staff_portal/widgets/staff_content.dart';
 import '../validators/staff_shift_validation.dart';
 import '../../staff_portal/data/staff_portal_dao.dart';
 
@@ -23,6 +24,7 @@ class _StaffShiftRequestPageState extends State<StaffShiftRequestPage> {
   final _end = TextEditingController(text: '12:00');
   final _note = TextEditingController();
   bool _submitting = false;
+  String? _submitError;
 
   @override
   void initState() {
@@ -47,7 +49,10 @@ class _StaffShiftRequestPageState extends State<StaffShiftRequestPage> {
     final staffId = context.read<AuthProvider>().currentUser?.id;
     if (staffId == null) return;
 
-    setState(() => _submitting = true);
+    setState(() {
+      _submitting = true;
+      _submitError = null;
+    });
     try {
       await _dao.requestShift(
         staffId: staffId,
@@ -63,6 +68,10 @@ class _StaffShiftRequestPageState extends State<StaffShiftRequestPage> {
       NavigationService.goTo(context, AppRoutes.staffSchedule);
     } catch (_) {
       if (mounted) {
+        setState(() {
+          _submitError =
+              'Không thể gửi yêu cầu. Vui lòng kiểm tra thời gian đã chọn.';
+        });
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Không thể gửi yêu cầu. Vui lòng thử lại.'),
@@ -122,90 +131,120 @@ class _StaffShiftRequestPageState extends State<StaffShiftRequestPage> {
         top: false,
         child: Form(
           key: _formKey,
-          child: ListView(
-            padding: const EdgeInsets.all(16),
-            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          child: Column(
             children: [
-              Text(
-                'Đăng ký ca trực',
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 8),
-              const Text('Nhập thời gian bạn có thể làm việc.'),
-              const SizedBox(height: 20),
-              TextFormField(
-                controller: _date,
-                enabled: !_submitting,
-                readOnly: true,
-                onTap: _submitting ? null : _pickDate,
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                validator: validateShiftDate,
-                decoration: const InputDecoration(
-                  labelText: 'Ngày (YYYY-MM-DD)',
-                  suffixIcon: Icon(Icons.calendar_today_outlined),
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _start,
-                enabled: !_submitting,
-                readOnly: true,
-                onTap: _submitting ? null : () => _pickTime(_start),
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                validator: validateShiftTime,
-                decoration: const InputDecoration(
-                  labelText: 'Bắt đầu (HH:mm)',
-                  suffixIcon: Icon(Icons.schedule_outlined),
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _end,
-                enabled: !_submitting,
-                readOnly: true,
-                onTap: _submitting ? null : () => _pickTime(_end),
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                validator: (value) =>
-                    validateShiftTime(value) ??
-                    validateShiftTimeRange(
-                      start: _start.text,
-                      end: value ?? '',
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.all(16),
+                  keyboardDismissBehavior:
+                      ScrollViewKeyboardDismissBehavior.onDrag,
+                  children: [
+                    Text(
+                      'Đăng ký ca trực',
+                      style: Theme.of(context).textTheme.headlineSmall
+                          ?.copyWith(fontWeight: FontWeight.bold),
                     ),
-                decoration: const InputDecoration(
-                  labelText: 'Kết thúc (HH:mm)',
-                  suffixIcon: Icon(Icons.schedule_outlined),
-                  border: OutlineInputBorder(),
+                    const SizedBox(height: 8),
+                    const Text('Nhập thời gian bạn có thể làm việc.'),
+                    const SizedBox(height: 20),
+                    TextFormField(
+                      controller: _date,
+                      enabled: !_submitting,
+                      readOnly: true,
+                      onTap: _submitting ? null : _pickDate,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      validator: validateShiftDate,
+                      decoration: const InputDecoration(
+                        labelText: 'Ngày (YYYY-MM-DD)',
+                        suffixIcon: Icon(Icons.calendar_today_outlined),
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: _start,
+                      enabled: !_submitting,
+                      readOnly: true,
+                      onTap: _submitting ? null : () => _pickTime(_start),
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      validator: validateShiftTime,
+                      decoration: const InputDecoration(
+                        labelText: 'Bắt đầu (HH:mm)',
+                        suffixIcon: Icon(Icons.schedule_outlined),
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: _end,
+                      enabled: !_submitting,
+                      readOnly: true,
+                      onTap: _submitting ? null : () => _pickTime(_end),
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      validator: (value) =>
+                          validateShiftTime(value) ??
+                          validateShiftTimeRange(
+                            start: _start.text,
+                            end: value ?? '',
+                          ),
+                      decoration: const InputDecoration(
+                        labelText: 'Kết thúc (HH:mm)',
+                        suffixIcon: Icon(Icons.schedule_outlined),
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    StaffInfoSection(
+                      title: 'Khoảng thời gian đã chọn',
+                      icon: Icons.schedule_outlined,
+                      children: [
+                        StaffInfoRow(label: 'Ngày', value: _date.text),
+                        StaffInfoRow(
+                          label: 'Thời gian',
+                          value: '${_start.text} – ${_end.text}',
+                        ),
+                      ],
+                    ),
+                    if (_submitError != null) ...[
+                      Text(
+                        _submitError!,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                    ],
+                    TextFormField(
+                      controller: _note,
+                      enabled: !_submitting,
+                      maxLines: 3,
+                      maxLength: 500,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      validator: validateShiftNote,
+                      decoration: const InputDecoration(
+                        labelText: 'Ghi chú',
+                        alignLabelWithHint: true,
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _note,
-                enabled: !_submitting,
-                maxLines: 3,
-                maxLength: 500,
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                validator: validateShiftNote,
-                decoration: const InputDecoration(
-                  labelText: 'Ghi chú',
-                  alignLabelWithHint: true,
-                  border: OutlineInputBorder(),
+              StaffStickyActionBar(
+                child: SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    onPressed: _submitting ? null : _submit,
+                    icon: _submitting
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.send_outlined),
+                    label: Text(_submitting ? 'Đang gửi...' : 'Gửi yêu cầu'),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              FilledButton.icon(
-                onPressed: _submitting ? null : _submit,
-                icon: _submitting
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.send_outlined),
-                label: Text(_submitting ? 'Đang gửi...' : 'Gửi yêu cầu'),
               ),
             ],
           ),

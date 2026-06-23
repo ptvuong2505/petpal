@@ -110,6 +110,7 @@ class _StaffPetSearchPageState extends State<StaffPetSearchPage> {
                 ),
               ),
             ),
+            if (_loading) const LinearProgressIndicator(),
             Expanded(child: _buildResults()),
           ],
         ),
@@ -118,7 +119,9 @@ class _StaffPetSearchPageState extends State<StaffPetSearchPage> {
   }
 
   Widget _buildResults() {
-    if (_loading) return const StaffLoadingState();
+    if (_loading && _items.isEmpty) {
+      return const StaffLoadingState(skeleton: true);
+    }
     if (_errorMessage != null) {
       return StaffErrorState(
         message: _errorMessage!,
