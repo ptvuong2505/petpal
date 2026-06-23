@@ -3,9 +3,9 @@ import 'package:provider/provider.dart';
 
 import '../../../core/constants/app_routes.dart';
 import '../../../core/services/navigation_service.dart';
-import '../../../shared/widgets/app_button.dart';
-import '../../../shared/widgets/app_empty_state.dart';
-import '../../../shared/widgets/app_loading.dart';
+import '../../staff_portal/widgets/staff_access_guard.dart';
+import '../../staff_portal/widgets/staff_content.dart';
+import '../../staff_portal/widgets/staff_state_view.dart';
 import '../models/examination_result.dart';
 import '../models/staff_booking.dart';
 import '../providers/staff_examination_provider.dart';
@@ -22,42 +22,34 @@ class StaffBookingDetailPage extends StatefulWidget {
 
 class _StaffBookingDetailPageState extends State<StaffBookingDetailPage> {
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<StaffExaminationProvider>().loadBookingDetail(
-        widget.bookingId,
-      );
-    });
+  Widget build(BuildContext context) {
+    return StaffAccessGuard(
+      onAllowed: _loadBooking,
+      child: Builder(builder: _buildContent),
+    );
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildContent(BuildContext context) {
     final provider = context.watch<StaffExaminationProvider>();
 
     if (provider.isLoading ||
         provider.selectedBooking?.id != widget.bookingId) {
       if (provider.errorMessage != null && !provider.isLoading) {
-        return Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(provider.errorMessage!, textAlign: TextAlign.center),
-              const SizedBox(height: 12),
-              AppButton(
-                label: 'Thử lại',
-                onPressed: () => provider.loadBookingDetail(widget.bookingId),
-              ),
-            ],
-          ),
+        return StaffErrorState(
+          message: provider.errorMessage!,
+          onRetry: _loadBooking,
         );
       }
-      return const AppLoading();
+      return const StaffLoadingState();
     }
 
     final booking = provider.selectedBooking;
     if (booking == null) {
-      return const AppEmptyState(message: 'Không tìm thấy lịch hẹn.');
+      return StaffEmptyState(
+        icon: Icons.event_busy_outlined,
+        message: 'Không tìm thấy lịch hẹn.',
+        onRetry: _loadBooking,
+      );
     }
     final previousRecords = provider.petHealthRecords
         .where((record) => record.id != provider.selectedResult?.id)
@@ -66,130 +58,198 @@ class _StaffBookingDetailPageState extends State<StaffBookingDetailPage> {
 
     return SafeArea(
       top: false,
-      child: RefreshIndicator(
-        onRefresh: () => provider.loadBookingDetail(widget.bookingId),
-        child: ListView(
-          padding: const EdgeInsets.only(bottom: 16),
-          physics: const AlwaysScrollableScrollPhysics(),
-          children: [
-            Wrap(
-              spacing: 12,
-              runSpacing: 8,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                Text(
-                  'Lịch hẹn #${booking.id}',
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
+      child: Column(
+        children: [
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: () => provider.loadBookingDetail(widget.bookingId),
+              child: ListView(
+                padding: const EdgeInsets.only(bottom: 16),
+                physics: const AlwaysScrollableScrollPhysics(),
+                children: [
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  'Lịch hẹn #${booking.id}',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineSmall
+                                      ?.copyWith(fontWeight: FontWeight.w700),
+                                ),
+                              ),
+                              StaffStatusBadge(status: booking.status),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            _timeRange(booking),
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(booking.bookingDate ?? 'Không có ngày hẹn'),
+                          const SizedBox(height: 12),
+                          Text(
+                            booking.petName,
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(fontWeight: FontWeight.w700),
+                          ),
+                          Text(booking.serviceName),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-                StaffStatusBadge(status: booking.status),
-              ],
-            ),
-            const SizedBox(height: 12),
-            _SectionCard(
-              title: 'Thông tin lịch hẹn',
-              children: [
-                _InfoRow(label: 'Dịch vụ', value: booking.serviceName),
-                _InfoRow(label: 'Ngày', value: booking.bookingDate ?? '-'),
-                _InfoRow(label: 'Thời gian', value: _timeRange(booking)),
-                _InfoRow(
-                  label: 'Ghi chú khách hàng',
-                  value: _valueOrDash(booking.bookingNote),
-                ),
-              ],
-            ),
-            _SectionCard(
-              title: 'Khách hàng',
-              children: [
-                _InfoRow(label: 'Họ tên', value: booking.customerName),
-                _InfoRow(
-                  label: 'Điện thoại',
-                  value: _valueOrDash(booking.customerPhone),
-                ),
-                _InfoRow(
-                  label: 'Email',
-                  value: _valueOrDash(booking.customerEmail),
-                ),
-              ],
-            ),
-            _SectionCard(
-              title: 'Thú cưng',
-              children: [
-                _InfoRow(label: 'Tên', value: booking.petName),
-                _InfoRow(
-                  label: 'Loài',
-                  value: _valueOrDash(booking.petSpecies),
-                ),
-                _InfoRow(label: 'Giống', value: _valueOrDash(booking.petBreed)),
-                _InfoRow(
-                  label: 'Giới tính',
-                  value: _valueOrDash(booking.petGender),
-                ),
-                _InfoRow(
-                  label: 'Ngày sinh',
-                  value: _valueOrDash(booking.petBirthDate),
-                ),
-                _InfoRow(
-                  label: 'Cân nặng',
-                  value: booking.petWeight == null
-                      ? '-'
-                      : '${booking.petWeight} kg',
-                ),
-                _InfoRow(label: 'Lưu ý', value: _valueOrDash(booking.petNote)),
-              ],
-            ),
-            if (provider.selectedResult case final result?)
-              _ResultCard(result: result),
-            const SizedBox(height: 4),
-            Text(
-              'Lịch sử khám gần đây',
-              style: Theme.of(
-                context,
-              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            if (previousRecords.isEmpty)
-              const Card(
-                child: Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Text('Chưa có hồ sơ sức khỏe trước đó.'),
-                ),
-              )
-            else
-              ...previousRecords.map(_historyCard),
-            const SizedBox(height: 12),
-            if (!booking.hasResult &&
-                (booking.status == 'pending' || booking.status == 'confirmed'))
-              AppButton(
-                label: 'Tạo kết quả khám/chăm sóc',
-                icon: Icons.medical_information_outlined,
-                onPressed: () => NavigationService.goTo(
-                  context,
-                  AppRoutes.createExaminationResult,
-                  queryParameters: {'bookingId': booking.id.toString()},
-                ),
-              )
-            else if (booking.hasResult)
-              FilledButton.icon(
-                onPressed: null,
-                icon: const Icon(Icons.task_alt),
-                label: const Text('Booking đã có kết quả'),
-              )
-            else
-              FilledButton.icon(
-                onPressed: null,
-                icon: const Icon(Icons.block),
-                label: Text(
-                  booking.status == 'cancelled'
-                      ? 'Booking đã bị hủy'
-                      : 'Booking đã hoàn thành',
-                ),
+                  const SizedBox(height: 16),
+                  StaffInfoSection(
+                    title: 'Thông tin lịch hẹn',
+                    icon: Icons.event_note_outlined,
+                    children: [
+                      StaffInfoRow(
+                        label: 'Dịch vụ',
+                        value: booking.serviceName,
+                      ),
+                      StaffInfoRow(
+                        label: 'Ngày',
+                        value: booking.bookingDate ?? '-',
+                      ),
+                      StaffInfoRow(
+                        label: 'Thời gian',
+                        value: _timeRange(booking),
+                      ),
+                      StaffInfoRow(
+                        label: 'Ghi chú khách hàng',
+                        value: _valueOrDash(booking.bookingNote),
+                      ),
+                    ],
+                  ),
+                  StaffInfoSection(
+                    title: 'Thông tin chủ nuôi',
+                    icon: Icons.person_outline,
+                    children: [
+                      StaffInfoRow(
+                        label: 'Họ tên',
+                        value: booking.customerName,
+                      ),
+                      StaffInfoRow(
+                        label: 'Điện thoại',
+                        value: _valueOrDash(booking.customerPhone),
+                      ),
+                      StaffInfoRow(
+                        label: 'Email',
+                        value: _valueOrDash(booking.customerEmail),
+                      ),
+                    ],
+                  ),
+                  StaffInfoSection(
+                    title: 'Thông tin thú cưng',
+                    icon: Icons.pets_outlined,
+                    children: [
+                      StaffInfoRow(label: 'Tên', value: booking.petName),
+                      StaffInfoRow(
+                        label: 'Loài',
+                        value: _valueOrDash(booking.petSpecies),
+                      ),
+                      StaffInfoRow(
+                        label: 'Giống',
+                        value: _valueOrDash(booking.petBreed),
+                      ),
+                      StaffInfoRow(
+                        label: 'Giới tính',
+                        value: _valueOrDash(booking.petGender),
+                      ),
+                      StaffInfoRow(
+                        label: 'Ngày sinh',
+                        value: _valueOrDash(booking.petBirthDate),
+                      ),
+                      StaffInfoRow(
+                        label: 'Cân nặng',
+                        value: booking.petWeight == null
+                            ? '-'
+                            : '${booking.petWeight} kg',
+                      ),
+                      StaffInfoRow(
+                        label: 'Lưu ý',
+                        value: _valueOrDash(booking.petNote),
+                      ),
+                    ],
+                  ),
+                  if (provider.selectedResult case final result?)
+                    _ResultCard(result: result),
+                  const SizedBox(height: 8),
+                  const StaffSectionHeader(title: 'Lịch sử khám gần đây'),
+                  const SizedBox(height: 8),
+                  if (previousRecords.isEmpty)
+                    const Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Text('Chưa có hồ sơ sức khỏe trước đó.'),
+                    )
+                  else
+                    ...previousRecords.map(_historyCard),
+                ],
               ),
-            const SizedBox(height: 24),
-          ],
-        ),
+            ),
+          ),
+          StaffStickyActionBar(
+            child: _buildPrimaryAction(context, booking, provider),
+          ),
+        ],
       ),
+    );
+  }
+
+  Widget _buildPrimaryAction(
+    BuildContext context,
+    StaffBooking booking,
+    StaffExaminationProvider provider,
+  ) {
+    if (!booking.hasResult &&
+        (booking.status == 'pending' || booking.status == 'confirmed')) {
+      return SizedBox(
+        width: double.infinity,
+        child: FilledButton.icon(
+          onPressed: () => NavigationService.goTo(
+            context,
+            AppRoutes.createExaminationResult,
+            queryParameters: {'bookingId': booking.id.toString()},
+          ),
+          icon: const Icon(Icons.medical_information_outlined),
+          label: const Text('Tạo kết quả khám'),
+        ),
+      );
+    }
+    if (booking.resultId case final resultId?) {
+      return SizedBox(
+        width: double.infinity,
+        child: FilledButton.tonalIcon(
+          onPressed: () => NavigationService.goTo(
+            context,
+            AppRoutes.examinationResultDetail,
+            queryParameters: {'resultId': resultId.toString()},
+          ),
+          icon: const Icon(Icons.description_outlined),
+          label: const Text('Xem kết quả'),
+        ),
+      );
+    }
+    if (provider.selectedResult != null || booking.hasResult) {
+      return const Text('Booking đã có kết quả khám.');
+    }
+    return Text(
+      booking.status == 'cancelled'
+          ? 'Booking đã bị hủy.'
+          : 'Booking đã hoàn thành nhưng chưa có kết quả để tạo mới.',
+    );
+  }
+
+  Future<void> _loadBooking() {
+    return context.read<StaffExaminationProvider>().loadBookingDetail(
+      widget.bookingId,
     );
   }
 
@@ -245,71 +305,6 @@ class _StaffBookingDetailPageState extends State<StaffBookingDetailPage> {
   }
 }
 
-class _SectionCard extends StatelessWidget {
-  const _SectionCard({required this.title, required this.children});
-
-  final String title;
-  final List<Widget> children;
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            const Divider(height: 22),
-            ...children,
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _InfoRow extends StatelessWidget {
-  const _InfoRow({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final label = Text(
-          this.label,
-          style: const TextStyle(fontWeight: FontWeight.w600),
-        );
-
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 10),
-          child: constraints.maxWidth < 320
-              ? Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [label, const SizedBox(height: 4), Text(value)],
-                )
-              : Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(width: 120, child: label),
-                    Expanded(child: Text(value)),
-                  ],
-                ),
-        );
-      },
-    );
-  }
-}
-
 class _ResultCard extends StatelessWidget {
   const _ResultCard({required this.result});
 
@@ -317,15 +312,16 @@ class _ResultCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _SectionCard(
+    return StaffInfoSection(
       title: 'Kết quả hiện tại',
+      icon: Icons.description_outlined,
       children: [
-        _InfoRow(label: 'Tiêu đề', value: result.title),
-        _InfoRow(label: 'Triệu chứng', value: result.symptom ?? '-'),
-        _InfoRow(label: 'Chẩn đoán', value: result.diagnosis ?? '-'),
-        _InfoRow(label: 'Xử lý', value: result.treatment ?? '-'),
-        _InfoRow(label: 'Thuốc/dặn dò', value: result.medicine ?? '-'),
-        _InfoRow(label: 'Ghi chú', value: result.note ?? '-'),
+        StaffInfoRow(label: 'Tiêu đề', value: result.title),
+        StaffInfoRow(label: 'Triệu chứng', value: result.symptom ?? '-'),
+        StaffInfoRow(label: 'Chẩn đoán', value: result.diagnosis ?? '-'),
+        StaffInfoRow(label: 'Xử lý', value: result.treatment ?? '-'),
+        StaffInfoRow(label: 'Thuốc/dặn dò', value: result.medicine ?? '-'),
+        StaffInfoRow(label: 'Ghi chú', value: result.note ?? '-'),
       ],
     );
   }

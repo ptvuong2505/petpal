@@ -47,7 +47,10 @@ class _LoginPageState extends State<LoginPage> {
         context,
       ).showSnackBar(const SnackBar(content: Text('Đăng nhập thành công')));
 
-      NavigationService.goTo(context, AppRoutes.home);
+      NavigationService.goTo(
+        context,
+        AppRoutes.loginDestinationForRole(authProvider.currentRole),
+      );
     } catch (e) {
       if (!context.mounted) return;
 
@@ -55,8 +58,6 @@ class _LoginPageState extends State<LoginPage> {
         context,
       ).showSnackBar(SnackBar(content: Text(e.toString())));
     }
-
-    NavigationService.goTo(context, AppRoutes.home);
   }
 
   @override

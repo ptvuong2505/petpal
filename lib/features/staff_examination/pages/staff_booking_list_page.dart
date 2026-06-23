@@ -3,9 +3,8 @@ import 'package:provider/provider.dart';
 
 import '../../../core/constants/app_routes.dart';
 import '../../../core/services/navigation_service.dart';
-import '../../../shared/widgets/app_button.dart';
-import '../../../shared/widgets/app_empty_state.dart';
-import '../../../shared/widgets/app_loading.dart';
+import '../../staff_portal/widgets/staff_access_guard.dart';
+import '../../staff_portal/widgets/staff_state_view.dart';
 import '../providers/staff_examination_provider.dart';
 import '../widgets/staff_booking_card.dart';
 
@@ -21,13 +20,14 @@ class _StaffBookingListPageState extends State<StaffBookingListPage> {
   String? _selectedStatus;
 
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _loadBookings());
+  Widget build(BuildContext context) {
+    return StaffAccessGuard(
+      onAllowed: _loadBookings,
+      child: Builder(builder: _buildPage),
+    );
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildPage(BuildContext context) {
     final provider = context.watch<StaffExaminationProvider>();
 
     return SafeArea(
@@ -42,28 +42,20 @@ class _StaffBookingListPageState extends State<StaffBookingListPage> {
             ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                FilterChip(
-                  label: const Text('Hôm nay'),
-                  selected: _todayOnly,
-                  onSelected: (_) {
-                    setState(() => _todayOnly = true);
-                    _loadBookings();
-                  },
-                ),
-                const SizedBox(width: 8),
-                FilterChip(
-                  label: const Text('Tất cả ngày'),
-                  selected: !_todayOnly,
-                  onSelected: (_) {
-                    setState(() => _todayOnly = false);
-                    _loadBookings();
-                  },
-                ),
+          SizedBox(
+            width: double.infinity,
+            child: SegmentedButton<bool>(
+              segments: const [
+                ButtonSegment(value: true, label: Text('Hôm nay')),
+                ButtonSegment(value: false, label: Text('Tất cả ngày')),
               ],
+              selected: {_todayOnly},
+              onSelectionChanged: (selection) {
+                final todayOnly = selection.first;
+                if (todayOnly == _todayOnly) return;
+                setState(() => _todayOnly = todayOnly);
+                _loadBookings();
+              },
             ),
           ),
           const SizedBox(height: 8),
@@ -84,6 +76,12 @@ class _StaffBookingListPageState extends State<StaffBookingListPage> {
             ),
           ),
           const SizedBox(height: 12),
+          if (!provider.isLoading || provider.bookings.isNotEmpty)
+            Text(
+              '${provider.bookings.length} lịch hẹn',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          const SizedBox(height: 8),
           Expanded(child: _buildContent(provider)),
         ],
       ),
@@ -92,22 +90,20 @@ class _StaffBookingListPageState extends State<StaffBookingListPage> {
 
   Widget _buildContent(StaffExaminationProvider provider) {
     if (provider.isLoading && provider.bookings.isEmpty) {
-      return const AppLoading();
+      return const StaffLoadingState(skeleton: true);
     }
     if (provider.errorMessage != null && provider.bookings.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(provider.errorMessage!, textAlign: TextAlign.center),
-            const SizedBox(height: 12),
-            AppButton(label: 'Thử lại', onPressed: _loadBookings),
-          ],
-        ),
+      return StaffErrorState(
+        message: provider.errorMessage!,
+        onRetry: _loadBookings,
       );
     }
     if (provider.bookings.isEmpty) {
-      return const AppEmptyState(message: 'Không có lịch hẹn phù hợp.');
+      return StaffEmptyState(
+        icon: Icons.event_busy_outlined,
+        message: 'Không có lịch hẹn phù hợp.',
+        onRetry: _loadBookings,
+      );
     }
 
     return RefreshIndicator(
