@@ -262,7 +262,7 @@ class BookingProvider extends ChangeNotifier {
 
   Future<void> createBooking(Booking booking) async {
     //
-    await _repository.createBooking(booking); //
+    lastCreatedBookingId = await _repository.createBooking(booking); //
     await loadBookings(); //
   } //
 }

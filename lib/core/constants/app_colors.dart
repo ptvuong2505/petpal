@@ -22,4 +22,12 @@ class AppColors {
   static const Color onSurfaceVariant = Color(0xFF404945);
   static const Color outline = Color(0xFF707974);
   static const Color outlineVariant = Color(0xFFBFC9C3);
+
+  // Added colors
+  static const Color secondary = Color(0xFF556341);
+  static const Color tertiary = Color(0xFF785741);
+  static const Color error = Color(0xFFBA1A1A);
+  static const Color onSecondaryContainer = Color(0xFF5A6946);
+  static const Color onErrorContainer = Color(0xFF93000A);
+  static const Color onPrimaryContainer = Color(0xFF2C6957);
 }

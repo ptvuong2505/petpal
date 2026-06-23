@@ -67,7 +67,15 @@ class _CreateReviewPageState extends State<CreateReviewPage> {
         _isLoadingBooking = false;
       });
     } else {
-      setState(() => _isLoadingBooking = false);
+      setState(() {
+        _isLoadingBooking = false;
+        _booking = null;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Không tìm thấy thông tin lịch hẹn.')),
+        );
+      }
     }
   }
 
@@ -106,10 +114,13 @@ class _CreateReviewPageState extends State<CreateReviewPage> {
         await reviewProvider.updateReview(updatedReview);
       } else {
         // Create new review
+        if (_booking == null) {
+          throw Exception('Không tìm thấy thông tin lịch hẹn để đánh giá');
+        }
         final review = Review(
           userId: authProvider.currentUser?.id ?? 0,
-          bookingId: _booking?.id ?? 0,
-          petId: _booking?.petId,
+          bookingId: _booking!.id!,
+          petId: _booking!.petId,
           rating: _rating,
           comment: _commentController.text,
           createdAt: DateTime.now().toIso8601String(),

@@ -29,13 +29,21 @@ class AppLayout extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: AppColors.surface,
         elevation: 0,
+        leading: Navigator.of(context).canPop()
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back, color: AppColors.primary),
+                onPressed: () => Navigator.of(context).pop(),
+              )
+            : null,
         title: Row(
           children: [
-            CircleAvatar(
-              backgroundColor: AppColors.secondaryContainer,
-              child: Icon(Icons.person, color: AppColors.primary),
-            ),
-            const SizedBox(width: 12),
+            if (!Navigator.of(context).canPop()) ...[
+              CircleAvatar(
+                backgroundColor: AppColors.secondaryContainer,
+                child: Icon(Icons.person, color: AppColors.primary),
+              ),
+              const SizedBox(width: 12),
+            ],
             if (constrainTitle)
               Expanded(
                 child: Text(

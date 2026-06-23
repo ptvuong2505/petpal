@@ -59,7 +59,7 @@ class _HealthRecordListPageState extends State<HealthRecordListPage> {
                     radius: 30,
                     backgroundColor: AppColors.secondaryContainer,
                     backgroundImage:
-                    pet.imagePath != null && pet.imagePath!.isNotEmpty
+                        pet.imagePath != null && pet.imagePath!.isNotEmpty
                         ? FileImage(File(pet.imagePath!))
                         : null,
                     child: pet.imagePath == null || pet.imagePath!.isEmpty
@@ -97,15 +97,15 @@ class _HealthRecordListPageState extends State<HealthRecordListPage> {
                 : records.isEmpty
                 ? _buildEmptyState()
                 : ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: records.length,
-              itemBuilder: (context, index) {
-                return _HealthTimelineItem(
-                  record: records[index],
-                  isLast: index == records.length - 1,
-                );
-              },
-            ),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    itemCount: records.length,
+                    itemBuilder: (context, index) {
+                      return _HealthTimelineItem(
+                        record: records[index],
+                        isLast: index == records.length - 1,
+                      );
+                    },
+                  ),
           ),
         ],
       ),

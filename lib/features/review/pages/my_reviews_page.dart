@@ -42,8 +42,6 @@ class _MyReviewsPageState extends State<MyReviewsPage> {
                 const SizedBox(height: 24),
                 _buildHeaderActions(context),
                 const SizedBox(height: 16),
-                _buildFilters(),
-                const SizedBox(height: 16),
                 if (provider.reviews.isEmpty)
                   _buildEmptyState()
                 else
@@ -165,40 +163,6 @@ class _MyReviewsPageState extends State<MyReviewsPage> {
             textAlign: TextAlign.center,
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildFilters() {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: [
-          _buildFilterChip('All Reviews', true),
-          const SizedBox(width: 8),
-          _buildFilterChip('Sitter Reviews', false),
-          const SizedBox(width: 8),
-          _buildFilterChip('Walker Reviews', false),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFilterChip(String label, bool isSelected) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: isSelected ? AppColors.primary : AppColors.surface,
-        borderRadius: BorderRadius.circular(100),
-        border: isSelected ? null : Border.all(color: const Color(0xFFBFC9C3)),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: isSelected ? Colors.white : const Color(0xFF404945),
-          fontWeight: FontWeight.w600,
-          fontSize: 14,
-        ),
       ),
     );
   }

@@ -151,7 +151,7 @@ class _BookingConfirmPageState extends State<BookingConfirmPage> {
       final nowText = nowDt.toIso8601String(); //
       final userId = auth.currentUser?.id ?? 0; //
       final petId = provider.selectedPetId; //
-      final timeSlotId = provider.selectedTimeSlotId; //
+      final staticTimeSlotId = provider.selectedTimeSlotId; //
       final serviceNames = _serviceDetails.values
           .map((s) => (s['name'] as String?) ?? '')
           .join(', '); //
@@ -160,7 +160,35 @@ class _BookingConfirmPageState extends State<BookingConfirmPage> {
           (_slotDetails?['slot_date'] as String?) ??
           nowDt.toIso8601String().substring(0, 10); //
 
-      // 1. Chèn đơn hàng vào bảng Bookings
+      // 1. Đảm bảo slot thời gian tồn tại trong bảng time_slots trước khi đặt lịch (tránh lỗi khóa ngoại)
+      int? realTimeSlotId;
+      if (staticTimeSlotId != null && _slotDetails != null) {
+        final String startTime = (_slotDetails!['start_time'] as String?) ?? '';
+        final String endTime = (_slotDetails!['end_time'] as String?) ?? '';
+
+        final List<Map<String, Object?>> matchingSlots = await db.query(
+          'time_slots',
+          where: 'slot_date = ? AND start_time = ?',
+          whereArgs: [bookingDateString, startTime],
+        );
+
+        if (matchingSlots.isEmpty) {
+          realTimeSlotId = await db.insert('time_slots', {
+            'slot_date': bookingDateString,
+            'start_time': startTime,
+            'end_time': endTime,
+            'max_booking': 1,
+            'booked_count': 0,
+            'status': 'available',
+            'created_at': nowText,
+            'updated_at': nowText,
+          });
+        } else {
+          realTimeSlotId = matchingSlots.first['id'] as int;
+        }
+      }
+
+      // 2. Chèn đơn hàng vào bảng Bookings
       final insertedBookingId = await db.insert('bookings', {
         //
         'user_id': userId, //
@@ -168,7 +196,7 @@ class _BookingConfirmPageState extends State<BookingConfirmPage> {
         'service_id': provider.selectedServiceIds.isNotEmpty
             ? provider.selectedServiceIds.first
             : null, //
-        'time_slot_id': timeSlotId, //
+        'time_slot_id': realTimeSlotId, //
         'staff_id':
             provider.selectedStaffId, // Lưu vết ID nhân viên thực hiện đơn
         'service_name': serviceNames, //
@@ -180,20 +208,28 @@ class _BookingConfirmPageState extends State<BookingConfirmPage> {
         'updated_at': nowText, //
       }); //
 
-      // 2. Cập nhật tăng số lượng booked_count của slot bắt đầu
-      if (timeSlotId != null) {
-        //
-        final currentCount = ((_slotDetails?['booked_count'] as int?) ?? 0); //
+      provider.lastCreatedBookingId = insertedBookingId;
+
+      // 3. Cập nhật tăng số lượng booked_count của slot bắt đầu
+      if (realTimeSlotId != null) {
+        final List<Map<String, Object?>> slotRows = await db.query(
+          'time_slots',
+          columns: ['booked_count'],
+          where: 'id = ?',
+          whereArgs: [realTimeSlotId],
+        );
+        final currentCount = slotRows.isNotEmpty
+            ? (slotRows.first['booked_count'] as int)
+            : 0;
         await db.update(
-          //
-          'time_slots', //
-          {'booked_count': currentCount + 1, 'updated_at': nowText}, //
-          where: 'id = ?', //
-          whereArgs: [timeSlotId], //
-        ); //
+          'time_slots',
+          {'booked_count': currentCount + 1, 'updated_at': nowText},
+          where: 'id = ?',
+          whereArgs: [realTimeSlotId],
+        );
       } //
 
-      // 3. LOGIC MỚI: Khóa toàn bộ chuỗi Slots bận liên tục của nhân viên trong ngày
+      // 4. LOGIC KHÓA LỊCH NHÂN VIÊN: Khóa toàn bộ chuỗi Slots bận liên tục trong ngày
       if (provider.selectedStaffId != null && _slotDetails != null) {
         final String startHour = (_slotDetails!['start_time'] as String?) ?? '';
         final int totalDuration = await provider

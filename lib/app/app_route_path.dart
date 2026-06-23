@@ -124,7 +124,7 @@ class AppRouteCatalog {
     AppRouteInfo(
       name: AppRoutes.healthRecordDetail,
       location: '/health-records/detail',
-      title: 'Health Record Detail',
+      title: 'Chi tiết kết quả khám',
     ),
     AppRouteInfo(
       name: AppRoutes.bookingService,
