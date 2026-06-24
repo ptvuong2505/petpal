@@ -15,8 +15,9 @@ class BookingProvider extends ChangeNotifier {
   final BookingRepository _repository; //
   final BookingDao _bookingDao;
 
-  List<Booking> bookings = []; //
-  bool isLoading = false; //
+  List<Booking> bookings = [];
+  bool isLoading = false;
+  int? lastCreatedBookingId;
 
   // Trạng thái luồng Đặt lịch
   final Set<int> _selectedServiceIds = {}; //
@@ -261,7 +262,7 @@ class BookingProvider extends ChangeNotifier {
 
   Future<void> createBooking(Booking booking) async {
     //
-    await _repository.createBooking(booking); //
+    lastCreatedBookingId = await _repository.createBooking(booking); //
     await loadBookings(); //
   } //
 }

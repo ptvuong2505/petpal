@@ -5,6 +5,7 @@ class Booking {
     required this.petId,
     this.serviceId,
     this.timeSlotId,
+    this.staffId,
     required this.serviceName,
     this.bookingDate,
     this.note,
@@ -19,6 +20,7 @@ class Booking {
   final int petId;
   final int? serviceId;
   final int? timeSlotId;
+  final int? staffId;
   final String serviceName;
   final String? bookingDate;
   final String? note;
@@ -34,6 +36,7 @@ class Booking {
       'pet_id': petId,
       'service_id': serviceId,
       'time_slot_id': timeSlotId,
+      'staff_id': staffId,
       'service_name': serviceName,
       'booking_date': bookingDate,
       'note': note,
@@ -51,6 +54,7 @@ class Booking {
       petId: map['pet_id'] as int? ?? 0,
       serviceId: map['service_id'] as int?,
       timeSlotId: map['time_slot_id'] as int?,
+      staffId: map['staff_id'] as int?,
       serviceName: map['service_name'] as String? ?? '',
       bookingDate: map['booking_date'] as String?,
       note: map['note'] as String?,

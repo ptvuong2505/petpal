@@ -26,4 +26,14 @@ class ReviewProvider extends ChangeNotifier {
     await _repository.createReview(review);
     await loadReviews();
   }
+
+  Future<void> updateReview(Review review) async {
+    await _repository.updateReview(review);
+    await loadReviews();
+  }
+
+  Future<void> deleteReview(int id) async {
+    await _repository.deleteReview(id);
+    await loadReviews();
+  }
 }
