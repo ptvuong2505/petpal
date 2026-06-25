@@ -9,7 +9,7 @@ class AppDatabase {
   AppDatabase._(); //
 
   static final AppDatabase instance = AppDatabase._(); //
-  static const int schemaVersion = 2; //
+  static const int schemaVersion = 3; //
 
   Database? _database;
   // Khai báo thêm biến Future để giữ trạng thái mở DB, chống tình trạng Deadlock khi gọi đồng thời
@@ -386,11 +386,14 @@ class AppDatabase {
       } catch (_) {}
 
       // Tạo các bảng nghiệp vụ mới còn lại của V2
+      // Xóa và tạo lại để đảm bảo Foreign Key trỏ đúng vào bảng bookings mới (tránh lỗi bookings_old)
+      await db.execute('DROP TABLE IF EXISTS reviews');
       await db.execute(
-        'CREATE TABLE IF NOT EXISTS reviews (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL, pet_id INTEGER, booking_id INTEGER NOT NULL UNIQUE, rating INTEGER NOT NULL, comment TEXT, created_at TEXT, updated_at TEXT, FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE, FOREIGN KEY (pet_id) REFERENCES pets (id) ON DELETE SET NULL, FOREIGN KEY (booking_id) REFERENCES bookings (id) ON DELETE CASCADE)',
+        'CREATE TABLE reviews (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL, pet_id INTEGER, booking_id INTEGER NOT NULL UNIQUE, rating INTEGER NOT NULL, comment TEXT, created_at TEXT, updated_at TEXT, FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE, FOREIGN KEY (pet_id) REFERENCES pets (id) ON DELETE SET NULL, FOREIGN KEY (booking_id) REFERENCES bookings (id) ON DELETE CASCADE)',
       );
+      await db.execute('DROP TABLE IF EXISTS reminders');
       await db.execute(
-        'CREATE TABLE IF NOT EXISTS reminders (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, pet_id INTEGER NOT NULL, title TEXT NOT NULL, type TEXT, reminder_time TEXT, note TEXT, status TEXT NOT NULL DEFAULT "pending", created_at TEXT, updated_at TEXT, FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE, FOREIGN KEY (pet_id) REFERENCES pets (id) ON DELETE CASCADE)',
+        'CREATE TABLE reminders (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, pet_id INTEGER NOT NULL, title TEXT NOT NULL, type TEXT, reminder_time TEXT, note TEXT, status TEXT NOT NULL DEFAULT "pending", created_at TEXT, updated_at TEXT, FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE, FOREIGN KEY (pet_id) REFERENCES pets (id) ON DELETE CASCADE)',
       );
       await db.execute(
         'CREATE TABLE IF NOT EXISTS shop_settings (id INTEGER PRIMARY KEY, shop_name TEXT NOT NULL, phone TEXT, email TEXT, address TEXT, open_time TEXT, close_time TEXT, description TEXT, booking_policy TEXT, logo_path TEXT, updated_at TEXT)',
@@ -401,6 +404,80 @@ class AppDatabase {
       await db.execute(
         'CREATE TABLE IF NOT EXISTS staff_slot_assignments (id INTEGER PRIMARY KEY AUTOINCREMENT, staff_id INTEGER NOT NULL, time_slot_id INTEGER NOT NULL, booking_id INTEGER, assignment_date TEXT NOT NULL, status TEXT NOT NULL DEFAULT "available", created_at TEXT, updated_at TEXT, UNIQUE(staff_id, time_slot_id, assignment_date), FOREIGN KEY (staff_id) REFERENCES users (id) ON DELETE CASCADE, FOREIGN KEY (time_slot_id) REFERENCES time_slots (id) ON DELETE CASCADE, FOREIGN KEY (booking_id) REFERENCES bookings (id) ON DELETE SET NULL)',
       );
+    }
+
+    if (oldVersion < 3) {
+      // Fix lỗi ràng buộc khóa ngoại trỏ vào bảng bookings_old đã bị xóa
+      // Chúng ta sẽ tạo lại các bảng này để đảm bảo chúng trỏ đúng vào bảng bookings hiện tại
+      await db.execute('ALTER TABLE reviews RENAME TO reviews_old');
+      await db.execute('''
+        CREATE TABLE reviews (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          user_id INTEGER NOT NULL,
+          pet_id INTEGER,
+          booking_id INTEGER NOT NULL UNIQUE,
+          rating INTEGER NOT NULL,
+          comment TEXT,
+          created_at TEXT,
+          updated_at TEXT,
+          FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+          FOREIGN KEY (pet_id) REFERENCES pets (id) ON DELETE SET NULL,
+          FOREIGN KEY (booking_id) REFERENCES bookings (id) ON DELETE CASCADE
+        )
+      ''');
+      try {
+        await db.execute('INSERT INTO reviews SELECT * FROM reviews_old');
+      } catch (_) {}
+      await db.execute('DROP TABLE reviews_old');
+
+      await db.execute('DROP TABLE IF EXISTS reminders');
+      await db.execute('''
+        CREATE TABLE reminders (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          user_id INTEGER,
+          pet_id INTEGER NOT NULL,
+          title TEXT NOT NULL,
+          type TEXT,
+          reminder_time TEXT,
+          note TEXT,
+          status TEXT NOT NULL DEFAULT 'pending',
+          created_at TEXT,
+          updated_at TEXT,
+          FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+          FOREIGN KEY (pet_id) REFERENCES pets (id) ON DELETE CASCADE
+        )
+      ''');
+
+      // Sửa bảng health_records vì nó cũng có khóa ngoại tới bookings
+      await db.execute(
+        'ALTER TABLE health_records RENAME TO health_records_old',
+      );
+      await db.execute('''
+        CREATE TABLE health_records (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          pet_id INTEGER NOT NULL,
+          booking_id INTEGER UNIQUE,
+          staff_id INTEGER,
+          title TEXT NOT NULL,
+          symptom TEXT,
+          diagnosis TEXT,
+          treatment TEXT,
+          medicine TEXT,
+          note TEXT,
+          record_date TEXT,
+          next_visit_date TEXT,
+          created_at TEXT,
+          updated_at TEXT,
+          FOREIGN KEY (pet_id) REFERENCES pets (id) ON DELETE CASCADE,
+          FOREIGN KEY (booking_id) REFERENCES bookings (id) ON DELETE SET NULL,
+          FOREIGN KEY (staff_id) REFERENCES users (id) ON DELETE SET NULL
+        )
+      ''');
+      await db.execute('''
+        INSERT INTO health_records 
+        SELECT * FROM health_records_old
+      ''');
+      await db.execute('DROP TABLE health_records_old');
     }
   }
 

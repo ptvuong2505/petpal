@@ -5,6 +5,7 @@ class AppRoutePath {
     required this.routeName,
     required this.location,
     required this.pageTitle,
+    this.arguments,
     this.queryParameters = const {},
   });
 
@@ -14,6 +15,7 @@ class AppRoutePath {
 
   factory AppRoutePath.byName(
     String routeName, {
+    Object? arguments,
     Map<String, String> queryParameters = const {},
   }) {
     final route = AppRouteCatalog.findByName(routeName);
@@ -30,6 +32,7 @@ class AppRoutePath {
       routeName: route.name,
       location: uri.toString(),
       pageTitle: route.title,
+      arguments: arguments,
       queryParameters: copiedQueryParameters,
     );
   }
@@ -51,6 +54,7 @@ class AppRoutePath {
   final String routeName;
   final String location;
   final String pageTitle;
+  final Object? arguments;
   final Map<String, String> queryParameters;
 
   bool get isHome => routeName == AppRoutes.home;
@@ -120,7 +124,7 @@ class AppRouteCatalog {
     AppRouteInfo(
       name: AppRoutes.healthRecordDetail,
       location: '/health-records/detail',
-      title: 'Health Record Detail',
+      title: 'Chi tiết kết quả khám',
     ),
     AppRouteInfo(
       name: AppRoutes.bookingService,
@@ -170,7 +174,7 @@ class AppRouteCatalog {
     AppRouteInfo(
       name: AppRoutes.reviewList,
       location: '/reviews',
-      title: 'Review List',
+      title: 'Danh sách đánh giá',
     ),
     AppRouteInfo(
       name: AppRoutes.reviewDetail,
@@ -180,12 +184,12 @@ class AppRouteCatalog {
     AppRouteInfo(
       name: AppRoutes.createReview,
       location: '/reviews/create',
-      title: 'Create Review',
+      title: 'Đánh giá dịch vụ',
     ),
     AppRouteInfo(
       name: AppRoutes.myReviews,
       location: '/reviews/my',
-      title: 'My Reviews',
+      title: 'Đánh giá của tôi',
     ),
     AppRouteInfo(
       name: AppRoutes.staffDashboard,

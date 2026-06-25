@@ -12,6 +12,7 @@ import '../features/booking/pages/booking_pet_page.dart';
 import '../features/booking/pages/booking_service_page.dart';
 import '../features/booking/pages/booking_time_slot_page.dart';
 import '../features/booking/pages/my_bookings_page.dart';
+import '../features/health_record/models/health_record.dart';
 import '../features/health_record/pages/health_record_detail_page.dart';
 import '../features/health_record/pages/health_record_list_page.dart';
 import '../features/home/pages/home_page.dart';
@@ -22,6 +23,7 @@ import '../features/pet_profile/pages/pet_list_page.dart';
 import '../features/reminder/pages/create_reminder_page.dart';
 import '../features/reminder/pages/edit_reminder_page.dart';
 import '../features/reminder/pages/reminder_list_page.dart';
+import '../features/review/models/review.dart';
 import '../features/review/pages/create_review_page.dart';
 import '../features/review/pages/my_reviews_page.dart';
 import '../features/review/pages/review_detail_page.dart';
@@ -135,11 +137,14 @@ class AppRouter extends RouterDelegate<AppRoutePath>
   @override
   void goTo(
     String routeName, {
+    Object? arguments,
     Map<String, String> queryParameters = const {},
   }) {
-    _currentPath = routeName.startsWith('/')
-        ? AppRoutePath.byLocation(routeName)
-        : AppRoutePath.byName(routeName, queryParameters: queryParameters);
+    _currentPath = AppRoutePath.byName(
+      routeName,
+      arguments: arguments,
+      queryParameters: queryParameters,
+    );
     notifyListeners();
   }
 
@@ -203,7 +208,8 @@ class AppRouter extends RouterDelegate<AppRoutePath>
       case AppRoutes.healthRecordList:
         return const HealthRecordListPage();
       case AppRoutes.healthRecordDetail:
-        return const HealthRecordDetailPage();
+        final record = path.arguments as HealthRecord?;
+        return HealthRecordDetailPage(record: record);
       case AppRoutes.bookingService:
         return const BookingServicePage();
       case AppRoutes.bookingPet:
@@ -234,7 +240,12 @@ class AppRouter extends RouterDelegate<AppRoutePath>
       case AppRoutes.reviewDetail:
         return const ReviewDetailPage();
       case AppRoutes.createReview:
-        return const CreateReviewPage();
+        final arg = path.arguments;
+        if (arg is Review) {
+          return CreateReviewPage(review: arg);
+        }
+        final bId = arg is int ? arg : path.bookingId;
+        return CreateReviewPage(bookingId: bId);
       case AppRoutes.myReviews:
         return const MyReviewsPage();
       case AppRoutes.staffDashboard:

@@ -16,4 +16,18 @@ class AppColors {
   static const Color textDark = Color(0xFF1B1C1C);
   static const Color textMuted = Color(0xFF707974);
   static const Color border = Color(0xFFBCCCA2);
+
+  // New colors from UI design
+  static const Color onSurface = Color(0xFF1B1C1C);
+  static const Color onSurfaceVariant = Color(0xFF404945);
+  static const Color outline = Color(0xFF707974);
+  static const Color outlineVariant = Color(0xFFBFC9C3);
+
+  // Added colors
+  static const Color secondary = Color(0xFF556341);
+  static const Color tertiary = Color(0xFF785741);
+  static const Color error = Color(0xFFBA1A1A);
+  static const Color onSecondaryContainer = Color(0xFF5A6946);
+  static const Color onErrorContainer = Color(0xFF93000A);
+  static const Color onPrimaryContainer = Color(0xFF2C6957);
 }

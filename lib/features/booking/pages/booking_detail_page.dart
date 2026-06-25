@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/constants/app_colors.dart';
-import '../../../core/database/app_database.dart';
 import '../data/booking_dao.dart';
 
 class BookingDetailPage extends StatefulWidget {

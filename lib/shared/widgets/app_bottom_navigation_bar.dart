@@ -161,7 +161,7 @@ class AppBottomNavigationBar extends StatelessWidget {
           AppBottomNavItem(
             label: 'Reviews',
             icon: Icons.star,
-            routeName: AppRoutes.reviewList,
+            routeName: AppRoutes.myReviews,
           ),
           AppBottomNavItem(
             label: 'Profile',

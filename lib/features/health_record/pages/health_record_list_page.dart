@@ -37,15 +37,13 @@ class _HealthRecordListPageState extends State<HealthRecordListPage> {
     }
 
     return PopScope(
-      canPop: false, // Ngăn chặn hành động quay lại mặc định
+      canPop: false,
       onPopInvokedWithResult: (didPop, result) {
         if (didPop) return;
-        // Điều hướng thủ công về trang Danh sách thú cưng
         NavigationService.goTo(context, AppRoutes.petList);
       },
       child: Column(
         children: [
-          // Pet Info Header Card
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Container(
@@ -148,15 +146,13 @@ class _HealthRecordListPageState extends State<HealthRecordListPage> {
 }
 
 class _HealthTimelineItem extends StatelessWidget {
-  final dynamic
-  record; // Dùng dynamic để tránh lỗi type nếu model chưa khớp hoàn toàn
+  final dynamic record;
   final bool isLast;
 
   const _HealthTimelineItem({required this.record, required this.isLast});
 
   @override
   Widget build(BuildContext context) {
-    // Logic xác định icon và màu dựa trên tiêu đề hoặc loại record
     IconData iconData = Icons.medical_services_outlined;
     Color iconColor = Colors.teal;
     Color bgColor = Colors.teal.shade50;
@@ -223,87 +219,96 @@ class _HealthTimelineItem extends StatelessWidget {
                   ),
                 ],
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          record.title,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                            color: AppColors.primary,
+              child: InkWell(
+                onTap: () {
+                  NavigationService.goTo(
+                    context,
+                    AppRoutes.healthRecordDetail,
+                    arguments: record,
+                  );
+                },
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            record.title,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              color: AppColors.primary,
+                            ),
                           ),
                         ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.green.shade50,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: const Text(
+                            'COMPLETED',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    if (record.diagnosis != null && record.diagnosis.isNotEmpty)
+                      _buildDetailRow(
+                        Icons.search,
+                        'Chẩn đoán',
+                        record.diagnosis,
                       ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
+                    if (record.symptom != null && record.symptom.isNotEmpty)
+                      _buildDetailRow(
+                        Icons.coronavirus_outlined,
+                        'Triệu chứng',
+                        record.symptom,
+                      ),
+                    if (record.note != null && record.note.isNotEmpty)
+                      _buildDetailRow(
+                        Icons.note_alt_outlined,
+                        'Ghi chú',
+                        record.note,
+                      ),
+                    const Divider(height: 24),
+                    Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 12,
+                          backgroundColor: Colors.orange.shade50,
+                          child: const Icon(
+                            Icons.person,
+                            size: 14,
+                            color: Colors.orange,
+                          ),
                         ),
-                        decoration: BoxDecoration(
-                          color: Colors.green.shade50,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: const Text(
-                          'COMPLETED',
+                        const SizedBox(width: 8),
+                        const Text(
+                          'Bác sĩ phụ trách',
                           style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.green,
+                            fontSize: 13,
+                            color: AppColors.textMuted,
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  if (record.diagnosis != null && record.diagnosis.isNotEmpty)
-                    _buildDetailRow(
-                      Icons.search,
-                      'Chẩn đoán',
-                      record.diagnosis,
+                      ],
                     ),
-                  if (record.symptom != null && record.symptom.isNotEmpty)
-                    _buildDetailRow(
-                      Icons.coronavirus_outlined,
-                      'Triệu chứng',
-                      record.symptom,
-                    ),
-                  if (record.note != null && record.note.isNotEmpty)
-                    _buildDetailRow(
-                      Icons.note_alt_outlined,
-                      'Ghi chú',
-                      record.note,
-                    ),
-                  const Divider(height: 24),
-                  Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 12,
-                        backgroundColor: Colors.orange.shade50,
-                        child: const Icon(
-                          Icons.person,
-                          size: 14,
-                          color: Colors.orange,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      const Text(
-                        'Bác sĩ phụ trách',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: AppColors.textMuted,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
+                  ], // Đóng children của Column
+                ), // Đóng Column
+              ), // Đóng InkWell
+            ), // Đóng Container
+          ), // Đóng Expanded của Content Card
         ],
       ),
     );
