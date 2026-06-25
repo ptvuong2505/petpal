@@ -208,6 +208,31 @@ class _MyBookingsPageState extends State<MyBookingsPage> {
                 ),
               ],
             ),
+            if (status.toLowerCase() == 'completed') ...[
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    NavigationService.goTo(
+                      context,
+                      AppRoutes.createReview,
+                      queryParameters: {'bookingId': booking['id'].toString()},
+                    );
+                  },
+                  icon: const Icon(Icons.star_border, size: 18),
+                  label: const Text('Đánh giá dịch vụ'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryContainer,
+                    foregroundColor: AppColors.primary,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
       ),
