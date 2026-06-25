@@ -93,9 +93,8 @@ class UserProfilePage extends StatelessWidget {
                   _buildProfileItem(
                     icon: Icons.history,
                     title: 'Lịch sử đặt lịch',
-                    onTap: () {
-                      // Logic xem lịch sử
-                    },
+                    onTap: () =>
+                        NavigationService.goTo(context, AppRoutes.myBookings),
                   ),
                 ],
               ),
