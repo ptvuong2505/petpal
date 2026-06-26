@@ -151,13 +151,15 @@ class _StaffShiftRequestPageState extends State<StaffShiftRequestPage> {
                           child: Text(shift.displayText),
                         );
                       }).toList(),
-                      onChanged: _submitting ? null : (value) {
-                        if (value != null) {
-                          setState(() {
-                            _selectedShift = value;
-                          });
-                        }
-                      },
+                      onChanged: _submitting
+                          ? null
+                          : (value) {
+                              if (value != null) {
+                                setState(() {
+                                  _selectedShift = value;
+                                });
+                              }
+                            },
                     ),
                     const SizedBox(height: 12),
                     StaffInfoSection(

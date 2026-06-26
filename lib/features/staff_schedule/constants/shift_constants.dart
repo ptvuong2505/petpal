@@ -33,10 +33,7 @@ class ShiftConstants {
   );
 
   /// Danh sách tất cả các ca trực
-  static const List<ShiftType> allShifts = [
-    morningShift,
-    afternoonShift,
-  ];
+  static const List<ShiftType> allShifts = [morningShift, afternoonShift];
 
   /// Tìm shift type theo ID
   static ShiftType? getShiftById(String id) {

@@ -41,7 +41,9 @@ class _AdminShiftCalendarPageState extends State<AdminShiftCalendarPage> {
   Future<void> _loadShifts() async {
     setState(() => _loading = true);
     try {
-      final monday = _focusedDate.subtract(Duration(days: _focusedDate.weekday - 1));
+      final monday = _focusedDate.subtract(
+        Duration(days: _focusedDate.weekday - 1),
+      );
       final sunday = monday.add(const Duration(days: 6));
 
       final shifts = await _dao.getShiftsInRange(
@@ -63,8 +65,16 @@ class _AdminShiftCalendarPageState extends State<AdminShiftCalendarPage> {
         title: const Text('Quản lý ca trực'),
         actions: [
           IconButton(
-            icon: Icon(_viewMode == CalendarViewMode.week ? Icons.calendar_view_month : Icons.calendar_view_week),
-            onPressed: () => setState(() => _viewMode = _viewMode == CalendarViewMode.week ? CalendarViewMode.month : CalendarViewMode.week),
+            icon: Icon(
+              _viewMode == CalendarViewMode.week
+                  ? Icons.calendar_view_month
+                  : Icons.calendar_view_week,
+            ),
+            onPressed: () => setState(
+              () => _viewMode = _viewMode == CalendarViewMode.week
+                  ? CalendarViewMode.month
+                  : CalendarViewMode.week,
+            ),
           ),
         ],
       ),
@@ -86,7 +96,10 @@ class _AdminShiftCalendarPageState extends State<AdminShiftCalendarPage> {
                     focusedDate: _focusedDate,
                     shifts: _shifts,
                     onShiftTap: (shift) async {
-                      final modified = await showShiftBottomSheet(context, shift);
+                      final modified = await showShiftBottomSheet(
+                        context,
+                        shift,
+                      );
                       if (modified == true) _loadShifts();
                     },
                   ),
@@ -96,10 +109,7 @@ class _AdminShiftCalendarPageState extends State<AdminShiftCalendarPage> {
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
         onPressed: () async {
-          NavigationService.goTo(
-            context,
-            AppRoutes.adminAssignShift,
-          );
+          NavigationService.goTo(context, AppRoutes.adminAssignShift);
           // Reload after returning from assign page
           await Future.delayed(const Duration(milliseconds: 500));
           _loadShifts();

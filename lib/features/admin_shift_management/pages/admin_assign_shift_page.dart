@@ -69,7 +69,9 @@ class _AdminAssignShiftPageState extends State<AdminAssignShiftPage> {
         context: context,
         builder: (context) => AlertDialog(
           title: const Text('Xung đột lịch'),
-          content: const Text('Staff đã có ca trong khung giờ này. Vẫn muốn xếp ca?'),
+          content: const Text(
+            'Staff đã có ca trong khung giờ này. Vẫn muốn xếp ca?',
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
@@ -95,15 +97,15 @@ class _AdminAssignShiftPageState extends State<AdminAssignShiftPage> {
       );
       if (!mounted) return;
       Navigator.of(context).pop(true);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Đã xếp ca thành công')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Đã xếp ca thành công')));
     } catch (e) {
       if (!mounted) return;
       setState(() => _loading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Lỗi: ${e.toString()}')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Lỗi: ${e.toString()}')));
     }
   }
 
@@ -128,13 +130,16 @@ class _AdminAssignShiftPageState extends State<AdminAssignShiftPage> {
                   child: Text(staff['full_name'] as String),
                 );
               }).toList(),
-              onChanged: _loading ? null : (value) {
-                setState(() {
-                  _selectedStaffId = value;
-                  _hasConflict = false;
-                });
-              },
-              validator: (value) => value == null ? 'Vui lòng chọn nhân viên' : null,
+              onChanged: _loading
+                  ? null
+                  : (value) {
+                      setState(() {
+                        _selectedStaffId = value;
+                        _hasConflict = false;
+                      });
+                    },
+              validator: (value) =>
+                  value == null ? 'Vui lòng chọn nhân viên' : null,
             ),
             const SizedBox(height: 16),
             ListTile(
@@ -160,14 +165,16 @@ class _AdminAssignShiftPageState extends State<AdminAssignShiftPage> {
                   child: Text(shift.displayText),
                 );
               }).toList(),
-              onChanged: _loading ? null : (value) {
-                if (value != null) {
-                  setState(() {
-                    _selectedShift = value;
-                    _hasConflict = false;
-                  });
-                }
-              },
+              onChanged: _loading
+                  ? null
+                  : (value) {
+                      if (value != null) {
+                        setState(() {
+                          _selectedShift = value;
+                          _hasConflict = false;
+                        });
+                      }
+                    },
             ),
             const SizedBox(height: 24),
             SizedBox(
@@ -178,7 +185,10 @@ class _AdminAssignShiftPageState extends State<AdminAssignShiftPage> {
                     ? const SizedBox(
                         width: 20,
                         height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
                       )
                     : const Text('Xếp ca'),
               ),

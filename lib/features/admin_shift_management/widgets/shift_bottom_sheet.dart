@@ -34,15 +34,15 @@ class _ShiftBottomSheetState extends State<_ShiftBottomSheet> {
       await _dao.approveShift(widget.shift.id);
       if (!mounted) return;
       Navigator.of(context).pop(true);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Đã duyệt ca trực')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Đã duyệt ca trực')));
     } catch (e) {
       if (!mounted) return;
       setState(() => _loading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Lỗi: ${e.toString()}')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Lỗi: ${e.toString()}')));
     }
   }
 
@@ -52,15 +52,15 @@ class _ShiftBottomSheetState extends State<_ShiftBottomSheet> {
       await _dao.rejectShift(widget.shift.id);
       if (!mounted) return;
       Navigator.of(context).pop(true);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Đã từ chối ca trực')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Đã từ chối ca trực')));
     } catch (e) {
       if (!mounted) return;
       setState(() => _loading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Lỗi: ${e.toString()}')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Lỗi: ${e.toString()}')));
     }
   }
 
@@ -98,31 +98,50 @@ class _ShiftBottomSheetState extends State<_ShiftBottomSheet> {
               const SizedBox(height: 16),
               Text(
                 widget.shift.staffName,
-                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 16),
               _InfoRow(label: 'Ngày', value: widget.shift.shiftDate),
-              _InfoRow(label: 'Giờ', value: '${widget.shift.startTime} - ${widget.shift.endTime}'),
+              _InfoRow(
+                label: 'Giờ',
+                value: '${widget.shift.startTime} - ${widget.shift.endTime}',
+              ),
               _InfoRow(
                 label: 'Loại',
-                value: widget.shift.requestType == 'register' ? 'Đăng ký' : 'Admin xếp',
+                value: widget.shift.requestType == 'register'
+                    ? 'Đăng ký'
+                    : 'Admin xếp',
               ),
               if (widget.shift.requestNote != null)
-                _InfoRow(label: 'Ghi chú staff', value: widget.shift.requestNote!),
+                _InfoRow(
+                  label: 'Ghi chú staff',
+                  value: widget.shift.requestNote!,
+                ),
               if (widget.shift.adminNote != null)
-                _InfoRow(label: 'Ghi chú admin', value: widget.shift.adminNote!),
+                _InfoRow(
+                  label: 'Ghi chú admin',
+                  value: widget.shift.adminNote!,
+                ),
               const SizedBox(height: 24),
               if (isPending) ...[
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton(
                     onPressed: _loading ? null : _approve,
-                    style: FilledButton.styleFrom(backgroundColor: Colors.green),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: Colors.green,
+                    ),
                     child: _loading
                         ? const SizedBox(
                             width: 20,
                             height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
                           )
                         : const Text('Duyệt'),
                   ),
@@ -132,7 +151,9 @@ class _ShiftBottomSheetState extends State<_ShiftBottomSheet> {
                   width: double.infinity,
                   child: OutlinedButton(
                     onPressed: _loading ? null : _reject,
-                    style: OutlinedButton.styleFrom(foregroundColor: Colors.red),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.red,
+                    ),
                     child: const Text('Từ chối'),
                   ),
                 ),
@@ -169,7 +190,12 @@ class _InfoRow extends StatelessWidget {
             width: 100,
             child: Text(label, style: const TextStyle(color: Colors.grey)),
           ),
-          Expanded(child: Text(value, style: const TextStyle(fontWeight: FontWeight.w500))),
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(fontWeight: FontWeight.w500),
+            ),
+          ),
         ],
       ),
     );

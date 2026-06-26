@@ -49,13 +49,17 @@ class _WeekView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final monday = focusedDate.subtract(Duration(days: focusedDate.weekday - 1));
+    final monday = focusedDate.subtract(
+      Duration(days: focusedDate.weekday - 1),
+    );
     final days = List.generate(7, (i) => monday.add(Duration(days: i)));
 
     return ListView(
       padding: const EdgeInsets.all(16),
       children: days.map((day) {
-        final dayShifts = shifts.where((s) => s.shiftDate == _dateKey(day)).toList();
+        final dayShifts = shifts
+            .where((s) => s.shiftDate == _dateKey(day))
+            .toList();
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -63,16 +67,25 @@ class _WeekView extends StatelessWidget {
               padding: const EdgeInsets.only(top: 8, bottom: 4),
               child: Text(
                 _dayLabel(day),
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
             if (dayShifts.isEmpty)
               const Padding(
                 padding: EdgeInsets.only(bottom: 8),
-                child: Text('Không có ca trực', style: TextStyle(color: Colors.grey)),
+                child: Text(
+                  'Không có ca trực',
+                  style: TextStyle(color: Colors.grey),
+                ),
               )
             else
-              ...dayShifts.map((shift) => _ShiftCard(shift: shift, onTap: () => onShiftTap(shift))),
+              ...dayShifts.map(
+                (shift) =>
+                    _ShiftCard(shift: shift, onTap: () => onShiftTap(shift)),
+              ),
           ],
         );
       }).toList(),
@@ -82,7 +95,15 @@ class _WeekView extends StatelessWidget {
   String _dateKey(DateTime date) => DateFormat('yyyy-MM-dd').format(date);
 
   String _dayLabel(DateTime date) {
-    const weekdays = ['Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy', 'Chủ Nhật'];
+    const weekdays = [
+      'Thứ Hai',
+      'Thứ Ba',
+      'Thứ Tư',
+      'Thứ Năm',
+      'Thứ Sáu',
+      'Thứ Bảy',
+      'Chủ Nhật',
+    ];
     return '${weekdays[date.weekday - 1]}, ${DateFormat('dd/MM').format(date)}';
   }
 }
@@ -127,14 +148,23 @@ class _ShiftCard extends StatelessWidget {
                   children: [
                     Text(
                       shift.staffName,
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
                     ),
                     const SizedBox(height: 4),
-                    Text('${shift.startTime} - ${shift.endTime}', style: const TextStyle(color: Colors.grey)),
+                    Text(
+                      '${shift.startTime} - ${shift.endTime}',
+                      style: const TextStyle(color: Colors.grey),
+                    ),
                   ],
                 ),
               ),
-              ShiftStatusIndicator(status: shift.status, requestType: shift.requestType),
+              ShiftStatusIndicator(
+                status: shift.status,
+                requestType: shift.requestType,
+              ),
             ],
           ),
         ),

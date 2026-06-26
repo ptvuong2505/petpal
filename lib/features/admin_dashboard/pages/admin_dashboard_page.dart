@@ -94,7 +94,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                               label: 'Quản lý',
                               routeName: AppRoutes.adminShiftCalendar,
                             ),
-                            child: const Text('Xem danh sách ca trực và quản lý nhân viên.'),
+                            child: const Text(
+                              'Xem danh sách ca trực và quản lý nhân viên.',
+                            ),
                           ),
                           _SectionCard(
                             title: 'Recent Reviews',

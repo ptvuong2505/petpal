@@ -5,7 +5,7 @@ import '../models/calendar_shift_item.dart';
 
 class AdminShiftDao {
   AdminShiftDao({AppDatabase? database})
-      : _database = database ?? AppDatabase.instance;
+    : _database = database ?? AppDatabase.instance;
 
   final AppDatabase _database;
 
@@ -42,10 +42,7 @@ class AdminShiftDao {
     final db = await _database.database;
     await db.update(
       'staff_shifts',
-      {
-        'status': 'approved',
-        'updated_at': DateTime.now().toIso8601String(),
-      },
+      {'status': 'approved', 'updated_at': DateTime.now().toIso8601String()},
       where: 'id = ?',
       whereArgs: [shiftId],
     );
@@ -55,10 +52,7 @@ class AdminShiftDao {
     final db = await _database.database;
     await db.update(
       'staff_shifts',
-      {
-        'status': 'rejected',
-        'updated_at': DateTime.now().toIso8601String(),
-      },
+      {'status': 'rejected', 'updated_at': DateTime.now().toIso8601String()},
       where: 'id = ?',
       whereArgs: [shiftId],
     );
