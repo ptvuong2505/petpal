@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../../../app/app_routes.dart';
+import '../../../core/constants/app_routes.dart';
 import '../../../core/services/navigation_service.dart';
 import '../data/admin_shift_dao.dart';
 import '../models/calendar_shift_item.dart';
@@ -96,11 +96,13 @@ class _AdminShiftCalendarPageState extends State<AdminShiftCalendarPage> {
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
         onPressed: () async {
-          final assigned = await NavigationService.goTo<bool>(
+          NavigationService.goTo(
             context,
             AppRoutes.adminAssignShift,
           );
-          if (assigned == true) _loadShifts();
+          // Reload after returning from assign page
+          await Future.delayed(const Duration(milliseconds: 500));
+          _loadShifts();
         },
       ),
     );
