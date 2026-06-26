@@ -60,6 +60,49 @@ class BookingDao {
     return rows.map((row) => row['start_time'] as String).toList();
   }
 
+  Future<List<Map<String, Object?>>> getBookingsByUserId(int userId) async {
+    final db = await _database.database;
+    return db.rawQuery(
+      '''
+      SELECT b.*, p.name as pet_name, p.species as pet_species, u.full_name as staff_name, ts.start_time, ts.end_time
+      FROM bookings b
+      LEFT JOIN pets p ON b.pet_id = p.id
+      LEFT JOIN users u ON b.staff_id = u.id
+      LEFT JOIN time_slots ts ON b.time_slot_id = ts.id
+      WHERE b.user_id = ?
+      ORDER BY b.booking_date DESC, b.created_at DESC
+    ''',
+      [userId],
+    );
+  }
+
+  Future<Map<String, Object?>?> getBookingById(int id) async {
+    final db = await _database.database;
+    final List<Map<String, Object?>> results = await db.rawQuery(
+      '''
+      SELECT b.*, p.name as pet_name, p.species as pet_species, p.weight as pet_weight, p.image_path as pet_image,
+             u.full_name as staff_name, ts.start_time, ts.end_time
+      FROM bookings b
+      LEFT JOIN pets p ON b.pet_id = p.id
+      LEFT JOIN users u ON b.staff_id = u.id
+      LEFT JOIN time_slots ts ON b.time_slot_id = ts.id
+      WHERE b.id = ?
+    ''',
+      [id],
+    );
+    return results.isNotEmpty ? results.first : null;
+  }
+
+  Future<int> updateBookingStatus(int bookingId, String status) async {
+    final db = await _database.database;
+    return db.update(
+      'bookings',
+      {'status': status, 'updated_at': DateTime.now().toIso8601String()},
+      where: 'id = ?',
+      whereArgs: [bookingId],
+    );
+  }
+
   Future<List<Booking>> getBookings() async {
     final db = await _database.database;
     final rows = await db.query('bookings', orderBy: 'booking_date DESC');

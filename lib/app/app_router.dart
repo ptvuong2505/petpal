@@ -221,7 +221,14 @@ class AppRouter extends RouterDelegate<AppRoutePath>
       case AppRoutes.myBookings:
         return const MyBookingsPage();
       case AppRoutes.bookingDetail:
-        return const BookingDetailPage();
+        final bookingId = path.bookingId;
+        if (bookingId == null) {
+          return const AppPage(
+            title: 'Chi tiết lịch hẹn',
+            message: 'Thiếu mã đặt lịch.',
+          );
+        }
+        return BookingDetailPage(bookingId: bookingId);
       case AppRoutes.timeSlotManagement:
         return const TimeSlotManagementPage();
       case AppRoutes.createTimeSlot:
