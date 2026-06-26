@@ -282,6 +282,16 @@ class AppRouteCatalog {
       title: 'Admin Dashboard',
     ),
     AppRouteInfo(
+      name: AppRoutes.adminShiftCalendar,
+      location: '/admin/shift-calendar',
+      title: 'Quản lý ca trực',
+    ),
+    AppRouteInfo(
+      name: AppRoutes.adminAssignShift,
+      location: '/admin/shift-assign',
+      title: 'Xếp ca mới',
+    ),
+    AppRouteInfo(
       name: AppRoutes.shopSetting,
       location: '/shop-setting',
       title: 'Shop Setting',
