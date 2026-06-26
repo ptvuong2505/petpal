@@ -119,7 +119,7 @@ class _AdminAssignShiftPageState extends State<AdminAssignShiftPage> {
           padding: const EdgeInsets.all(16),
           children: [
             DropdownButtonFormField<int>(
-              value: _selectedStaffId,
+              initialValue: _selectedStaffId,
               decoration: const InputDecoration(
                 labelText: 'Chọn nhân viên',
                 border: OutlineInputBorder(),
@@ -154,7 +154,7 @@ class _AdminAssignShiftPageState extends State<AdminAssignShiftPage> {
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<ShiftType>(
-              value: _selectedShift,
+              initialValue: _selectedShift,
               decoration: const InputDecoration(
                 labelText: 'Ca trực',
                 border: OutlineInputBorder(),

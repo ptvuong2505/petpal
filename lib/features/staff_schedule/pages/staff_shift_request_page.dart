@@ -140,7 +140,7 @@ class _StaffShiftRequestPageState extends State<StaffShiftRequestPage> {
                     ),
                     const SizedBox(height: 12),
                     DropdownButtonFormField<ShiftType>(
-                      value: _selectedShift,
+                      initialValue: _selectedShift,
                       decoration: const InputDecoration(
                         labelText: 'Ca trực',
                         border: OutlineInputBorder(),
