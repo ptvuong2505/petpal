@@ -8,6 +8,7 @@ import '../../staff_portal/widgets/staff_access_guard.dart';
 import '../../staff_portal/widgets/staff_content.dart';
 import '../validators/staff_shift_validation.dart';
 import '../../staff_portal/data/staff_portal_dao.dart';
+import '../constants/shift_constants.dart';
 
 class StaffShiftRequestPage extends StatefulWidget {
   const StaffShiftRequestPage({super.key});
@@ -20,8 +21,7 @@ class _StaffShiftRequestPageState extends State<StaffShiftRequestPage> {
   final _formKey = GlobalKey<FormState>();
   final _dao = StaffPortalDao();
   final _date = TextEditingController();
-  final _start = TextEditingController(text: '08:00');
-  final _end = TextEditingController(text: '12:00');
+  ShiftType _selectedShift = ShiftConstants.morningShift;
   final _note = TextEditingController();
   bool _submitting = false;
   String? _submitError;
@@ -37,8 +37,6 @@ class _StaffShiftRequestPageState extends State<StaffShiftRequestPage> {
   @override
   void dispose() {
     _date.dispose();
-    _start.dispose();
-    _end.dispose();
     _note.dispose();
     super.dispose();
   }
@@ -57,8 +55,8 @@ class _StaffShiftRequestPageState extends State<StaffShiftRequestPage> {
       await _dao.requestShift(
         staffId: staffId,
         date: _date.text.trim(),
-        start: _start.text.trim(),
-        end: _end.text.trim(),
+        start: _selectedShift.startTime,
+        end: _selectedShift.endTime,
         note: _note.text.trim(),
       );
       if (!mounted) return;
@@ -104,26 +102,6 @@ class _StaffShiftRequestPageState extends State<StaffShiftRequestPage> {
     _formKey.currentState?.validate();
   }
 
-  Future<void> _pickTime(TextEditingController controller) async {
-    final parts = controller.text.trim().split(':');
-    final hour = int.tryParse(parts.first);
-    final minute = parts.length == 2 ? int.tryParse(parts.last) : null;
-    final selected = await showTimePicker(
-      context: context,
-      initialTime: hour == null || minute == null
-          ? TimeOfDay.now()
-          : TimeOfDay(hour: hour, minute: minute),
-    );
-    if (selected == null || !mounted) return;
-    setState(() {
-      controller.text = formatShiftTime(
-        hour: selected.hour,
-        minute: selected.minute,
-      );
-    });
-    _formKey.currentState?.validate();
-  }
-
   @override
   Widget build(BuildContext context) {
     return StaffAccessGuard(
@@ -161,47 +139,35 @@ class _StaffShiftRequestPageState extends State<StaffShiftRequestPage> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    TextFormField(
-                      controller: _start,
-                      enabled: !_submitting,
-                      readOnly: true,
-                      onTap: _submitting ? null : () => _pickTime(_start),
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      validator: validateShiftTime,
+                    DropdownButtonFormField<ShiftType>(
+                      value: _selectedShift,
                       decoration: const InputDecoration(
-                        labelText: 'Bắt đầu (HH:mm)',
-                        suffixIcon: Icon(Icons.schedule_outlined),
+                        labelText: 'Ca trực',
                         border: OutlineInputBorder(),
                       ),
-                    ),
-                    const SizedBox(height: 12),
-                    TextFormField(
-                      controller: _end,
-                      enabled: !_submitting,
-                      readOnly: true,
-                      onTap: _submitting ? null : () => _pickTime(_end),
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      validator: (value) =>
-                          validateShiftTime(value) ??
-                          validateShiftTimeRange(
-                            start: _start.text,
-                            end: value ?? '',
-                          ),
-                      decoration: const InputDecoration(
-                        labelText: 'Kết thúc (HH:mm)',
-                        suffixIcon: Icon(Icons.schedule_outlined),
-                        border: OutlineInputBorder(),
-                      ),
+                      items: ShiftConstants.allShifts.map((shift) {
+                        return DropdownMenuItem(
+                          value: shift,
+                          child: Text(shift.displayText),
+                        );
+                      }).toList(),
+                      onChanged: _submitting ? null : (value) {
+                        if (value != null) {
+                          setState(() {
+                            _selectedShift = value;
+                          });
+                        }
+                      },
                     ),
                     const SizedBox(height: 12),
                     StaffInfoSection(
-                      title: 'Khoảng thời gian đã chọn',
+                      title: 'Thông tin ca trực đã chọn',
                       icon: Icons.schedule_outlined,
                       children: [
                         StaffInfoRow(label: 'Ngày', value: _date.text),
                         StaffInfoRow(
-                          label: 'Thời gian',
-                          value: '${_start.text} – ${_end.text}',
+                          label: 'Ca trực',
+                          value: _selectedShift.displayText,
                         ),
                       ],
                     ),

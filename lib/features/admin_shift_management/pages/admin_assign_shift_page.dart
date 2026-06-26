@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../data/admin_shift_dao.dart';
+import '../../staff_schedule/constants/shift_constants.dart';
 
 class AdminAssignShiftPage extends StatefulWidget {
   const AdminAssignShiftPage({super.key});
@@ -13,13 +14,11 @@ class AdminAssignShiftPage extends StatefulWidget {
 class _AdminAssignShiftPageState extends State<AdminAssignShiftPage> {
   final _formKey = GlobalKey<FormState>();
   final _dao = AdminShiftDao();
-  final _adminNoteController = TextEditingController();
 
   List<Map<String, Object?>> _allStaff = [];
   int? _selectedStaffId;
   DateTime _selectedDate = DateTime.now();
-  TimeOfDay _startTime = const TimeOfDay(hour: 8, minute: 0);
-  TimeOfDay _endTime = const TimeOfDay(hour: 12, minute: 0);
+  ShiftType _selectedShift = ShiftConstants.morningShift;
   bool _loading = false;
   bool _hasConflict = false;
 
@@ -31,7 +30,6 @@ class _AdminAssignShiftPageState extends State<AdminAssignShiftPage> {
 
   @override
   void dispose() {
-    _adminNoteController.dispose();
     super.dispose();
   }
 
@@ -47,8 +45,8 @@ class _AdminAssignShiftPageState extends State<AdminAssignShiftPage> {
     final hasConflict = await _dao.checkConflict(
       staffId: _selectedStaffId!,
       date: DateFormat('yyyy-MM-dd').format(_selectedDate),
-      startTime: _formatTime(_startTime),
-      endTime: _formatTime(_endTime),
+      startTime: _selectedShift.startTime,
+      endTime: _selectedShift.endTime,
     );
 
     if (!mounted) return;
@@ -92,9 +90,8 @@ class _AdminAssignShiftPageState extends State<AdminAssignShiftPage> {
       await _dao.assignShift(
         staffId: _selectedStaffId!,
         date: DateFormat('yyyy-MM-dd').format(_selectedDate),
-        startTime: _formatTime(_startTime),
-        endTime: _formatTime(_endTime),
-        adminNote: _adminNoteController.text.trim().isEmpty ? null : _adminNoteController.text.trim(),
+        startTime: _selectedShift.startTime,
+        endTime: _selectedShift.endTime,
       );
       if (!mounted) return;
       Navigator.of(context).pop(true);
@@ -108,10 +105,6 @@ class _AdminAssignShiftPageState extends State<AdminAssignShiftPage> {
         SnackBar(content: Text('Lỗi: ${e.toString()}')),
       );
     }
-  }
-
-  String _formatTime(TimeOfDay time) {
-    return '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
   }
 
   @override
@@ -155,35 +148,26 @@ class _AdminAssignShiftPageState extends State<AdminAssignShiftPage> {
               ),
             ),
             const SizedBox(height: 16),
-            ListTile(
-              title: const Text('Giờ bắt đầu'),
-              subtitle: Text(_formatTime(_startTime)),
-              trailing: const Icon(Icons.access_time),
-              onTap: _loading ? null : () => _pickTime(true),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(4),
-                side: BorderSide(color: Colors.grey[400]!),
-              ),
-            ),
-            const SizedBox(height: 16),
-            ListTile(
-              title: const Text('Giờ kết thúc'),
-              subtitle: Text(_formatTime(_endTime)),
-              trailing: const Icon(Icons.access_time),
-              onTap: _loading ? null : () => _pickTime(false),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(4),
-                side: BorderSide(color: Colors.grey[400]!),
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _adminNoteController,
+            DropdownButtonFormField<ShiftType>(
+              value: _selectedShift,
               decoration: const InputDecoration(
-                labelText: 'Ghi chú (không bắt buộc)',
+                labelText: 'Ca trực',
                 border: OutlineInputBorder(),
               ),
-              maxLines: 3,
+              items: ShiftConstants.allShifts.map((shift) {
+                return DropdownMenuItem(
+                  value: shift,
+                  child: Text(shift.displayText),
+                );
+              }).toList(),
+              onChanged: _loading ? null : (value) {
+                if (value != null) {
+                  setState(() {
+                    _selectedShift = value;
+                    _hasConflict = false;
+                  });
+                }
+              },
             ),
             const SizedBox(height: 24),
             SizedBox(
@@ -215,23 +199,6 @@ class _AdminAssignShiftPageState extends State<AdminAssignShiftPage> {
     if (picked != null && mounted) {
       setState(() {
         _selectedDate = picked;
-        _hasConflict = false;
-      });
-    }
-  }
-
-  Future<void> _pickTime(bool isStart) async {
-    final picked = await showTimePicker(
-      context: context,
-      initialTime: isStart ? _startTime : _endTime,
-    );
-    if (picked != null && mounted) {
-      setState(() {
-        if (isStart) {
-          _startTime = picked;
-        } else {
-          _endTime = picked;
-        }
         _hasConflict = false;
       });
     }

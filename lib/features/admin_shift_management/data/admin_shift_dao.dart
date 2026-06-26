@@ -69,7 +69,6 @@ class AdminShiftDao {
     required String date,
     required String startTime,
     required String endTime,
-    String? adminNote,
   }) async {
     if (startTime.compareTo(endTime) >= 0) {
       throw ArgumentError('End time must be after start time');
@@ -85,7 +84,6 @@ class AdminShiftDao {
       'end_time': endTime,
       'status': 'approved',
       'request_type': 'admin_assign',
-      'admin_note': adminNote,
       'created_at': now,
       'updated_at': now,
     });
