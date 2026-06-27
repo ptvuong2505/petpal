@@ -97,7 +97,7 @@ class AppBottomNavigationBar extends StatelessWidget {
           AppBottomNavItem(
             label: 'Slots',
             icon: Icons.schedule,
-            routeName: AppRoutes.timeSlotManagement,
+            routeName: AppRoutes.adminShiftCalendar,
           ),
           AppBottomNavItem(
             label: 'Shop',
