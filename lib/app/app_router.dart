@@ -70,7 +70,7 @@ class AppRouter extends RouterDelegate<AppRoutePath>
 
   @override
   void dispose() {
-    _authProvider?.removeListener(notifyListeners);
+    _authProvider?.removeListener(_handleAuthProviderChanged);
     super.dispose();
   }
 
@@ -80,9 +80,34 @@ class AppRouter extends RouterDelegate<AppRoutePath>
   void setAuthProvider(AuthProvider authProvider) {
     if (_authProvider == authProvider) return;
 
-    _authProvider?.removeListener(notifyListeners);
+    _authProvider?.removeListener(_handleAuthProviderChanged);
     _authProvider = authProvider;
-    _authProvider?.addListener(notifyListeners);
+    _authProvider?.addListener(_handleAuthProviderChanged);
+    _syncHomeToRoleLanding(authProvider);
+  }
+
+  void _handleAuthProviderChanged() {
+    final authProvider = _authProvider;
+    if (authProvider != null) {
+      _syncHomeToRoleLanding(authProvider);
+    }
+    notifyListeners();
+  }
+
+  void _syncHomeToRoleLanding(AuthProvider authProvider) {
+    if (authProvider.isCheckingLogin || !authProvider.isLoggedIn) {
+      return;
+    }
+
+    final destination = AppRoutes.loginDestinationForRole(
+      authProvider.currentRole,
+    );
+    if (destination == AppRoutes.home || !_currentPath.isHome) {
+      return;
+    }
+
+    _history.clear();
+    _currentPath = AppRoutePath.byName(destination);
   }
 
   @override
