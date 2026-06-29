@@ -60,6 +60,7 @@ class AppRoutePath {
   bool get isHome => routeName == AppRoutes.home;
 
   int? get bookingId => int.tryParse(queryParameters['bookingId'] ?? '');
+  int? get reviewId => int.tryParse(queryParameters['reviewId'] ?? '');
   int? get resultId => int.tryParse(queryParameters['resultId'] ?? '');
   int? get petId => int.tryParse(queryParameters['petId'] ?? '');
 }
@@ -160,21 +161,6 @@ class AppRouteCatalog {
       name: AppRoutes.bookingDetail,
       location: '/bookings/detail',
       title: 'Booking Detail',
-    ),
-    AppRouteInfo(
-      name: AppRoutes.timeSlotManagement,
-      location: '/time-slots',
-      title: 'Time Slot Management',
-    ),
-    AppRouteInfo(
-      name: AppRoutes.createTimeSlot,
-      location: '/time-slots/create',
-      title: 'Create Time Slot',
-    ),
-    AppRouteInfo(
-      name: AppRoutes.editTimeSlot,
-      location: '/time-slots/edit',
-      title: 'Edit Time Slot',
     ),
     AppRouteInfo(
       name: AppRoutes.reviewList,
@@ -285,6 +271,26 @@ class AppRouteCatalog {
       name: AppRoutes.adminDashboard,
       location: '/admin',
       title: 'Admin Dashboard',
+    ),
+    AppRouteInfo(
+      name: AppRoutes.adminBookingList,
+      location: '/admin/bookings',
+      title: 'All Bookings',
+    ),
+    AppRouteInfo(
+      name: AppRoutes.adminBookingDetail,
+      location: '/admin/bookings/detail',
+      title: 'Booking Detail',
+    ),
+    AppRouteInfo(
+      name: AppRoutes.adminReviewList,
+      location: '/admin/reviews',
+      title: 'Reviews',
+    ),
+    AppRouteInfo(
+      name: AppRoutes.adminReviewDetail,
+      location: '/admin/reviews/detail',
+      title: 'Review Detail',
     ),
     AppRouteInfo(
       name: AppRoutes.adminShiftCalendar,

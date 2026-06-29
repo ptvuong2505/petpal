@@ -76,14 +76,37 @@ class BookingDao {
     );
   }
 
+  Future<List<Map<String, Object?>>> getAllBookingsForAdmin() async {
+    final db = await _database.database;
+    return db.rawQuery('''
+      SELECT b.*,
+             p.name AS pet_name,
+             p.species AS pet_species,
+             owner.full_name AS customer_name,
+             owner.email AS customer_email,
+             owner.phone AS customer_phone,
+             staff.full_name AS staff_name,
+             ts.start_time,
+             ts.end_time
+      FROM bookings b
+      LEFT JOIN pets p ON b.pet_id = p.id
+      LEFT JOIN users owner ON b.user_id = owner.id
+      LEFT JOIN users staff ON b.staff_id = staff.id
+      LEFT JOIN time_slots ts ON b.time_slot_id = ts.id
+      ORDER BY COALESCE(b.created_at, b.booking_date) DESC, b.id DESC
+    ''');
+  }
+
   Future<Map<String, Object?>?> getBookingById(int id) async {
     final db = await _database.database;
     final List<Map<String, Object?>> results = await db.rawQuery(
       '''
       SELECT b.*, p.name as pet_name, p.species as pet_species, p.weight as pet_weight, p.image_path as pet_image,
+             owner.full_name as customer_name, owner.email as customer_email, owner.phone as customer_phone,
              u.full_name as staff_name, ts.start_time, ts.end_time
       FROM bookings b
       LEFT JOIN pets p ON b.pet_id = p.id
+      LEFT JOIN users owner ON b.user_id = owner.id
       LEFT JOIN users u ON b.staff_id = u.id
       LEFT JOIN time_slots ts ON b.time_slot_id = ts.id
       WHERE b.id = ?

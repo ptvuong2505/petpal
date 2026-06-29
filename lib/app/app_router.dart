@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import '../core/constants/app_routes.dart';
 import '../core/services/navigation_service.dart';
+import '../features/admin_dashboard/pages/admin_booking_detail_page.dart';
+import '../features/admin_dashboard/pages/admin_booking_list_page.dart';
 import '../features/admin_dashboard/pages/admin_dashboard_page.dart';
+import '../features/admin_dashboard/pages/admin_review_detail_page.dart';
+import '../features/admin_dashboard/pages/admin_review_list_page.dart';
 import '../features/admin_shift_management/pages/admin_assign_shift_page.dart';
 import '../features/admin_shift_management/pages/admin_shift_calendar_page.dart';
 import '../features/auth/pages/forgot_password_page.dart';
@@ -46,9 +50,6 @@ import '../features/staff_profile/pages/staff_profile_page.dart';
 import '../features/staff_schedule/pages/staff_schedule_page.dart';
 import '../features/staff_schedule/pages/staff_shift_request_page.dart';
 import '../features/staff_statistics/pages/staff_statistics_page.dart';
-import '../features/time_slot/pages/create_time_slot_page.dart';
-import '../features/time_slot/pages/edit_time_slot_page.dart';
-import '../features/time_slot/pages/time_slot_management_page.dart';
 import '../features/user_profile/pages/edit_user_profile_page.dart';
 import '../features/user_profile/pages/user_profile_page.dart';
 import '../shared/layouts/admin_layout.dart';
@@ -61,6 +62,7 @@ class AppRouter extends RouterDelegate<AppRoutePath>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin<AppRoutePath>
     implements AppNavigationController {
   AppRoutePath _currentPath = AppRoutePath.home();
+  final List<AppRoutePath> _history = [];
   AuthProvider? _authProvider;
 
   @override
@@ -68,7 +70,7 @@ class AppRouter extends RouterDelegate<AppRoutePath>
 
   @override
   void dispose() {
-    _authProvider?.removeListener(notifyListeners);
+    _authProvider?.removeListener(_handleAuthProviderChanged);
     super.dispose();
   }
 
@@ -78,9 +80,34 @@ class AppRouter extends RouterDelegate<AppRoutePath>
   void setAuthProvider(AuthProvider authProvider) {
     if (_authProvider == authProvider) return;
 
-    _authProvider?.removeListener(notifyListeners);
+    _authProvider?.removeListener(_handleAuthProviderChanged);
     _authProvider = authProvider;
-    _authProvider?.addListener(notifyListeners);
+    _authProvider?.addListener(_handleAuthProviderChanged);
+    _syncHomeToRoleLanding(authProvider);
+  }
+
+  void _handleAuthProviderChanged() {
+    final authProvider = _authProvider;
+    if (authProvider != null) {
+      _syncHomeToRoleLanding(authProvider);
+    }
+    notifyListeners();
+  }
+
+  void _syncHomeToRoleLanding(AuthProvider authProvider) {
+    if (authProvider.isCheckingLogin || !authProvider.isLoggedIn) {
+      return;
+    }
+
+    final destination = AppRoutes.loginDestinationForRole(
+      authProvider.currentRole,
+    );
+    if (destination == AppRoutes.home || !_currentPath.isHome) {
+      return;
+    }
+
+    _history.clear();
+    _currentPath = AppRoutePath.byName(destination);
   }
 
   @override
@@ -102,37 +129,18 @@ class AppRouter extends RouterDelegate<AppRoutePath>
       );
     }
 
-    final pages = <Page>[
-      MaterialPage(
-        key: const ValueKey(AppRoutes.home),
-        name: AppRoutes.home,
-        child: _buildPageWithLayout(AppRoutePath.home()),
-      ),
-    ];
-
-    if (!_currentPath.isHome) {
-      pages.add(
-        MaterialPage(
-          key: ValueKey(_currentPath.location),
-          name: _currentPath.location,
-          child: _buildPageWithLayout(_currentPath),
-        ),
-      );
-    }
-
     return Navigator(
       key: navigatorKey,
-      pages: pages,
-      onDidRemovePage: (page) {
-        if (page.name == _currentPath.location) {
-          goHome();
-        }
-      },
+      pages: _buildNavigatorPages(),
+      // ignore: deprecated_member_use
+      onPopPage: handlePopPage,
+      onDidRemovePage: (_) {},
     );
   }
 
   @override
   Future<void> setNewRoutePath(AppRoutePath configuration) async {
+    _history.clear();
     _currentPath = configuration;
     notifyListeners();
   }
@@ -143,17 +151,75 @@ class AppRouter extends RouterDelegate<AppRoutePath>
     Object? arguments,
     Map<String, String> queryParameters = const {},
   }) {
-    _currentPath = AppRoutePath.byName(
+    final nextPath = AppRoutePath.byName(
       routeName,
       arguments: arguments,
       queryParameters: queryParameters,
     );
+
+    if (nextPath.isHome) {
+      goHome();
+      return;
+    }
+
+    if (nextPath.location == _currentPath.location) {
+      _currentPath = nextPath;
+      notifyListeners();
+      return;
+    }
+
+    _history.add(_currentPath);
+    _currentPath = nextPath;
     notifyListeners();
   }
 
   void goHome() {
+    _history.clear();
     _currentPath = AppRoutePath.home();
     notifyListeners();
+  }
+
+  @override
+  void goBack() {
+    _currentPath = _history.isEmpty
+        ? AppRoutePath.home()
+        : _history.removeLast();
+    notifyListeners();
+  }
+
+  bool handlePopPage(Route<dynamic> route, dynamic result) {
+    if (!route.didPop(result)) {
+      return false;
+    }
+
+    if (route.settings.name == _currentPath.location) {
+      goBack();
+    }
+    return true;
+  }
+
+  List<Page<dynamic>> _buildNavigatorPages() {
+    final paths = <AppRoutePath>[AppRoutePath.home()];
+
+    for (final path in _history) {
+      if (path.isHome) {
+        continue;
+      }
+      paths.add(path);
+    }
+
+    if (!_currentPath.isHome) {
+      paths.add(_currentPath);
+    }
+
+    return [
+      for (var index = 0; index < paths.length; index++)
+        MaterialPage(
+          key: ValueKey('${paths[index].location}-$index'),
+          name: paths[index].location,
+          child: _buildPageWithLayout(paths[index]),
+        ),
+    ];
   }
 
   Widget _buildPageWithLayout(AppRoutePath path) {
@@ -241,12 +307,6 @@ class AppRouter extends RouterDelegate<AppRoutePath>
           );
         }
         return BookingDetailPage(bookingId: bookingId);
-      case AppRoutes.timeSlotManagement:
-        return const TimeSlotManagementPage();
-      case AppRoutes.createTimeSlot:
-        return const CreateTimeSlotPage();
-      case AppRoutes.editTimeSlot:
-        return const EditTimeSlotPage();
       case AppRoutes.reviewList:
         return const ReviewListPage();
       case AppRoutes.reviewDetail:
@@ -324,6 +384,28 @@ class AppRouter extends RouterDelegate<AppRoutePath>
         return const EditReminderPage();
       case AppRoutes.adminDashboard:
         return const AdminDashboardPage();
+      case AppRoutes.adminBookingList:
+        return const AdminBookingListPage();
+      case AppRoutes.adminBookingDetail:
+        final bookingId = path.bookingId;
+        if (bookingId == null) {
+          return const AppPage(
+            title: 'Booking Detail',
+            message: 'Thiếu hoặc sai bookingId.',
+          );
+        }
+        return AdminBookingDetailPage(bookingId: bookingId);
+      case AppRoutes.adminReviewList:
+        return const AdminReviewListPage();
+      case AppRoutes.adminReviewDetail:
+        final reviewId = path.reviewId;
+        if (reviewId == null) {
+          return const AppPage(
+            title: 'Review Detail',
+            message: 'Thiếu hoặc sai reviewId.',
+          );
+        }
+        return AdminReviewDetailPage(reviewId: reviewId);
       case AppRoutes.adminShiftCalendar:
         return const AdminShiftCalendarPage();
       case AppRoutes.adminAssignShift:

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/constants/app_colors.dart';
+import '../../core/services/navigation_service.dart';
 import '../widgets/app_bottom_navigation_bar.dart';
 
 class AppLayout extends StatelessWidget {
@@ -9,6 +10,7 @@ class AppLayout extends StatelessWidget {
     required this.child,
     this.currentRouteName,
     this.showBottomNav = true,
+    this.showBackButton = true,
     this.constrainTitle = false,
     this.actions,
     this.floatingActionButton,
@@ -19,25 +21,29 @@ class AppLayout extends StatelessWidget {
   final Widget child;
   final String? currentRouteName;
   final bool showBottomNav;
+  final bool showBackButton;
   final bool constrainTitle;
   final List<Widget>? actions;
   final Widget? floatingActionButton;
 
   @override
   Widget build(BuildContext context) {
+    final canShowBackButton = showBackButton && Navigator.of(context).canPop();
+
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: AppColors.surface,
         elevation: 0,
-        leading: Navigator.of(context).canPop()
+        leading: canShowBackButton
             ? IconButton(
                 icon: const Icon(Icons.arrow_back, color: AppColors.primary),
-                onPressed: () => Navigator.of(context).pop(),
+                onPressed: () => NavigationService.goBack(context),
               )
             : null,
         title: Row(
           children: [
-            if (!Navigator.of(context).canPop()) ...[
+            if (!canShowBackButton) ...[
               CircleAvatar(
                 backgroundColor: AppColors.secondaryContainer,
                 child: Icon(Icons.person, color: AppColors.primary),
@@ -66,17 +72,7 @@ class AppLayout extends StatelessWidget {
               ),
           ],
         ),
-        actions:
-            actions ??
-            [
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(
-                  Icons.notifications_none,
-                  color: AppColors.textMuted,
-                ),
-              ),
-            ],
+        actions: actions,
       ),
       body: GestureDetector(
         behavior: HitTestBehavior.translucent,

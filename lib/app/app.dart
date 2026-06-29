@@ -33,9 +33,6 @@ import '../features/shop_setting/repositories/shop_setting_repository.dart';
 import '../features/staff_examination/data/staff_examination_dao.dart';
 import '../features/staff_examination/providers/staff_examination_provider.dart';
 import '../features/staff_examination/repositories/staff_examination_repository.dart';
-import '../features/time_slot/data/time_slot_dao.dart';
-import '../features/time_slot/providers/time_slot_provider.dart';
-import '../features/time_slot/repositories/time_slot_repository.dart';
 import '../features/user_profile/data/user_profile_dao.dart';
 import '../features/user_profile/providers/user_profile_provider.dart';
 import '../features/user_profile/repositories/user_profile_repository.dart';
@@ -98,11 +95,6 @@ class _PetPalAppState extends State<PetPalApp> {
                 ),
               ),
             ),
-          ),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => TimeSlotProvider(
-            repository: TimeSlotRepository(dao: TimeSlotDao()),
           ),
         ),
         ChangeNotifierProvider(

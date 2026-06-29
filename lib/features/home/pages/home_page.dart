@@ -31,9 +31,6 @@ class AppHomePage extends StatelessWidget {
             const SizedBox(height: 24),
 
             _bookingButton(context),
-            const SizedBox(height: 24),
-
-            _upcomingBookingSection(context),
           ],
         ),
       ),
@@ -264,113 +261,6 @@ class AppHomePage extends StatelessWidget {
           textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
         ),
       ),
-    );
-  }
-
-  Widget _upcomingBookingSection(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Expanded(child: _sectionTitle('Lịch hẹn sắp tới')),
-            TextButton(
-              onPressed: () =>
-                  NavigationService.goTo(context, AppRoutes.myBookings),
-              child: const Text('Xem tất cả'),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: AppColors.surface,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Column(
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const CircleAvatar(
-                    radius: 24,
-                    backgroundColor: AppColors.secondaryContainer,
-                    child: Icon(Icons.pets, color: AppColors.primary),
-                  ),
-                  const SizedBox(width: 12),
-                  const Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Grooming & Tắm sấy',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.textDark,
-                          ),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          'Cho bé Lulu',
-                          style: TextStyle(color: AppColors.textMuted),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.tertiaryContainer,
-                      borderRadius: BorderRadius.circular(99),
-                    ),
-                    child: const Text(
-                      'Sắp tới',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.primary,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const Divider(height: 28),
-              const Row(
-                children: [
-                  Icon(Icons.event, size: 20, color: AppColors.textMuted),
-                  SizedBox(width: 8),
-                  Text(
-                    'Thứ Bảy, 12 Tháng 10, 2023',
-                    style: TextStyle(color: AppColors.textMuted),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              const Row(
-                children: [
-                  Icon(Icons.schedule, size: 20, color: AppColors.textMuted),
-                  SizedBox(width: 8),
-                  Text(
-                    '09:00 SA',
-                    style: TextStyle(color: AppColors.textMuted),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }

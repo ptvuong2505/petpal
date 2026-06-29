@@ -72,6 +72,7 @@ class AdminDashboardDao {
   Future<List<RecentBooking>> _getRecentBookings(Database db) async {
     final rows = await db.rawQuery('''
       SELECT
+        b.id,
         b.service_name,
         b.booking_date,
         b.status,
@@ -86,6 +87,7 @@ class AdminDashboardDao {
 
     return rows.map((row) {
       return RecentBooking(
+        id: row['id'] as int? ?? 0,
         serviceName: row['service_name'] as String? ?? 'Dịch vụ',
         petName: row['pet_name'] as String? ?? 'Pet',
         bookingDate: row['booking_date'] as String? ?? '',

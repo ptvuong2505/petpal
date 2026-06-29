@@ -85,11 +85,6 @@ class AppBottomNavigationBar extends StatelessWidget {
       case 'admin':
         return const [
           AppBottomNavItem(
-            label: 'Home',
-            icon: Icons.home,
-            routeName: AppRoutes.home,
-          ),
-          AppBottomNavItem(
             label: 'Admin',
             icon: Icons.dashboard_customize,
             routeName: AppRoutes.adminDashboard,
@@ -98,6 +93,11 @@ class AppBottomNavigationBar extends StatelessWidget {
             label: 'Slots',
             icon: Icons.schedule,
             routeName: AppRoutes.adminShiftCalendar,
+          ),
+          AppBottomNavItem(
+            label: 'Reviews',
+            icon: Icons.rate_review,
+            routeName: AppRoutes.adminReviewList,
           ),
           AppBottomNavItem(
             label: 'Shop',
@@ -173,6 +173,11 @@ class AppBottomNavigationBar extends StatelessWidget {
   }
 
   String _selectedRouteName(AuthProvider auth, String routeName) {
+    if (auth.currentRole == 'admin' &&
+        routeName == AppRoutes.adminReviewDetail) {
+      return AppRoutes.adminReviewList;
+    }
+
     if (auth.currentRole == 'staff' &&
         (routeName == AppRoutes.staffStatistics ||
             routeName == AppRoutes.staffProfile ||
