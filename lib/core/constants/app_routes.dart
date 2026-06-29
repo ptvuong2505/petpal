@@ -45,6 +45,8 @@ class AppRoutes {
   static const String adminDashboard = 'adminDashboard';
   static const String adminBookingList = 'adminBookingList';
   static const String adminBookingDetail = 'adminBookingDetail';
+  static const String adminReviewList = 'adminReviewList';
+  static const String adminReviewDetail = 'adminReviewDetail';
   static const String adminShiftCalendar = 'adminShiftCalendar';
   static const String adminAssignShift = 'adminAssignShift';
   static const String shopSetting = 'shopSetting';
@@ -118,6 +120,8 @@ class AppRoutes {
       case adminDashboard:
       case adminBookingList:
       case adminBookingDetail:
+      case adminReviewList:
+      case adminReviewDetail:
       case adminShiftCalendar:
       case adminAssignShift:
       case timeSlotManagement:

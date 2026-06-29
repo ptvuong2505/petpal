@@ -4,6 +4,8 @@ import '../core/services/navigation_service.dart';
 import '../features/admin_dashboard/pages/admin_booking_detail_page.dart';
 import '../features/admin_dashboard/pages/admin_booking_list_page.dart';
 import '../features/admin_dashboard/pages/admin_dashboard_page.dart';
+import '../features/admin_dashboard/pages/admin_review_detail_page.dart';
+import '../features/admin_dashboard/pages/admin_review_list_page.dart';
 import '../features/admin_shift_management/pages/admin_assign_shift_page.dart';
 import '../features/admin_shift_management/pages/admin_shift_calendar_page.dart';
 import '../features/auth/pages/forgot_password_page.dart';
@@ -377,6 +379,17 @@ class AppRouter extends RouterDelegate<AppRoutePath>
           );
         }
         return AdminBookingDetailPage(bookingId: bookingId);
+      case AppRoutes.adminReviewList:
+        return const AdminReviewListPage();
+      case AppRoutes.adminReviewDetail:
+        final reviewId = path.reviewId;
+        if (reviewId == null) {
+          return const AppPage(
+            title: 'Review Detail',
+            message: 'Thiếu hoặc sai reviewId.',
+          );
+        }
+        return AdminReviewDetailPage(reviewId: reviewId);
       case AppRoutes.adminShiftCalendar:
         return const AdminShiftCalendarPage();
       case AppRoutes.adminAssignShift:

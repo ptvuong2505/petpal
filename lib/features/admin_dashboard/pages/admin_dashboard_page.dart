@@ -102,7 +102,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                             title: 'Recent Reviews',
                             trailing: _TextAction(
                               label: 'Manage',
-                              routeName: AppRoutes.reviewList,
+                              routeName: AppRoutes.adminReviewList,
                             ),
                             child: _RecentReviewsList(
                               reviews: summary.recentReviews,

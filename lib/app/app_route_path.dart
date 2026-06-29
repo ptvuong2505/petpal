@@ -60,6 +60,7 @@ class AppRoutePath {
   bool get isHome => routeName == AppRoutes.home;
 
   int? get bookingId => int.tryParse(queryParameters['bookingId'] ?? '');
+  int? get reviewId => int.tryParse(queryParameters['reviewId'] ?? '');
   int? get resultId => int.tryParse(queryParameters['resultId'] ?? '');
   int? get petId => int.tryParse(queryParameters['petId'] ?? '');
 }
@@ -295,6 +296,16 @@ class AppRouteCatalog {
       name: AppRoutes.adminBookingDetail,
       location: '/admin/bookings/detail',
       title: 'Booking Detail',
+    ),
+    AppRouteInfo(
+      name: AppRoutes.adminReviewList,
+      location: '/admin/reviews',
+      title: 'Reviews',
+    ),
+    AppRouteInfo(
+      name: AppRoutes.adminReviewDetail,
+      location: '/admin/reviews/detail',
+      title: 'Review Detail',
     ),
     AppRouteInfo(
       name: AppRoutes.adminShiftCalendar,

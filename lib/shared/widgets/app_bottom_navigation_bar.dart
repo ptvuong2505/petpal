@@ -95,6 +95,11 @@ class AppBottomNavigationBar extends StatelessWidget {
             routeName: AppRoutes.adminShiftCalendar,
           ),
           AppBottomNavItem(
+            label: 'Reviews',
+            icon: Icons.rate_review,
+            routeName: AppRoutes.adminReviewList,
+          ),
+          AppBottomNavItem(
             label: 'Shop',
             icon: Icons.store,
             routeName: AppRoutes.shopSetting,
@@ -168,6 +173,11 @@ class AppBottomNavigationBar extends StatelessWidget {
   }
 
   String _selectedRouteName(AuthProvider auth, String routeName) {
+    if (auth.currentRole == 'admin' &&
+        routeName == AppRoutes.adminReviewDetail) {
+      return AppRoutes.adminReviewList;
+    }
+
     if (auth.currentRole == 'staff' &&
         (routeName == AppRoutes.staffStatistics ||
             routeName == AppRoutes.staffProfile ||
