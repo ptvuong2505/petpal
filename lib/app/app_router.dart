@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../core/constants/app_routes.dart';
 import '../core/services/navigation_service.dart';
 import '../features/admin_dashboard/pages/admin_dashboard_page.dart';
+import '../features/admin_shift_management/pages/admin_assign_shift_page.dart';
+import '../features/admin_shift_management/pages/admin_shift_calendar_page.dart';
 import '../features/auth/pages/forgot_password_page.dart';
 import '../features/auth/pages/login_page.dart';
 import '../features/auth/pages/register_page.dart';
@@ -231,7 +233,14 @@ class AppRouter extends RouterDelegate<AppRoutePath>
       case AppRoutes.myBookings:
         return const MyBookingsPage();
       case AppRoutes.bookingDetail:
-        return const BookingDetailPage();
+        final bookingId = path.bookingId;
+        if (bookingId == null) {
+          return const AppPage(
+            title: 'Chi tiết lịch hẹn',
+            message: 'Thiếu mã đặt lịch.',
+          );
+        }
+        return BookingDetailPage(bookingId: bookingId);
       case AppRoutes.timeSlotManagement:
         return const TimeSlotManagementPage();
       case AppRoutes.createTimeSlot:
@@ -315,6 +324,10 @@ class AppRouter extends RouterDelegate<AppRoutePath>
         return const EditReminderPage();
       case AppRoutes.adminDashboard:
         return const AdminDashboardPage();
+      case AppRoutes.adminShiftCalendar:
+        return const AdminShiftCalendarPage();
+      case AppRoutes.adminAssignShift:
+        return const AdminAssignShiftPage();
       case AppRoutes.shopSetting:
         return const ShopSettingPage();
       default:

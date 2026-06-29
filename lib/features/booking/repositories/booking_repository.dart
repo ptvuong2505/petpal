@@ -10,6 +10,10 @@ class BookingRepository {
     return _dao.getBookings();
   }
 
+  Future<List<Map<String, Object?>>> getBookingsByUserId(int userId) {
+    return _dao.getBookingsByUserId(userId);
+  }
+
   Future<int> createBooking(Booking booking) {
     return _dao.insertBooking(booking);
   }
