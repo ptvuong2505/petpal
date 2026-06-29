@@ -61,23 +61,6 @@ class _AdminShiftCalendarPageState extends State<AdminShiftCalendarPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Quản lý ca trực'),
-        actions: [
-          IconButton(
-            icon: Icon(
-              _viewMode == CalendarViewMode.week
-                  ? Icons.calendar_view_month
-                  : Icons.calendar_view_week,
-            ),
-            onPressed: () => setState(
-              () => _viewMode = _viewMode == CalendarViewMode.week
-                  ? CalendarViewMode.month
-                  : CalendarViewMode.week,
-            ),
-          ),
-        ],
-      ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : Column(
