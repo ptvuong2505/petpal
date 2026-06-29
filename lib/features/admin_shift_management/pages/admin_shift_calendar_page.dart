@@ -18,7 +18,7 @@ class AdminShiftCalendarPage extends StatefulWidget {
 
 class _AdminShiftCalendarPageState extends State<AdminShiftCalendarPage> {
   final _dao = AdminShiftDao();
-  CalendarViewMode _viewMode = CalendarViewMode.week;
+  final CalendarViewMode _viewMode = CalendarViewMode.week;
   final DateTime _focusedDate = DateTime.now();
   List<CalendarShiftItem> _shifts = [];
   List<Map<String, Object?>> _allStaff = [];
