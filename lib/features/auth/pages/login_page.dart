@@ -258,7 +258,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         TextButton(
                           onPressed: () {
-                            Navigator.pushNamed(context, AppRoutes.register);
+                            NavigationService.goTo(context, AppRoutes.register);
                           },
                           child: const Text(
                             'Đăng ký ngay',

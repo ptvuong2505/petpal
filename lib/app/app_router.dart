@@ -61,6 +61,7 @@ class AppRouter extends RouterDelegate<AppRoutePath>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin<AppRoutePath>
     implements AppNavigationController {
   AppRoutePath _currentPath = AppRoutePath.home();
+  final List<AppRoutePath> _history = [];
   AuthProvider? _authProvider;
 
   @override
@@ -102,37 +103,18 @@ class AppRouter extends RouterDelegate<AppRoutePath>
       );
     }
 
-    final pages = <Page>[
-      MaterialPage(
-        key: const ValueKey(AppRoutes.home),
-        name: AppRoutes.home,
-        child: _buildPageWithLayout(AppRoutePath.home()),
-      ),
-    ];
-
-    if (!_currentPath.isHome) {
-      pages.add(
-        MaterialPage(
-          key: ValueKey(_currentPath.location),
-          name: _currentPath.location,
-          child: _buildPageWithLayout(_currentPath),
-        ),
-      );
-    }
-
     return Navigator(
       key: navigatorKey,
-      pages: pages,
-      onDidRemovePage: (page) {
-        if (page.name == _currentPath.location) {
-          goHome();
-        }
-      },
+      pages: _buildNavigatorPages(),
+      // ignore: deprecated_member_use
+      onPopPage: handlePopPage,
+      onDidRemovePage: (_) {},
     );
   }
 
   @override
   Future<void> setNewRoutePath(AppRoutePath configuration) async {
+    _history.clear();
     _currentPath = configuration;
     notifyListeners();
   }
@@ -143,17 +125,75 @@ class AppRouter extends RouterDelegate<AppRoutePath>
     Object? arguments,
     Map<String, String> queryParameters = const {},
   }) {
-    _currentPath = AppRoutePath.byName(
+    final nextPath = AppRoutePath.byName(
       routeName,
       arguments: arguments,
       queryParameters: queryParameters,
     );
+
+    if (nextPath.isHome) {
+      goHome();
+      return;
+    }
+
+    if (nextPath.location == _currentPath.location) {
+      _currentPath = nextPath;
+      notifyListeners();
+      return;
+    }
+
+    _history.add(_currentPath);
+    _currentPath = nextPath;
     notifyListeners();
   }
 
   void goHome() {
+    _history.clear();
     _currentPath = AppRoutePath.home();
     notifyListeners();
+  }
+
+  @override
+  void goBack() {
+    _currentPath = _history.isEmpty
+        ? AppRoutePath.home()
+        : _history.removeLast();
+    notifyListeners();
+  }
+
+  bool handlePopPage(Route<dynamic> route, dynamic result) {
+    if (!route.didPop(result)) {
+      return false;
+    }
+
+    if (route.settings.name == _currentPath.location) {
+      goBack();
+    }
+    return true;
+  }
+
+  List<Page<dynamic>> _buildNavigatorPages() {
+    final paths = <AppRoutePath>[AppRoutePath.home()];
+
+    for (final path in _history) {
+      if (path.isHome) {
+        continue;
+      }
+      paths.add(path);
+    }
+
+    if (!_currentPath.isHome) {
+      paths.add(_currentPath);
+    }
+
+    return [
+      for (var index = 0; index < paths.length; index++)
+        MaterialPage(
+          key: ValueKey('${paths[index].location}-$index'),
+          name: paths[index].location,
+          child: _buildPageWithLayout(paths[index]),
+        ),
+    ];
   }
 
   Widget _buildPageWithLayout(AppRoutePath path) {

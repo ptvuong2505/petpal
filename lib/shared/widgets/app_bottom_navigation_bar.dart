@@ -85,11 +85,6 @@ class AppBottomNavigationBar extends StatelessWidget {
       case 'admin':
         return const [
           AppBottomNavItem(
-            label: 'Home',
-            icon: Icons.home,
-            routeName: AppRoutes.home,
-          ),
-          AppBottomNavItem(
             label: 'Admin',
             icon: Icons.dashboard_customize,
             routeName: AppRoutes.adminDashboard,

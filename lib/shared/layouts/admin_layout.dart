@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../core/constants/app_routes.dart';
 import 'app_layout.dart';
 
 class AdminLayout extends StatelessWidget {
@@ -19,6 +20,7 @@ class AdminLayout extends StatelessWidget {
     return AppLayout(
       title: title,
       currentRouteName: currentRouteName,
+      showBackButton: currentRouteName != AppRoutes.adminDashboard,
       child: child,
     );
   }

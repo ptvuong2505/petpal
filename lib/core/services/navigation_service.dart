@@ -6,6 +6,8 @@ abstract interface class AppNavigationController {
     Object? arguments,
     Map<String, String> queryParameters,
   });
+
+  void goBack();
 }
 
 class NavigationService {
@@ -22,6 +24,13 @@ class NavigationService {
         arguments: arguments,
         queryParameters: queryParameters,
       );
+    }
+  }
+
+  static void goBack(BuildContext context) {
+    final delegate = Router.of(context).routerDelegate;
+    if (delegate is AppNavigationController) {
+      (delegate as AppNavigationController).goBack();
     }
   }
 }

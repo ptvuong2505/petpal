@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:petpal/core/constants/app_routes.dart';
+import 'package:petpal/core/services/navigation_service.dart';
 import 'package:petpal/features/auth/providers/auth_provider.dart';
 import 'package:petpal/features/staff_portal/widgets/staff_navigation_bar.dart';
 import 'package:petpal/features/staff_portal/widgets/staff_unread_notifier.dart';
@@ -40,7 +41,7 @@ class StaffLayout extends StatelessWidget {
               )
             : IconButton(
                 tooltip: 'Quay lại',
-                onPressed: () => Navigator.of(context).maybePop(),
+                onPressed: () => NavigationService.goBack(context),
                 icon: const Icon(Icons.arrow_back),
               ),
         title: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
