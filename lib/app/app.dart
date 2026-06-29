@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../config/app_config.dart';
 import '../features/admin_dashboard/data/admin_dashboard_dao.dart';
 import '../features/admin_dashboard/providers/admin_dashboard_provider.dart';
 import '../features/admin_dashboard/repositories/admin_dashboard_repository.dart';
@@ -16,6 +17,10 @@ import '../features/health_record/repositories/health_record_repository.dart';
 import '../features/pet_profile/data/pet_profile_dao.dart';
 import '../features/pet_profile/providers/pet_profile_provider.dart';
 import '../features/pet_profile/repositories/pet_profile_repository.dart';
+import '../features/payment/data/payment_dao.dart';
+import '../features/payment/providers/payment_provider.dart';
+import '../features/payment/repositories/payment_repository.dart';
+import '../features/payment/services/payos_client.dart';
 import '../features/reminder/data/reminder_dao.dart';
 import '../features/reminder/providers/reminder_provider.dart';
 import '../features/reminder/repositories/reminder_repository.dart';
@@ -78,6 +83,22 @@ class _PetPalAppState extends State<PetPalApp> {
         ChangeNotifierProvider(
           create: (_) =>
               BookingProvider(repository: BookingRepository(dao: BookingDao())),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => PaymentProvider(
+            repository: PaymentRepository(
+              dao: PaymentDao(),
+              payOsClient: PayOsClient(
+                credentials: const PayOsCredentials(
+                  clientId: AppConfig.payOsClientId,
+                  apiKey: AppConfig.payOsApiKey,
+                  checksumKey: AppConfig.payOsChecksumKey,
+                  returnUrl: AppConfig.payOsReturnUrl,
+                  cancelUrl: AppConfig.payOsCancelUrl,
+                ),
+              ),
+            ),
+          ),
         ),
         ChangeNotifierProvider(
           create: (_) => TimeSlotProvider(

@@ -147,6 +147,11 @@ class AppRouteCatalog {
       title: 'Booking Confirm',
     ),
     AppRouteInfo(
+      name: AppRoutes.payment,
+      location: '/payment',
+      title: 'Thanh toán',
+    ),
+    AppRouteInfo(
       name: AppRoutes.myBookings,
       location: '/bookings/my',
       title: 'My Bookings',
