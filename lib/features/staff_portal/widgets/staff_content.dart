@@ -18,7 +18,7 @@ class StaffSectionHeader extends StatelessWidget {
             ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
           ),
         ),
-        ?action,
+        if (action != null) action!,
       ],
     );
   }

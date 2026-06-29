@@ -133,7 +133,7 @@ class _BookingTimeSlotPageState extends State<BookingTimeSlotPage> {
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: provider.allStaff.length,
-            separatorBuilder: (_, _) => const SizedBox(width: 10),
+            separatorBuilder: (_, __) => const SizedBox(width: 10),
             itemBuilder: (context, index) {
               final staff = provider.allStaff[index];
               final staffId = staff['id'] as int;
@@ -200,7 +200,7 @@ class _BookingTimeSlotPageState extends State<BookingTimeSlotPage> {
                             child: ListView.separated(
                               scrollDirection: Axis.horizontal,
                               itemCount: dates.length,
-                              separatorBuilder: (_, _) =>
+                              separatorBuilder: (_, __) =>
                                   const SizedBox(width: 12),
                               itemBuilder: (context, index) {
                                 final d = dates[index];

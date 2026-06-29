@@ -6,12 +6,16 @@ import '../features/admin_dashboard/pages/admin_booking_list_page.dart';
 import '../features/admin_dashboard/pages/admin_dashboard_page.dart';
 import '../features/admin_dashboard/pages/admin_review_detail_page.dart';
 import '../features/admin_dashboard/pages/admin_review_list_page.dart';
+import '../features/admin_service_management/pages/admin_edit_service_page.dart';
+import '../features/admin_service_management/pages/admin_service_detail_page.dart';
+import '../features/admin_service_management/pages/admin_service_list_page.dart';
 import '../features/admin_shift_management/pages/admin_assign_shift_page.dart';
 import '../features/admin_shift_management/pages/admin_shift_calendar_page.dart';
 import '../features/auth/pages/forgot_password_page.dart';
 import '../features/auth/pages/login_page.dart';
 import '../features/auth/pages/register_page.dart';
 import '../features/auth/providers/auth_provider.dart';
+import '../features/booking/models/service.dart';
 import '../features/booking/pages/booking_confirm_page.dart';
 import '../features/booking/pages/booking_detail_page.dart';
 import '../features/booking/pages/booking_pet_page.dart';
@@ -410,6 +414,22 @@ class AppRouter extends RouterDelegate<AppRoutePath>
         return const AdminShiftCalendarPage();
       case AppRoutes.adminAssignShift:
         return const AdminAssignShiftPage();
+      case AppRoutes.adminServiceList:
+        return const AdminServiceListPage();
+      case AppRoutes.adminAddService:
+        return const AdminEditServicePage();
+      case AppRoutes.adminEditService:
+        final service = path.arguments as Service?;
+        return AdminEditServicePage(service: service);
+      case AppRoutes.adminServiceDetail:
+        final service = path.arguments as Service?;
+        if (service == null) {
+          return const AppPage(
+            title: 'Chi tiết dịch vụ',
+            message: 'Thiếu thông tin dịch vụ.',
+          );
+        }
+        return AdminServiceDetailPage(service: service);
       case AppRoutes.shopSetting:
         return const ShopSettingPage();
       default:

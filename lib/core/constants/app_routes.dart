@@ -46,6 +46,10 @@ class AppRoutes {
   static const String adminReviewDetail = 'adminReviewDetail';
   static const String adminShiftCalendar = 'adminShiftCalendar';
   static const String adminAssignShift = 'adminAssignShift';
+  static const String adminServiceList = 'adminServiceList';
+  static const String adminAddService = 'adminAddService';
+  static const String adminEditService = 'adminEditService';
+  static const String adminServiceDetail = 'adminServiceDetail';
   static const String shopSetting = 'shopSetting';
 
   static bool isAuthRoute(String routeName) {
@@ -121,6 +125,10 @@ class AppRoutes {
       case adminReviewDetail:
       case adminShiftCalendar:
       case adminAssignShift:
+      case adminServiceList:
+      case adminAddService:
+      case adminEditService:
+      case adminServiceDetail:
       case shopSetting:
         return true;
       default:

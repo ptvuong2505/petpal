@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_routes.dart';
 import '../../../core/services/navigation_service.dart';
+import '../../admin_service_management/providers/admin_service_provider.dart';
+import '../../booking/models/service.dart';
 import '../models/dashboard_summary.dart';
 import '../providers/admin_dashboard_provider.dart';
 
@@ -25,6 +27,11 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       final provider = context.read<AdminDashboardProvider>();
       if (provider.summary == null && !provider.isLoading) {
         provider.loadSummary();
+      }
+      
+      final serviceProvider = context.read<AdminServiceProvider>();
+      if (serviceProvider.services.isEmpty && !serviceProvider.isLoading) {
+        serviceProvider.loadServices();
       }
     });
   }
@@ -68,6 +75,31 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                     ),
                     const SizedBox(height: 20),
                     _SummaryGrid(summary: summary),
+                    const SizedBox(height: 20),
+                    _SectionCard(
+                      title: 'Dịch vụ hệ thống',
+                      trailing: _TextAction(
+                        label: 'Quản lý',
+                        routeName: AppRoutes.adminServiceList,
+                      ),
+                      child: Consumer<AdminServiceProvider>(
+                        builder: (context, provider, _) {
+                          if (provider.isLoading && provider.services.isEmpty) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+                          if (provider.services.isEmpty) {
+                            return const _EmptyDashboardMessage(
+                              message: 'Chưa có dịch vụ nào.',
+                            );
+                          }
+                          return _DashboardServiceList(
+                            services: provider.services.take(4).toList(),
+                          );
+                        },
+                      ),
+                    ),
                     const SizedBox(height: 20),
                     _SectionCard(
                       title: 'Booking theo ngày',
@@ -344,7 +376,7 @@ class _SectionCard extends StatelessWidget {
                   ),
                 ),
               ),
-              ?trailing,
+              if (trailing != null) trailing!,
             ],
           ),
           const SizedBox(height: 16),
@@ -802,6 +834,109 @@ class _ReviewItem extends StatelessWidget {
               color: AppColors.subText,
               fontSize: 13,
               height: 18 / 13,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DashboardServiceList extends StatelessWidget {
+  const _DashboardServiceList({required this.services});
+
+  final List<Service> services;
+
+  @override
+  Widget build(BuildContext context) {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: services.length,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 16,
+        mainAxisSpacing: 20,
+        childAspectRatio: 1.2,
+      ),
+      itemBuilder: (context, index) {
+        return _ServiceListItem(
+          service: services[index],
+          onTap: () => NavigationService.goTo(
+            context,
+            AppRoutes.adminServiceDetail,
+            arguments: services[index],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _ServiceListItem extends StatelessWidget {
+  const _ServiceListItem({required this.service, this.onTap});
+
+  final Service service;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final name = service.name.toLowerCase();
+    IconData icon = Icons.miscellaneous_services;
+    Color bg = AppColors.surfaceContainerLow;
+
+    if (name.contains('groom')) {
+      icon = Icons.content_cut;
+      bg = const Color(0xFFB5EAD7); // Mint green
+    } else if (name.contains('hotel')) {
+      icon = Icons.bed;
+      bg = const Color(0xFFE2F0CB); // Light lime
+    } else if (name.contains('health') || name.contains('khám')) {
+      icon = Icons.favorite;
+      bg = const Color(0xFFFFDAC1); // Peach
+    } else if (name.contains('vaccin')) {
+      icon = Icons.vaccines;
+      bg = const Color(0xFFFFE5E5); // Pink
+    } else if (name.contains('nail') || name.contains('ear')) {
+      icon = Icons.clean_hands;
+      bg = Colors.white;
+    } else if (name.contains('dental') || name.contains('răng')) {
+      icon = Icons.medical_services;
+      bg = const Color(0xFFC7CEEA); // Light indigo/teal
+    }
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(20),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 72,
+            height: 72,
+            decoration: BoxDecoration(
+              color: bg,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.04),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Icon(icon, color: AppColors.primary, size: 32),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            service.name,
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              color: AppColors.text,
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
             ),
           ),
         ],

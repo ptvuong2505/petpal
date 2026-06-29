@@ -319,23 +319,6 @@ class _BookingConfirmPageState extends State<BookingConfirmPage> {
     return Scaffold(
       //
       backgroundColor: AppColors.background, //
-      appBar: AppBar(
-        //
-        backgroundColor: AppColors.surface,
-        elevation: 0, //
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
-        ), //
-        title: const Text(
-          'Xác nhận đặt lịch',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: AppColors.primary,
-          ),
-        ), //
-        centerTitle: true, //
-      ), //
       body: SafeArea(
         //
         child:

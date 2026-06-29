@@ -112,7 +112,7 @@ class _AdminAssignShiftPageState extends State<AdminAssignShiftPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Xếp ca mới')),
+      backgroundColor: Colors.transparent,
       body: Form(
         key: _formKey,
         child: ListView(

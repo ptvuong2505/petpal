@@ -106,7 +106,7 @@ class _LoginPageState extends State<LoginPage> {
                         child: Image.network(
                           'https://lh3.googleusercontent.com/aida-public/AB6AXuC59eQQ9rCp4N0g52KYe8KqK6RtY6HWMCMHrJUvGS2-R7cx5ol7qMTEBTrJq2oXJ9sSE9nW8A0hObuTUiFizP415gAfyiyfqWlZ3EoSTbCpsOVVNX6Y12Jd7ULpaw1hsIEv2uTU6u-UXW3WZcvU7x9m7h9sPBwb43qqUnVBL1YpjvvRa7gSUVpPup5-OFAKsLgOgplOEd9G6YRFLSFRzpgERE_VX1oEms4stK5ChRRaDtVKNkpndYbfHOFP-YDbUguZyU1dBwGDuRE',
                           fit: BoxFit.cover,
-                          errorBuilder: (_, _, _) {
+                          errorBuilder: (_, __, ___) {
                             return const Icon(
                               Icons.pets,
                               size: 48,
