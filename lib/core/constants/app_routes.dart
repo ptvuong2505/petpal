@@ -15,6 +15,7 @@ class AppRoutes {
   static const String bookingPet = 'bookingPet';
   static const String bookingTimeSlot = 'bookingTimeSlot';
   static const String bookingConfirm = 'bookingConfirm';
+  static const String payment = 'payment';
   static const String myBookings = 'myBookings';
   static const String bookingDetail = 'bookingDetail';
   static const String timeSlotManagement = 'timeSlotManagement';
@@ -72,6 +73,7 @@ class AppRoutes {
       case bookingPet:
       case bookingTimeSlot:
       case bookingConfirm:
+      case payment:
       case myBookings:
       case bookingDetail:
       case reviewList:

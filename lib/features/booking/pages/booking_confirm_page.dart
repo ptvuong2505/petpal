@@ -293,8 +293,11 @@ class _BookingConfirmPageState extends State<BookingConfirmPage> {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(const SnackBar(content: Text('Đặt lịch thành công'))); //
-        await Future.delayed(const Duration(milliseconds: 500)); //
-        if (mounted) NavigationService.goTo(context, AppRoutes.home); //
+        NavigationService.goTo(
+          context,
+          AppRoutes.payment,
+          queryParameters: {'bookingId': insertedBookingId.toString()},
+        ); //
       } //
     } catch (e) {
       //

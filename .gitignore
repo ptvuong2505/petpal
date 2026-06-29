@@ -43,6 +43,7 @@ app.*.map.json
 
 .env
 .env.*
+payos.local.json
 
 .codegraph
 devtools_options.yaml

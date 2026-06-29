@@ -22,6 +22,7 @@ import '../features/pet_profile/pages/add_pet_page.dart';
 import '../features/pet_profile/pages/edit_pet_page.dart';
 import '../features/pet_profile/pages/pet_detail_page.dart';
 import '../features/pet_profile/pages/pet_list_page.dart';
+import '../features/payment/pages/payment_page.dart';
 import '../features/reminder/pages/create_reminder_page.dart';
 import '../features/reminder/pages/edit_reminder_page.dart';
 import '../features/reminder/pages/reminder_list_page.dart';
@@ -220,6 +221,15 @@ class AppRouter extends RouterDelegate<AppRoutePath>
         return const BookingTimeSlotPage();
       case AppRoutes.bookingConfirm:
         return const BookingConfirmPage();
+      case AppRoutes.payment:
+        final bookingId = path.bookingId;
+        if (bookingId == null) {
+          return const AppPage(
+            title: 'Thanh toán',
+            message: 'Thiếu hoặc sai bookingId.',
+          );
+        }
+        return PaymentPage(bookingId: bookingId);
       case AppRoutes.myBookings:
         return const MyBookingsPage();
       case AppRoutes.bookingDetail:

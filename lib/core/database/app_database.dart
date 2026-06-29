@@ -9,7 +9,7 @@ class AppDatabase {
   AppDatabase._(); //
 
   static final AppDatabase instance = AppDatabase._(); //
-  static const int schemaVersion = 3; //
+  static const int schemaVersion = 4; //
 
   Database? _database;
   // Khai báo thêm biến Future để giữ trạng thái mở DB, chống tình trạng Deadlock khi gọi đồng thời
@@ -235,6 +235,7 @@ class AppDatabase {
       )
     '''); //
 
+    await _createPaymentTable(db);
     await _createStaffTables(db); //
     await _createStaffIndexes(db); //
 
@@ -479,6 +480,36 @@ class AppDatabase {
       ''');
       await db.execute('DROP TABLE health_records_old');
     }
+
+    if (oldVersion < 4) {
+      await _createPaymentTable(db);
+    }
+  }
+
+  static Future<void> _createPaymentTable(Database db) async {
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS payments (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        booking_id INTEGER NOT NULL UNIQUE,
+        order_code INTEGER NOT NULL UNIQUE,
+        payment_link_id TEXT,
+        amount INTEGER NOT NULL,
+        description TEXT NOT NULL,
+        qr_code TEXT,
+        checkout_url TEXT,
+        status TEXT NOT NULL DEFAULT 'PENDING',
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        paid_at TEXT,
+        last_checked_at TEXT,
+        last_error TEXT,
+        FOREIGN KEY (booking_id) REFERENCES bookings (id) ON DELETE CASCADE
+      )
+    ''');
+    await db.execute('''
+      CREATE INDEX IF NOT EXISTS idx_payments_status_updated
+      ON payments (status, updated_at)
+    ''');
   }
 
   static Future<void> _createStaffTables(Database db) async {
