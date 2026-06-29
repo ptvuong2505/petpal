@@ -43,6 +43,8 @@ class AppRoutes {
   static const String createReminder = 'createReminder';
   static const String editReminder = 'editReminder';
   static const String adminDashboard = 'adminDashboard';
+  static const String adminBookingList = 'adminBookingList';
+  static const String adminBookingDetail = 'adminBookingDetail';
   static const String adminShiftCalendar = 'adminShiftCalendar';
   static const String adminAssignShift = 'adminAssignShift';
   static const String shopSetting = 'shopSetting';
@@ -114,6 +116,8 @@ class AppRoutes {
   static bool isAdminRoute(String routeName) {
     switch (routeName) {
       case adminDashboard:
+      case adminBookingList:
+      case adminBookingDetail:
       case adminShiftCalendar:
       case adminAssignShift:
       case timeSlotManagement:

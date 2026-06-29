@@ -37,6 +37,7 @@ class DailyBookingCount {
 
 class RecentBooking {
   const RecentBooking({
+    required this.id,
     required this.serviceName,
     required this.petName,
     required this.bookingDate,
@@ -44,6 +45,7 @@ class RecentBooking {
     required this.status,
   });
 
+  final int id;
   final String serviceName;
   final String petName;
   final String bookingDate;

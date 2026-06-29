@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../core/constants/app_routes.dart';
 import '../core/services/navigation_service.dart';
+import '../features/admin_dashboard/pages/admin_booking_detail_page.dart';
+import '../features/admin_dashboard/pages/admin_booking_list_page.dart';
 import '../features/admin_dashboard/pages/admin_dashboard_page.dart';
 import '../features/admin_shift_management/pages/admin_assign_shift_page.dart';
 import '../features/admin_shift_management/pages/admin_shift_calendar_page.dart';
@@ -364,6 +366,17 @@ class AppRouter extends RouterDelegate<AppRoutePath>
         return const EditReminderPage();
       case AppRoutes.adminDashboard:
         return const AdminDashboardPage();
+      case AppRoutes.adminBookingList:
+        return const AdminBookingListPage();
+      case AppRoutes.adminBookingDetail:
+        final bookingId = path.bookingId;
+        if (bookingId == null) {
+          return const AppPage(
+            title: 'Booking Detail',
+            message: 'Thiếu hoặc sai bookingId.',
+          );
+        }
+        return AdminBookingDetailPage(bookingId: bookingId);
       case AppRoutes.adminShiftCalendar:
         return const AdminShiftCalendarPage();
       case AppRoutes.adminAssignShift:

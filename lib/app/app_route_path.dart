@@ -287,6 +287,16 @@ class AppRouteCatalog {
       title: 'Admin Dashboard',
     ),
     AppRouteInfo(
+      name: AppRoutes.adminBookingList,
+      location: '/admin/bookings',
+      title: 'All Bookings',
+    ),
+    AppRouteInfo(
+      name: AppRoutes.adminBookingDetail,
+      location: '/admin/bookings/detail',
+      title: 'Booking Detail',
+    ),
+    AppRouteInfo(
       name: AppRoutes.adminShiftCalendar,
       location: '/admin/shift-calendar',
       title: 'Quản lý ca trực',

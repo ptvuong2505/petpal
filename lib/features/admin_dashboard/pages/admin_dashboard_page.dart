@@ -82,7 +82,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                             title: 'Recent Bookings',
                             trailing: _TextAction(
                               label: 'View All',
-                              routeName: AppRoutes.timeSlotManagement,
+                              routeName: AppRoutes.adminBookingList,
                             ),
                             child: _RecentBookingsList(
                               bookings: summary.recentBookings,
@@ -492,6 +492,11 @@ class _RecentBookingsList extends StatelessWidget {
             subtitle: _bookingSubtitle(bookings[index]),
             status: _statusLabel(bookings[index].status),
             statusColor: _statusColor(bookings[index].status),
+            onTap: () => NavigationService.goTo(
+              context,
+              AppRoutes.adminBookingDetail,
+              queryParameters: {'bookingId': bookings[index].id.toString()},
+            ),
           ),
           if (index != bookings.length - 1) const SizedBox(height: 8),
         ],
@@ -639,6 +644,7 @@ class _BookingItem extends StatelessWidget {
     required this.subtitle,
     required this.status,
     required this.statusColor,
+    this.onTap,
   });
 
   final IconData icon;
@@ -646,71 +652,76 @@ class _BookingItem extends StatelessWidget {
   final String subtitle;
   final String status;
   final Color statusColor;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLow,
+    return Material(
+      color: AppColors.surfaceContainerLow,
+      borderRadius: BorderRadius.circular(8),
+      child: InkWell(
+        onTap: onTap,
         borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: statusColor,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, color: AppColors.primary, size: 20),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: statusColor,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: AppColors.primary, size: 20),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: AppColors.text,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: AppColors.subText,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: statusColor,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Text(
+                  status,
                   style: const TextStyle(
-                    color: AppColors.text,
-                    fontSize: 14,
+                    color: AppColors.primary,
+                    fontSize: 10,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  subtitle,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: AppColors.subText,
-                    fontSize: 13,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: statusColor,
-              borderRadius: BorderRadius.circular(999),
-            ),
-            child: Text(
-              status,
-              style: const TextStyle(
-                color: AppColors.primary,
-                fontSize: 10,
-                fontWeight: FontWeight.w700,
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
