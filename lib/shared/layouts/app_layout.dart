@@ -72,17 +72,7 @@ class AppLayout extends StatelessWidget {
               ),
           ],
         ),
-        actions:
-            actions ??
-            [
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(
-                  Icons.notifications_none,
-                  color: AppColors.textMuted,
-                ),
-              ),
-            ],
+        actions: actions,
       ),
       body: GestureDetector(
         behavior: HitTestBehavior.translucent,

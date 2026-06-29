@@ -50,9 +50,6 @@ import '../features/staff_profile/pages/staff_profile_page.dart';
 import '../features/staff_schedule/pages/staff_schedule_page.dart';
 import '../features/staff_schedule/pages/staff_shift_request_page.dart';
 import '../features/staff_statistics/pages/staff_statistics_page.dart';
-import '../features/time_slot/pages/create_time_slot_page.dart';
-import '../features/time_slot/pages/edit_time_slot_page.dart';
-import '../features/time_slot/pages/time_slot_management_page.dart';
 import '../features/user_profile/pages/edit_user_profile_page.dart';
 import '../features/user_profile/pages/user_profile_page.dart';
 import '../shared/layouts/admin_layout.dart';
@@ -285,12 +282,6 @@ class AppRouter extends RouterDelegate<AppRoutePath>
           );
         }
         return BookingDetailPage(bookingId: bookingId);
-      case AppRoutes.timeSlotManagement:
-        return const TimeSlotManagementPage();
-      case AppRoutes.createTimeSlot:
-        return const CreateTimeSlotPage();
-      case AppRoutes.editTimeSlot:
-        return const EditTimeSlotPage();
       case AppRoutes.reviewList:
         return const ReviewListPage();
       case AppRoutes.reviewDetail:

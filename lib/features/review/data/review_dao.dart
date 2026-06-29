@@ -16,7 +16,7 @@ class ReviewDao {
       FROM reviews r
       JOIN users u ON r.user_id = u.id
       JOIN bookings b ON r.booking_id = b.id
-      LEFT JOIN pets p ON r.pet_id = p.id
+      LEFT JOIN pets p ON COALESCE(r.pet_id, b.pet_id) = p.id
       ORDER BY r.created_at DESC
     ''');
     return rows.map(Review.fromMap).toList();
@@ -36,7 +36,7 @@ class ReviewDao {
       FROM reviews r
       JOIN users reviewer ON r.user_id = reviewer.id
       JOIN bookings b ON r.booking_id = b.id
-      LEFT JOIN pets p ON r.pet_id = p.id
+      LEFT JOIN pets p ON COALESCE(r.pet_id, b.pet_id) = p.id
       LEFT JOIN users staff ON b.staff_id = staff.id
       ORDER BY COALESCE(r.created_at, r.updated_at) DESC, r.id DESC
     ''');
@@ -64,7 +64,7 @@ class ReviewDao {
       FROM reviews r
       JOIN users reviewer ON r.user_id = reviewer.id
       JOIN bookings b ON r.booking_id = b.id
-      LEFT JOIN pets p ON r.pet_id = p.id
+      LEFT JOIN pets p ON COALESCE(r.pet_id, b.pet_id) = p.id
       LEFT JOIN users staff ON b.staff_id = staff.id
       LEFT JOIN time_slots ts ON b.time_slot_id = ts.id
       WHERE r.id = ?

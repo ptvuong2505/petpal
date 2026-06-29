@@ -18,9 +18,6 @@ class AppRoutes {
   static const String payment = 'payment';
   static const String myBookings = 'myBookings';
   static const String bookingDetail = 'bookingDetail';
-  static const String timeSlotManagement = 'timeSlotManagement';
-  static const String createTimeSlot = 'createTimeSlot';
-  static const String editTimeSlot = 'editTimeSlot';
   static const String reviewList = 'reviewList';
   static const String reviewDetail = 'reviewDetail';
   static const String createReview = 'createReview';
@@ -124,9 +121,6 @@ class AppRoutes {
       case adminReviewDetail:
       case adminShiftCalendar:
       case adminAssignShift:
-      case timeSlotManagement:
-      case createTimeSlot:
-      case editTimeSlot:
       case shopSetting:
         return true;
       default:

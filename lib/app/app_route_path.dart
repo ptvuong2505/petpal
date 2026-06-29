@@ -163,21 +163,6 @@ class AppRouteCatalog {
       title: 'Booking Detail',
     ),
     AppRouteInfo(
-      name: AppRoutes.timeSlotManagement,
-      location: '/time-slots',
-      title: 'Time Slot Management',
-    ),
-    AppRouteInfo(
-      name: AppRoutes.createTimeSlot,
-      location: '/time-slots/create',
-      title: 'Create Time Slot',
-    ),
-    AppRouteInfo(
-      name: AppRoutes.editTimeSlot,
-      location: '/time-slots/edit',
-      title: 'Edit Time Slot',
-    ),
-    AppRouteInfo(
       name: AppRoutes.reviewList,
       location: '/reviews',
       title: 'Danh sách đánh giá',
