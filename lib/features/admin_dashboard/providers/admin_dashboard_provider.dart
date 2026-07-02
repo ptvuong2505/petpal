@@ -5,7 +5,7 @@ import '../repositories/admin_dashboard_repository.dart';
 
 class AdminDashboardProvider extends ChangeNotifier {
   AdminDashboardProvider({required AdminDashboardRepository repository})
-    : _repository = repository;
+      : _repository = repository;
 
   final AdminDashboardRepository _repository;
 

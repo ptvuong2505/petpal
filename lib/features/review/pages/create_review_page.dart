@@ -48,8 +48,7 @@ class _CreateReviewPageState extends State<CreateReviewPage> {
 
   Future<void> _loadBooking() async {
     final bookingProvider = context.read<BookingProvider>();
-    final bId =
-        widget.review?.bookingId ??
+    final bId = widget.review?.bookingId ??
         widget.bookingId ??
         bookingProvider.lastCreatedBookingId;
 

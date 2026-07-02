@@ -5,7 +5,7 @@ import '../models/reminder.dart';
 
 class ReminderDao {
   ReminderDao({AppDatabase? database})
-    : _database = database ?? AppDatabase.instance;
+      : _database = database ?? AppDatabase.instance;
 
   final AppDatabase _database;
 

@@ -5,7 +5,7 @@ import '../models/dashboard_summary.dart';
 
 class AdminDashboardDao {
   AdminDashboardDao({AppDatabase? database})
-    : _database = database ?? AppDatabase.instance;
+      : _database = database ?? AppDatabase.instance;
 
   final AppDatabase _database;
 

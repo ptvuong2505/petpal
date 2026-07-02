@@ -19,8 +19,8 @@ class _ExaminationResultDetailPageState
     extends State<ExaminationResultDetailPage> {
   Future<void> _load() {
     return context.read<StaffExaminationProvider>().loadResultDetail(
-      widget.resultId,
-    );
+          widget.resultId,
+        );
   }
 
   @override

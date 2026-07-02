@@ -206,9 +206,9 @@ class _HeaderCard extends StatelessWidget {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    color: AppColors.text,
-                    fontWeight: FontWeight.w700,
-                  ),
+                        color: AppColors.text,
+                        fontWeight: FontWeight.w700,
+                      ),
                 ),
               ),
               const SizedBox(width: 12),
@@ -311,9 +311,9 @@ class _InfoSection extends StatelessWidget {
               Text(
                 title,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: AppColors.text,
-                  fontWeight: FontWeight.w700,
-                ),
+                      color: AppColors.text,
+                      fontWeight: FontWeight.w700,
+                    ),
               ),
             ],
           ),
@@ -420,17 +420,15 @@ String _timeRange(Map<String, Object?> booking) {
 }
 
 String _weightValue(Object? value) {
-  final weight = value is num
-      ? value.toDouble()
-      : double.tryParse(_text(value));
+  final weight =
+      value is num ? value.toDouble() : double.tryParse(_text(value));
   if (weight == null || weight <= 0) return '-';
   return '${weight.toStringAsFixed(1)} kg';
 }
 
 String _currencyValue(Object? value) {
-  final amount = value is num
-      ? value.toDouble()
-      : double.tryParse(_text(value));
+  final amount =
+      value is num ? value.toDouble() : double.tryParse(_text(value));
   if (amount == null) return '-';
   return '${amount.toStringAsFixed(0)}đ';
 }

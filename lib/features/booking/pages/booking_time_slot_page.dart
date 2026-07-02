@@ -24,8 +24,8 @@ class _BookingTimeSlotPageState extends State<BookingTimeSlotPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // Chỉ cần cập nhật ngày để đồng bộ danh sách bận của nhân viên qua Provider
       context.read<BookingProvider>().updateBookingDate(
-        _dateKey(_selectedDate),
-      );
+            _dateKey(_selectedDate),
+          );
     });
   }
 
@@ -274,9 +274,7 @@ class _BookingTimeSlotPageState extends State<BookingTimeSlotPage> {
                             ),
                           ),
                           const SizedBox(height: 20),
-
                           _buildStaffSelector(),
-
                           _sessionSection(
                             'Buổi sáng',
                             _filterSession('morning'),

@@ -169,9 +169,8 @@ class _NotificationCard extends StatelessWidget {
               backgroundColor: read
                   ? colorScheme.surfaceContainerHighest
                   : colorScheme.primary,
-              foregroundColor: read
-                  ? colorScheme.onSurfaceVariant
-                  : colorScheme.onPrimary,
+              foregroundColor:
+                  read ? colorScheme.onSurfaceVariant : colorScheme.onPrimary,
               child: Icon(
                 cancelled
                     ? Icons.cancel_outlined
@@ -211,11 +210,11 @@ class _NotificationCard extends StatelessWidget {
                 child: CircularProgressIndicator(strokeWidth: 2),
               )
             : read
-            ? const Icon(Icons.done_all, semanticLabel: 'Đã đọc')
-            : const Icon(
-                Icons.mark_email_unread_outlined,
-                semanticLabel: 'Chưa đọc',
-              ),
+                ? const Icon(Icons.done_all, semanticLabel: 'Đã đọc')
+                : const Icon(
+                    Icons.mark_email_unread_outlined,
+                    semanticLabel: 'Chưa đọc',
+                  ),
         onTap: onTap,
       ),
     );

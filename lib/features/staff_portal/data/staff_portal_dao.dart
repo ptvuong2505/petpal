@@ -6,7 +6,7 @@ import '../../../core/database/app_database.dart';
 
 class StaffPortalDao {
   StaffPortalDao({AppDatabase? database})
-    : _database = database ?? AppDatabase.instance;
+      : _database = database ?? AppDatabase.instance;
 
   final AppDatabase _database;
 
@@ -69,10 +69,10 @@ class StaffPortalDao {
       [staffId, from, to],
     );
     return [...shifts, ...bookings]..sort(
-      (a, b) => '${a['event_date']}${a['start_time']}'.compareTo(
-        '${b['event_date']}${b['start_time']}',
-      ),
-    );
+        (a, b) => '${a['event_date']}${a['start_time']}'.compareTo(
+          '${b['event_date']}${b['start_time']}',
+        ),
+      );
   }
 
   Future<int> requestShift({
@@ -126,16 +126,19 @@ class StaffPortalDao {
   }) async {
     final db = await _database.database;
     final now = DateTime.now().toIso8601String();
-    await db.insert('staff_profiles', {
-      'user_id': staffId,
-      'specialty': specialty,
-      'experience_years': experienceYears,
-      'bio': bio,
-      'certificate_names': jsonEncode(certificates),
-      'certificate_details': '[]',
-      'created_at': now,
-      'updated_at': now,
-    }, conflictAlgorithm: ConflictAlgorithm.replace);
+    await db.insert(
+        'staff_profiles',
+        {
+          'user_id': staffId,
+          'specialty': specialty,
+          'experience_years': experienceYears,
+          'bio': bio,
+          'certificate_names': jsonEncode(certificates),
+          'certificate_details': '[]',
+          'created_at': now,
+          'updated_at': now,
+        },
+        conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   Future<List<Map<String, Object?>>> notifications(int staffId) async {
@@ -175,11 +178,14 @@ class StaffPortalDao {
 
   Future<void> markRead(int staffId, String key) async {
     final db = await _database.database;
-    await db.insert('staff_notification_reads', {
-      'staff_id': staffId,
-      'notification_key': key,
-      'read_at': DateTime.now().toIso8601String(),
-    }, conflictAlgorithm: ConflictAlgorithm.ignore);
+    await db.insert(
+        'staff_notification_reads',
+        {
+          'staff_id': staffId,
+          'notification_key': key,
+          'read_at': DateTime.now().toIso8601String(),
+        },
+        conflictAlgorithm: ConflictAlgorithm.ignore);
   }
 
   Future<Map<String, Object?>> statistics(
@@ -193,9 +199,9 @@ class StaffPortalDao {
         SUM(CASE WHEN status='completed' THEN 1 ELSE 0 END) AS completed
         FROM bookings WHERE staff_id=? AND booking_date BETWEEN ? AND ?''',
       [staffId, from, to],
-    )).first;
-    final examinations =
-        Sqflite.firstIntValue(
+    ))
+        .first;
+    final examinations = Sqflite.firstIntValue(
           await db.rawQuery(
             '''SELECT COUNT(*) FROM health_records WHERE staff_id=?
           AND record_date BETWEEN ? AND ?''',
@@ -208,7 +214,8 @@ class StaffPortalDao {
         FROM reviews r INNER JOIN bookings b ON b.id=r.booking_id
         WHERE b.staff_id=? AND b.booking_date BETWEEN ? AND ?''',
       [staffId, from, to],
-    )).first;
+    ))
+        .first;
     final feedback = await db.rawQuery(
       '''SELECT r.rating, r.comment, r.created_at, p.name AS pet_name
         FROM reviews r INNER JOIN bookings b ON b.id=r.booking_id

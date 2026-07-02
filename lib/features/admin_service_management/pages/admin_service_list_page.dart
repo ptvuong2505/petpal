@@ -27,7 +27,8 @@ class _AdminServiceListPageState extends State<AdminServiceListPage> {
     return Scaffold(
       backgroundColor: Colors.transparent,
       floatingActionButton: FloatingActionButton(
-        onPressed: () => NavigationService.goTo(context, AppRoutes.adminAddService),
+        onPressed: () =>
+            NavigationService.goTo(context, AppRoutes.adminAddService),
         backgroundColor: AppColors.primary,
         child: const Icon(Icons.add, color: Colors.white),
       ),
@@ -87,7 +88,8 @@ class _ServiceCard extends StatelessWidget {
                 color: AppColors.primaryContainer.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(Icons.miscellaneous_services, color: AppColors.primary),
+              child: const Icon(Icons.miscellaneous_services,
+                  color: AppColors.primary),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -96,7 +98,8 @@ class _ServiceCard extends StatelessWidget {
                 children: [
                   Text(
                     service.name,
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 16),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -109,18 +112,23 @@ class _ServiceCard extends StatelessWidget {
             Column(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: statusColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
                     service.status.toUpperCase(),
-                    style: TextStyle(color: statusColor, fontSize: 10, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                        color: statusColor,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold),
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.edit, size: 20, color: AppColors.primary),
+                  icon: const Icon(Icons.edit,
+                      size: 20, color: AppColors.primary),
                   onPressed: () => NavigationService.goTo(
                     context,
                     AppRoutes.adminEditService,

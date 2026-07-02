@@ -154,7 +154,10 @@ class _StaffPetSearchPageState extends State<StaffPetSearchPage> {
             leading: const CircleAvatar(child: Icon(Icons.pets)),
             title: Text('${item['name'] ?? 'Chưa đặt tên'}'),
             subtitle: Text(
-              '${[species, breed].where((value) => value.isNotEmpty).join(' ')}\n'
+              '${[
+                species,
+                breed
+              ].where((value) => value.isNotEmpty).join(' ')}\n'
               'Chủ: ${item['owner_name'] ?? 'Chưa cập nhật'} • $ownerContact',
             ),
             isThreeLine: true,

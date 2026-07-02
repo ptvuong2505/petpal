@@ -162,18 +162,18 @@ class _EditPetViewState extends State<_EditPetView> {
                               child: Image.file(_imageFile!, fit: BoxFit.cover),
                             )
                           : (_existingImagePath != null &&
-                                _existingImagePath!.isNotEmpty)
-                          ? ClipOval(
-                              child: Image.file(
-                                File(_existingImagePath!),
-                                fit: BoxFit.cover,
-                              ),
-                            )
-                          : const Icon(
-                              Icons.camera_alt,
-                              size: 40,
-                              color: Colors.grey,
-                            ),
+                                  _existingImagePath!.isNotEmpty)
+                              ? ClipOval(
+                                  child: Image.file(
+                                    File(_existingImagePath!),
+                                    fit: BoxFit.cover,
+                                  ),
+                                )
+                              : const Icon(
+                                  Icons.camera_alt,
+                                  size: 40,
+                                  color: Colors.grey,
+                                ),
                     ),
                     Positioned(
                       bottom: 0,

@@ -85,9 +85,8 @@ class _StaffShiftRequestPageState extends State<StaffShiftRequestPage> {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final current = DateTime.tryParse(_date.text.trim());
-    final initialDate = current == null || current.isBefore(today)
-        ? today
-        : current;
+    final initialDate =
+        current == null || current.isBefore(today) ? today : current;
     final selected = await showDatePicker(
       context: context,
       initialDate: initialDate,
@@ -119,7 +118,9 @@ class _StaffShiftRequestPageState extends State<StaffShiftRequestPage> {
                   children: [
                     Text(
                       'Đăng ký ca trực',
-                      style: Theme.of(context).textTheme.headlineSmall
+                      style: Theme.of(context)
+                          .textTheme
+                          .headlineSmall
                           ?.copyWith(fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8),

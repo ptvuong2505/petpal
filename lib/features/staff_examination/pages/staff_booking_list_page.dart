@@ -140,9 +140,9 @@ class _StaffBookingListPageState extends State<StaffBookingListPage> {
 
   Future<void> _loadBookings() {
     return context.read<StaffExaminationProvider>().loadBookings(
-      date: _todayOnly ? _dateValue(DateTime.now()) : null,
-      status: _selectedStatus,
-    );
+          date: _todayOnly ? _dateValue(DateTime.now()) : null,
+          status: _selectedStatus,
+        );
   }
 
   String _dateValue(DateTime date) {

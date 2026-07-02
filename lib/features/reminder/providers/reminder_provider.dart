@@ -5,7 +5,7 @@ import '../repositories/reminder_repository.dart';
 
 class ReminderProvider extends ChangeNotifier {
   ReminderProvider({required ReminderRepository repository})
-    : _repository = repository;
+      : _repository = repository;
 
   final ReminderRepository _repository;
 

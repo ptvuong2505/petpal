@@ -57,9 +57,8 @@ class _WeekView extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: days.map((day) {
-        final dayShifts = shifts
-            .where((s) => s.shiftDate == _dateKey(day))
-            .toList();
+        final dayShifts =
+            shifts.where((s) => s.shiftDate == _dateKey(day)).toList();
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

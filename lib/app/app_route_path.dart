@@ -24,9 +24,8 @@ class AppRoutePath {
     );
     final uri = Uri(
       path: route.location,
-      queryParameters: copiedQueryParameters.isEmpty
-          ? null
-          : copiedQueryParameters,
+      queryParameters:
+          copiedQueryParameters.isEmpty ? null : copiedQueryParameters,
     );
     return AppRoutePath._(
       routeName: route.name,

@@ -5,7 +5,7 @@ import '../repositories/user_profile_repository.dart';
 
 class UserProfileProvider extends ChangeNotifier {
   UserProfileProvider({required UserProfileRepository repository})
-    : _repository = repository;
+      : _repository = repository;
 
   final UserProfileRepository _repository;
 

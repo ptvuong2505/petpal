@@ -5,7 +5,7 @@ import '../repositories/pet_profile_repository.dart';
 
 class PetProfileProvider extends ChangeNotifier {
   PetProfileProvider({required PetProfileRepository repository})
-    : _repository = repository;
+      : _repository = repository;
 
   final PetProfileRepository _repository;
 

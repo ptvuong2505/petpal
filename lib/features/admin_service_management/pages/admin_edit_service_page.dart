@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../core/constants/app_colors.dart';
 import '../../../core/services/navigation_service.dart';
 import '../../booking/models/service.dart';
 import '../providers/admin_service_provider.dart';
@@ -28,9 +27,12 @@ class _AdminEditServicePageState extends State<AdminEditServicePage> {
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.service?.name ?? '');
-    _descController = TextEditingController(text: widget.service?.description ?? '');
-    _priceController = TextEditingController(text: widget.service?.price.toInt().toString() ?? '0');
-    _durationController = TextEditingController(text: widget.service?.durationMinutes.toString() ?? '30');
+    _descController =
+        TextEditingController(text: widget.service?.description ?? '');
+    _priceController = TextEditingController(
+        text: widget.service?.price.toInt().toString() ?? '0');
+    _durationController = TextEditingController(
+        text: widget.service?.durationMinutes.toString() ?? '30');
     _status = widget.service?.status ?? 'active';
   }
 
@@ -65,7 +67,9 @@ class _AdminEditServicePageState extends State<AdminEditServicePage> {
 
     if (success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(_isEdit ? 'Cập nhật thành công' : 'Thêm mới thành công')),
+        SnackBar(
+            content:
+                Text(_isEdit ? 'Cập nhật thành công' : 'Thêm mới thành công')),
       );
       NavigationService.goBack(context);
     }
@@ -82,27 +86,35 @@ class _AdminEditServicePageState extends State<AdminEditServicePage> {
           children: [
             TextFormField(
               controller: _nameController,
-              decoration: const InputDecoration(labelText: 'Tên dịch vụ*', border: OutlineInputBorder()),
-              validator: (v) => v == null || v.isEmpty ? 'Không được để trống' : null,
+              decoration: const InputDecoration(
+                  labelText: 'Tên dịch vụ*', border: OutlineInputBorder()),
+              validator: (v) =>
+                  v == null || v.isEmpty ? 'Không được để trống' : null,
             ),
             const SizedBox(height: 16),
             TextFormField(
               controller: _priceController,
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: 'Giá (VNĐ)*', border: OutlineInputBorder()),
-              validator: (v) => v == null || v.isEmpty ? 'Không được để trống' : null,
+              decoration: const InputDecoration(
+                  labelText: 'Giá (VNĐ)*', border: OutlineInputBorder()),
+              validator: (v) =>
+                  v == null || v.isEmpty ? 'Không được để trống' : null,
             ),
             const SizedBox(height: 16),
             TextFormField(
               controller: _durationController,
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: 'Thời lượng (phút)*', border: OutlineInputBorder()),
-              validator: (v) => v == null || v.isEmpty ? 'Không được để trống' : null,
+              decoration: const InputDecoration(
+                  labelText: 'Thời lượng (phút)*',
+                  border: OutlineInputBorder()),
+              validator: (v) =>
+                  v == null || v.isEmpty ? 'Không được để trống' : null,
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
-              value: _status,
-              decoration: const InputDecoration(labelText: 'Trạng thái', border: OutlineInputBorder()),
+              initialValue: _status,
+              decoration: const InputDecoration(
+                  labelText: 'Trạng thái', border: OutlineInputBorder()),
               items: const [
                 DropdownMenuItem(value: 'active', child: Text('Hoạt động')),
                 DropdownMenuItem(value: 'inactive', child: Text('Tạm ngưng')),
@@ -113,7 +125,8 @@ class _AdminEditServicePageState extends State<AdminEditServicePage> {
             TextFormField(
               controller: _descController,
               maxLines: 4,
-              decoration: const InputDecoration(labelText: 'Mô tả', border: OutlineInputBorder()),
+              decoration: const InputDecoration(
+                  labelText: 'Mô tả', border: OutlineInputBorder()),
             ),
             const SizedBox(height: 32),
             SizedBox(

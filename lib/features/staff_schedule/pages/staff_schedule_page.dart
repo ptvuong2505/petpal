@@ -114,9 +114,9 @@ class _StaffSchedulePageState extends State<StaffSchedulePage> {
                     onPressed: _loading
                         ? null
                         : () => NavigationService.goTo(
-                            context,
-                            AppRoutes.staffShiftRequest,
-                          ),
+                              context,
+                              AppRoutes.staffShiftRequest,
+                            ),
                     icon: const Icon(Icons.add_circle_outline),
                   ),
                 ],
@@ -281,10 +281,10 @@ class _ScheduleCard extends StatelessWidget {
       child: InkWell(
         onTap: !shift && appointmentId != null
             ? () => NavigationService.goTo(
-                context,
-                AppRoutes.staffBookingDetail,
-                queryParameters: {'bookingId': appointmentId.toString()},
-              )
+                  context,
+                  AppRoutes.staffBookingDetail,
+                  queryParameters: {'bookingId': appointmentId.toString()},
+                )
             : null,
         child: Padding(
           padding: const EdgeInsets.all(14),
@@ -302,8 +302,8 @@ class _ScheduleCard extends StatelessWidget {
                     Text(
                       '${item['title'] ?? (shift ? 'Ca trực' : 'Lịch hẹn')}',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                            fontWeight: FontWeight.bold,
+                          ),
                     ),
                     const SizedBox(height: 6),
                     Text(
@@ -336,25 +336,25 @@ class _ScheduleStatus {
     if (isShift) {
       return switch (raw) {
         'pending' => const _ScheduleStatus(
-          'Chờ duyệt',
-          Colors.orange,
-          Icons.hourglass_top_outlined,
-        ),
+            'Chờ duyệt',
+            Colors.orange,
+            Icons.hourglass_top_outlined,
+          ),
         'approved' => const _ScheduleStatus(
-          'Đã duyệt',
-          Colors.green,
-          Icons.task_alt,
-        ),
+            'Đã duyệt',
+            Colors.green,
+            Icons.task_alt,
+          ),
         'rejected' => const _ScheduleStatus(
-          'Từ chối',
-          Colors.red,
-          Icons.cancel_outlined,
-        ),
+            'Từ chối',
+            Colors.red,
+            Icons.cancel_outlined,
+          ),
         _ => const _ScheduleStatus(
-          'Chưa xác định',
-          Colors.grey,
-          Icons.help_outline,
-        ),
+            'Chưa xác định',
+            Colors.grey,
+            Icons.help_outline,
+          ),
       };
     }
     final bookingStatus = StaffBookingStatus.fromRaw(raw);

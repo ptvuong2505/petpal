@@ -88,6 +88,7 @@ class AppRoutes {
       case reminderList:
       case createReminder:
       case editReminder:
+      case adminServiceDetail:
         return true;
       default:
         return false;
@@ -128,7 +129,6 @@ class AppRoutes {
       case adminServiceList:
       case adminAddService:
       case adminEditService:
-      case adminServiceDetail:
       case shopSetting:
         return true;
       default:

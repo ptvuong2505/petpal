@@ -28,7 +28,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       if (provider.summary == null && !provider.isLoading) {
         provider.loadSummary();
       }
-      
+
       final serviceProvider = context.read<AdminServiceProvider>();
       if (serviceProvider.services.isEmpty && !serviceProvider.isLoading) {
         serviceProvider.loadServices();

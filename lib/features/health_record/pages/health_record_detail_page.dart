@@ -37,9 +37,9 @@ class _HealthRecordDetailPageState extends State<HealthRecordDetailPage> {
     final petProvider = context.read<PetProfileProvider>();
     // Thử tìm trong list đã load sẵn
     final existingPet = petProvider.pets.cast<Pet?>().firstWhere(
-      (p) => p?.id == widget.record!.petId,
-      orElse: () => null,
-    );
+          (p) => p?.id == widget.record!.petId,
+          orElse: () => null,
+        );
 
     if (existingPet != null) {
       setState(() {
@@ -125,11 +125,11 @@ class _HealthRecordDetailPageState extends State<HealthRecordDetailPage> {
                       ),
                       image:
                           _pet?.imagePath != null && _pet!.imagePath!.isNotEmpty
-                          ? DecorationImage(
-                              image: FileImage(File(_pet!.imagePath!)),
-                              fit: BoxFit.cover,
-                            )
-                          : null,
+                              ? DecorationImage(
+                                  image: FileImage(File(_pet!.imagePath!)),
+                                  fit: BoxFit.cover,
+                                )
+                              : null,
                     ),
                     child: _pet?.imagePath == null || _pet!.imagePath!.isEmpty
                         ? const Icon(

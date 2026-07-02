@@ -9,8 +9,8 @@ class BookingProvider extends ChangeNotifier {
   BookingProvider({
     required BookingRepository repository,
     BookingDao? bookingDao,
-  }) : _repository = repository,
-       _bookingDao = bookingDao ?? BookingDao();
+  })  : _repository = repository,
+        _bookingDao = bookingDao ?? BookingDao();
 
   final BookingRepository _repository; //
   final BookingDao _bookingDao;

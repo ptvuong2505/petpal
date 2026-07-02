@@ -58,8 +58,8 @@ class StaffInfoSection extends StatelessWidget {
                 child: Text(
                   title,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
+                        fontWeight: FontWeight.w700,
+                      ),
                 ),
               ),
             ],

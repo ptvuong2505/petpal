@@ -98,8 +98,8 @@ class _CreateExaminationResultPageState
         message: booking.hasResult || provider.selectedResult != null
             ? 'Booking này đã có kết quả.'
             : booking.status == 'cancelled'
-            ? 'Booking này đã bị hủy.'
-            : 'Booking này đã hoàn thành.',
+                ? 'Booking này đã bị hủy.'
+                : 'Booking này đã hoàn thành.',
         action: AppButton(label: 'Quay lại chi tiết', onPressed: _goToDetail),
       );
     }
@@ -222,16 +222,15 @@ class _CreateExaminationResultPageState
             child: SizedBox(
               width: double.infinity,
               child: FilledButton.icon(
-                onPressed: provider.isSubmitting || _isConfirming
-                    ? null
-                    : _submit,
+                onPressed:
+                    provider.isSubmitting || _isConfirming ? null : _submit,
                 icon: const Icon(Icons.save_outlined),
                 label: Text(
                   provider.isSubmitting
                       ? 'Đang lưu...'
                       : _isConfirming
-                      ? 'Đang xác nhận...'
-                      : 'Lưu kết quả',
+                          ? 'Đang xác nhận...'
+                          : 'Lưu kết quả',
                 ),
               ),
             ),
@@ -378,9 +377,8 @@ class _CreateExaminationResultPageState
       medicine: _medicineController.text.trim(),
       note: _noteController.text.trim(),
       recordDate: _dateValue(now),
-      nextVisitDate: _nextVisitDate == null
-          ? null
-          : _dateValue(_nextVisitDate!),
+      nextVisitDate:
+          _nextVisitDate == null ? null : _dateValue(_nextVisitDate!),
       createdAt: now.toIso8601String(),
       updatedAt: now.toIso8601String(),
     );
@@ -424,8 +422,8 @@ class _CreateExaminationResultPageState
       lastDate: DateTime(now.year + 10),
       initialDate:
           _nextVisitDate != null && !_nextVisitDate!.isBefore(firstDate)
-          ? _nextVisitDate!
-          : firstDate,
+              ? _nextVisitDate!
+              : firstDate,
       helpText: 'Chọn ngày tái khám',
     );
     if (selected == null || !mounted) return;
@@ -512,9 +510,8 @@ class _ResponsiveState extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 16),
             child: ConstrainedBox(
               constraints: BoxConstraints(
-                minHeight: constraints.maxHeight > 32
-                    ? constraints.maxHeight - 32
-                    : 0,
+                minHeight:
+                    constraints.maxHeight > 32 ? constraints.maxHeight - 32 : 0,
               ),
               child: Center(
                 child: Column(

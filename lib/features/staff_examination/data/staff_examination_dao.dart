@@ -6,7 +6,7 @@ import '../models/staff_booking.dart';
 
 class StaffExaminationDao {
   StaffExaminationDao({AppDatabase? database})
-    : _database = database ?? AppDatabase.instance;
+      : _database = database ?? AppDatabase.instance;
 
   final AppDatabase _database;
 

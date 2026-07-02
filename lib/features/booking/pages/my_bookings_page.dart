@@ -41,16 +41,17 @@ class _MyBookingsPageState extends State<MyBookingsPage> {
     return _isLoading
         ? const Center(child: CircularProgressIndicator())
         : _bookings.isEmpty
-        ? _buildEmptyState()
-        : ListView.separated(
-            padding: const EdgeInsets.all(0),
-            itemCount: _bookings.length,
-            separatorBuilder: (context, index) => const SizedBox(height: 16),
-            itemBuilder: (context, index) {
-              final booking = _bookings[index];
-              return _buildBookingCard(booking);
-            },
-          );
+            ? _buildEmptyState()
+            : ListView.separated(
+                padding: const EdgeInsets.all(0),
+                itemCount: _bookings.length,
+                separatorBuilder: (context, index) =>
+                    const SizedBox(height: 16),
+                itemBuilder: (context, index) {
+                  final booking = _bookings[index];
+                  return _buildBookingCard(booking);
+                },
+              );
   }
 
   Widget _buildEmptyState() {

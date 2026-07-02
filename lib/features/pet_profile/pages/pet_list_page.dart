@@ -47,16 +47,18 @@ class _PetListPageState extends State<PetListPage> {
       body: petProvider.isLoading
           ? const Center(child: CircularProgressIndicator())
           : pets.isEmpty
-          ? _buildEmptyState()
-          : ListView.separated(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              itemCount: pets.length,
-              separatorBuilder: (context, index) => const SizedBox(height: 12),
-              itemBuilder: (context, index) {
-                final pet = pets[index];
-                return _PetCard(pet: pet);
-              },
-            ),
+              ? _buildEmptyState()
+              : ListView.separated(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  itemCount: pets.length,
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: 12),
+                  itemBuilder: (context, index) {
+                    final pet = pets[index];
+                    return _PetCard(pet: pet);
+                  },
+                ),
     );
   }
 
@@ -216,9 +218,9 @@ class _PetCard extends StatelessWidget {
             onPressed: () async {
               Navigator.pop(dialogContext);
               final error = await context.read<PetProfileProvider>().deletePet(
-                pet.id!,
-                pet.userId,
-              );
+                    pet.id!,
+                    pet.userId,
+                  );
 
               if (context.mounted) {
                 if (error == null) {

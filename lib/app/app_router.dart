@@ -185,9 +185,8 @@ class AppRouter extends RouterDelegate<AppRoutePath>
 
   @override
   void goBack() {
-    _currentPath = _history.isEmpty
-        ? AppRoutePath.home()
-        : _history.removeLast();
+    _currentPath =
+        _history.isEmpty ? AppRoutePath.home() : _history.removeLast();
     notifyListeners();
   }
 

@@ -100,9 +100,8 @@ class _BookingServicePageState extends State<BookingServicePage> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final selectedServiceIds = context
-        .watch<BookingProvider>()
-        .selectedServiceIds;
+    final selectedServiceIds =
+        context.watch<BookingProvider>().selectedServiceIds;
 
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
@@ -183,27 +182,29 @@ class _BookingServicePageState extends State<BookingServicePage> {
                       const SizedBox(height: 12),
                       Text(
                         s.title,
-                        style: Theme.of(context).textTheme.titleMedium
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium
                             ?.copyWith(fontWeight: FontWeight.w600),
                       ),
                       const SizedBox(height: 6),
                       Expanded(
                         child: Text(
                           s.description,
-                          style: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(
-                                color: colorScheme.onSurface.withValues(
-                                  alpha: 0.7,
-                                ),
-                              ),
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: colorScheme.onSurface.withValues(
+                                      alpha: 0.7,
+                                    ),
+                                  ),
                         ),
                       ),
                       const SizedBox(height: 8),
                       Text(
                         s.priceLabel,
                         style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                          color: colorScheme.primary,
-                        ),
+                              color: colorScheme.primary,
+                            ),
                       ),
                     ],
                   ),

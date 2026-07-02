@@ -5,7 +5,7 @@ import '../models/pet.dart';
 
 class PetProfileDao {
   PetProfileDao({AppDatabase? database})
-    : _database = database ?? AppDatabase.instance;
+      : _database = database ?? AppDatabase.instance;
 
   final AppDatabase _database;
 
