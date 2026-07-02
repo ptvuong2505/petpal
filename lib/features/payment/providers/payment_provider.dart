@@ -9,16 +9,16 @@ abstract interface class PaymentPoller {
   void cancel();
 }
 
-typedef PaymentPollerFactory =
-    PaymentPoller Function(Duration interval, Future<void> Function() callback);
+typedef PaymentPollerFactory = PaymentPoller Function(
+    Duration interval, Future<void> Function() callback);
 
 class PaymentProvider extends ChangeNotifier {
   PaymentProvider({
     required PaymentRepositoryContract repository,
     PaymentPollerFactory? pollerFactory,
     this.pollInterval = const Duration(seconds: 5),
-  }) : _repository = repository,
-       _pollerFactory = pollerFactory ?? _createTimerPoller;
+  })  : _repository = repository,
+        _pollerFactory = pollerFactory ?? _createTimerPoller;
 
   final PaymentRepositoryContract _repository;
   final PaymentPollerFactory _pollerFactory;
@@ -92,9 +92,9 @@ class PaymentProvider extends ChangeNotifier {
 
 class _TimerPaymentPoller implements PaymentPoller {
   _TimerPaymentPoller(Duration interval, Future<void> Function() callback)
-    : _timer = Timer.periodic(interval, (_) {
-        callback();
-      });
+      : _timer = Timer.periodic(interval, (_) {
+          callback();
+        });
 
   final Timer _timer;
 

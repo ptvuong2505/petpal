@@ -54,9 +54,8 @@ class StaffLayout extends StatelessWidget {
           onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
           child: LayoutBuilder(
             builder: (context, constraints) {
-              final horizontalPadding = constraints.maxWidth >= 840
-                  ? 32.0
-                  : 16.0;
+              final horizontalPadding =
+                  constraints.maxWidth >= 840 ? 32.0 : 16.0;
               return Center(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 920),

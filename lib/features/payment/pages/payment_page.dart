@@ -203,9 +203,9 @@ class _PaymentPageState extends State<PaymentPage> with WidgetsBindingObserver {
 
   String _formatAmount(int amount) {
     return amount.toString().replaceAllMapped(
-      RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
-      (match) => '${match[1]}.',
-    );
+          RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
+          (match) => '${match[1]}.',
+        );
   }
 }
 

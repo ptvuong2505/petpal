@@ -13,11 +13,11 @@ class PaymentRepository implements PaymentRepositoryContract {
     required PayOsClient payOsClient,
     int Function()? orderCodeFactory,
     DateTime Function()? now,
-  }) : _dao = dao,
-       _payOsClient = payOsClient,
-       _orderCodeFactory =
-           orderCodeFactory ?? (() => DateTime.now().millisecondsSinceEpoch),
-       _now = now ?? DateTime.now;
+  })  : _dao = dao,
+        _payOsClient = payOsClient,
+        _orderCodeFactory =
+            orderCodeFactory ?? (() => DateTime.now().millisecondsSinceEpoch),
+        _now = now ?? DateTime.now;
 
   final PaymentDao _dao;
   final PayOsClient _payOsClient;

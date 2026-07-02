@@ -82,8 +82,8 @@ class _BookingConfirmPageState extends State<BookingConfirmPage> {
       )['start_time'];
 
       if (startTimeStr != null) {
-        final int totalDuration = await provider
-            .calculateTotalSelectedDuration();
+        final int totalDuration =
+            await provider.calculateTotalSelectedDuration();
 
         // Sử dụng Duration để tính toán thời gian chuẩn xác
         final parts = startTimeStr.split(':');
@@ -156,8 +156,7 @@ class _BookingConfirmPageState extends State<BookingConfirmPage> {
           .map((s) => (s['name'] as String?) ?? '')
           .join(', '); //
 
-      final bookingDateString =
-          (_slotDetails?['slot_date'] as String?) ??
+      final bookingDateString = (_slotDetails?['slot_date'] as String?) ??
           nowDt.toIso8601String().substring(0, 10); //
 
       // 1. Đảm bảo slot thời gian tồn tại trong bảng time_slots trước khi đặt lịch (tránh lỗi khóa ngoại)
@@ -218,9 +217,8 @@ class _BookingConfirmPageState extends State<BookingConfirmPage> {
           where: 'id = ?',
           whereArgs: [realTimeSlotId],
         );
-        final currentCount = slotRows.isNotEmpty
-            ? (slotRows.first['booked_count'] as int)
-            : 0;
+        final currentCount =
+            slotRows.isNotEmpty ? (slotRows.first['booked_count'] as int) : 0;
         await db.update(
           'time_slots',
           {'booked_count': currentCount + 1, 'updated_at': nowText},
@@ -232,8 +230,8 @@ class _BookingConfirmPageState extends State<BookingConfirmPage> {
       // 4. LOGIC KHÓA LỊCH NHÂN VIÊN: Khóa toàn bộ chuỗi Slots bận liên tục trong ngày
       if (provider.selectedStaffId != null && _slotDetails != null) {
         final String startHour = (_slotDetails!['start_time'] as String?) ?? '';
-        final int totalDuration = await provider
-            .calculateTotalSelectedDuration();
+        final int totalDuration =
+            await provider.calculateTotalSelectedDuration();
         final List<String> occupiedHours = _calculateOccupiedHours(
           startHour,
           totalDuration,
@@ -275,15 +273,18 @@ class _BookingConfirmPageState extends State<BookingConfirmPage> {
             targetSlotId = matchingSlots.first['id'] as int;
           }
 
-          await db.insert('staff_slot_assignments', {
-            'staff_id': provider.selectedStaffId,
-            'time_slot_id': targetSlotId,
-            'booking_id': insertedBookingId,
-            'assignment_date': bookingDateString,
-            'status': 'booked',
-            'created_at': nowText,
-            'updated_at': nowText,
-          }, conflictAlgorithm: ConflictAlgorithm.replace);
+          await db.insert(
+              'staff_slot_assignments',
+              {
+                'staff_id': provider.selectedStaffId,
+                'time_slot_id': targetSlotId,
+                'booking_id': insertedBookingId,
+                'assignment_date': bookingDateString,
+                'status': 'booked',
+                'created_at': nowText,
+                'updated_at': nowText,
+              },
+              conflictAlgorithm: ConflictAlgorithm.replace);
         }
       }
 
@@ -319,27 +320,9 @@ class _BookingConfirmPageState extends State<BookingConfirmPage> {
     return Scaffold(
       //
       backgroundColor: AppColors.background, //
-      appBar: AppBar(
-        //
-        backgroundColor: AppColors.surface,
-        elevation: 0, //
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
-        ), //
-        title: const Text(
-          'Xác nhận đặt lịch',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: AppColors.primary,
-          ),
-        ), //
-        centerTitle: true, //
-      ), //
       body: SafeArea(
         //
-        child:
-            _isLoading //
+        child: _isLoading //
             ? const Center(child: CircularProgressIndicator()) //
             : Stack(
                 //
@@ -589,7 +572,9 @@ class _BookingConfirmPageState extends State<BookingConfirmPage> {
                         const SizedBox(height: 20), //
                         Text(
                           'Ghi chú cho spa (Tùy chọn)',
-                          style: Theme.of(context).textTheme.labelLarge
+                          style: Theme.of(context)
+                              .textTheme
+                              .labelLarge
                               ?.copyWith(color: AppColors.textDark),
                         ), //
                         const SizedBox(height: 8), //

@@ -5,7 +5,7 @@ import '../repositories/review_repository.dart';
 
 class ReviewProvider extends ChangeNotifier {
   ReviewProvider({required ReviewRepository repository})
-    : _repository = repository;
+      : _repository = repository;
 
   final ReviewRepository _repository;
 

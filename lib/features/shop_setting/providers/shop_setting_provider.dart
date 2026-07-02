@@ -5,7 +5,7 @@ import '../repositories/shop_setting_repository.dart';
 
 class ShopSettingProvider extends ChangeNotifier {
   ShopSettingProvider({required ShopSettingRepository repository})
-    : _repository = repository;
+      : _repository = repository;
 
   final ShopSettingRepository _repository;
 

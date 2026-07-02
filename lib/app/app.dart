@@ -30,6 +30,9 @@ import '../features/review/repositories/review_repository.dart';
 import '../features/shop_setting/data/shop_setting_dao.dart';
 import '../features/shop_setting/providers/shop_setting_provider.dart';
 import '../features/shop_setting/repositories/shop_setting_repository.dart';
+import '../features/admin_service_management/data/admin_service_dao.dart';
+import '../features/admin_service_management/providers/admin_service_provider.dart';
+import '../features/admin_service_management/repositories/admin_service_repository.dart';
 import '../features/staff_examination/data/staff_examination_dao.dart';
 import '../features/staff_examination/providers/staff_examination_provider.dart';
 import '../features/staff_examination/repositories/staff_examination_repository.dart';
@@ -119,6 +122,11 @@ class _PetPalAppState extends State<PetPalApp> {
         ChangeNotifierProvider(
           create: (_) => ShopSettingProvider(
             repository: ShopSettingRepository(dao: ShopSettingDao()),
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => AdminServiceProvider(
+            repository: AdminServiceRepository(dao: AdminServiceDao()),
           ),
         ),
       ],

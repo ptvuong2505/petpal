@@ -72,10 +72,7 @@ class _BookingDetailPageState extends State<BookingDetailPage> {
     }
 
     if (_booking == null) {
-      return Scaffold(
-        appBar: AppBar(title: const Text('Chi tiết lịch hẹn')),
-        body: const Center(child: Text('Không tìm thấy thông tin đặt lịch')),
-      );
+      return const Center(child: Text('Không tìm thấy thông tin đặt lịch'));
     }
 
     final status = _booking!['status'] as String;

@@ -5,7 +5,7 @@ import '../models/user.dart';
 
 class AuthDao {
   AuthDao({AppDatabase? database})
-    : _database = database ?? AppDatabase.instance;
+      : _database = database ?? AppDatabase.instance;
 
   final AppDatabase _database;
   Future<int> insertUser(User user) async {

@@ -535,9 +535,8 @@ class DatabaseSeed {
       'pet_id': 2,
       'title': 'Tái khám cho Mimi',
       'type': 'recheck',
-      'reminder_time': today
-          .add(const Duration(days: 7, hours: 9))
-          .toIso8601String(),
+      'reminder_time':
+          today.add(const Duration(days: 7, hours: 9)).toIso8601String(),
       'note': 'Kiểm tra lại tình trạng tiêu hóa.',
       'status': 'pending',
       'created_at': nowText,
@@ -550,9 +549,8 @@ class DatabaseSeed {
       'pet_id': 3,
       'title': 'Nhắc tiêm phòng cho Lucky',
       'type': 'vaccination',
-      'reminder_time': today
-          .add(const Duration(days: 180, hours: 8))
-          .toIso8601String(),
+      'reminder_time':
+          today.add(const Duration(days: 180, hours: 8)).toIso8601String(),
       'note': 'Đến lịch tiêm nhắc lại.',
       'status': 'pending',
       'created_at': nowText,
@@ -578,9 +576,8 @@ class DatabaseSeed {
       'pet_id': 4,
       'title': 'Lịch vệ sinh tai cho Kem',
       'type': 'booking',
-      'reminder_time': tomorrow
-          .add(const Duration(hours: 14))
-          .toIso8601String(),
+      'reminder_time':
+          tomorrow.add(const Duration(hours: 14)).toIso8601String(),
       'note': 'Nhắc khách trước lịch hẹn.',
       'status': 'sent',
       'created_at': nowText,
@@ -593,9 +590,8 @@ class DatabaseSeed {
       'pet_id': 5,
       'title': 'Đón Bông sau lưu trú',
       'type': 'booking',
-      'reminder_time': tomorrow
-          .add(const Duration(hours: 17))
-          .toIso8601String(),
+      'reminder_time':
+          tomorrow.add(const Duration(hours: 17)).toIso8601String(),
       'note': 'Khách đón pet vào cuối ngày.',
       'status': 'done',
       'created_at': nowText,

@@ -5,7 +5,7 @@ import '../models/review.dart';
 
 class ReviewDao {
   ReviewDao({AppDatabase? database})
-    : _database = database ?? AppDatabase.instance;
+      : _database = database ?? AppDatabase.instance;
 
   final AppDatabase _database;
 

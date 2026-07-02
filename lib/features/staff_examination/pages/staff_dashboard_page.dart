@@ -48,15 +48,12 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     }
 
     final bookings = provider.bookings;
-    final pending = bookings
-        .where((booking) => booking.status == 'pending')
-        .length;
-    final confirmed = bookings
-        .where((booking) => booking.status == 'confirmed')
-        .length;
-    final completed = bookings
-        .where((booking) => booking.status == 'completed')
-        .length;
+    final pending =
+        bookings.where((booking) => booking.status == 'pending').length;
+    final confirmed =
+        bookings.where((booking) => booking.status == 'confirmed').length;
+    final completed =
+        bookings.where((booking) => booking.status == 'completed').length;
 
     return SafeArea(
       top: false,
@@ -80,8 +77,8 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 final columns = constraints.maxWidth < 260
                     ? 1
                     : constraints.maxWidth < 520
-                    ? 2
-                    : 3;
+                        ? 2
+                        : 3;
                 const spacing = 8.0;
                 final cardWidth =
                     (constraints.maxWidth - spacing * (columns - 1)) / columns;
@@ -141,9 +138,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 ),
               )
             else
-              ...bookings
-                  .take(5)
-                  .map(
+              ...bookings.take(5).map(
                     (booking) => StaffBookingCard(
                       booking: booking,
                       compact: true,

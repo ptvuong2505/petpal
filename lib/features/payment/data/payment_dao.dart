@@ -7,8 +7,8 @@ typedef DatabaseProvider = Future<Database> Function();
 
 class PaymentDao {
   PaymentDao({DatabaseProvider? databaseProvider})
-    : _databaseProvider =
-          databaseProvider ?? (() => AppDatabase.instance.database);
+      : _databaseProvider =
+            databaseProvider ?? (() => AppDatabase.instance.database);
 
   final DatabaseProvider _databaseProvider;
 

@@ -60,8 +60,8 @@ class _HealthRecordListPageState extends State<HealthRecordListPage> {
                     backgroundColor: AppColors.secondaryContainer,
                     backgroundImage:
                         pet.imagePath != null && pet.imagePath!.isNotEmpty
-                        ? FileImage(File(pet.imagePath!))
-                        : null,
+                            ? FileImage(File(pet.imagePath!))
+                            : null,
                     child: pet.imagePath == null || pet.imagePath!.isEmpty
                         ? const Icon(Icons.pets, color: AppColors.primary)
                         : null,
@@ -95,17 +95,17 @@ class _HealthRecordListPageState extends State<HealthRecordListPage> {
             child: recordProvider.isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : records.isEmpty
-                ? _buildEmptyState()
-                : ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    itemCount: records.length,
-                    itemBuilder: (context, index) {
-                      return _HealthTimelineItem(
-                        record: records[index],
-                        isLast: index == records.length - 1,
-                      );
-                    },
-                  ),
+                    ? _buildEmptyState()
+                    : ListView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        itemCount: records.length,
+                        itemBuilder: (context, index) {
+                          return _HealthTimelineItem(
+                            record: records[index],
+                            isLast: index == records.length - 1,
+                          );
+                        },
+                      ),
           ),
         ],
       ),

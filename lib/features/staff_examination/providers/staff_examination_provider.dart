@@ -6,7 +6,7 @@ import '../repositories/staff_examination_repository.dart';
 
 class StaffExaminationProvider extends ChangeNotifier {
   StaffExaminationProvider({required StaffExaminationRepository repository})
-    : _repository = repository;
+      : _repository = repository;
 
   final StaffExaminationRepository _repository;
 

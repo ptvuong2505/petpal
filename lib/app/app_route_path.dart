@@ -24,9 +24,8 @@ class AppRoutePath {
     );
     final uri = Uri(
       path: route.location,
-      queryParameters: copiedQueryParameters.isEmpty
-          ? null
-          : copiedQueryParameters,
+      queryParameters:
+          copiedQueryParameters.isEmpty ? null : copiedQueryParameters,
     );
     return AppRoutePath._(
       routeName: route.name,
@@ -145,7 +144,7 @@ class AppRouteCatalog {
     AppRouteInfo(
       name: AppRoutes.bookingConfirm,
       location: '/booking/confirm',
-      title: 'Booking Confirm',
+      title: 'Xác nhận đặt lịch',
     ),
     AppRouteInfo(
       name: AppRoutes.payment,
@@ -301,6 +300,26 @@ class AppRouteCatalog {
       name: AppRoutes.adminAssignShift,
       location: '/admin/shift-assign',
       title: 'Xếp ca mới',
+    ),
+    AppRouteInfo(
+      name: AppRoutes.adminServiceList,
+      location: '/admin/services',
+      title: 'Quản lý dịch vụ',
+    ),
+    AppRouteInfo(
+      name: AppRoutes.adminAddService,
+      location: '/admin/services/add',
+      title: 'Thêm dịch vụ',
+    ),
+    AppRouteInfo(
+      name: AppRoutes.adminEditService,
+      location: '/admin/services/edit',
+      title: 'Sửa dịch vụ',
+    ),
+    AppRouteInfo(
+      name: AppRoutes.adminServiceDetail,
+      location: '/admin/services/detail',
+      title: 'Chi tiết dịch vụ',
     ),
     AppRouteInfo(
       name: AppRoutes.shopSetting,

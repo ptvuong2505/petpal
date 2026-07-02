@@ -5,7 +5,7 @@ import '../repositories/health_record_repository.dart';
 
 class HealthRecordProvider extends ChangeNotifier {
   HealthRecordProvider({required HealthRecordRepository repository})
-    : _repository = repository;
+      : _repository = repository;
 
   final HealthRecordRepository _repository;
 

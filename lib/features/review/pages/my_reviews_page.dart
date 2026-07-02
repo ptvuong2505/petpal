@@ -88,7 +88,7 @@ class _MyReviewsPageState extends State<MyReviewsPage> {
     final avgRating = provider.reviews.isEmpty
         ? 0.0
         : provider.reviews.fold(0, (sum, r) => sum + r.rating) /
-              provider.reviews.length;
+            provider.reviews.length;
 
     return GridView.count(
       crossAxisCount: 2,

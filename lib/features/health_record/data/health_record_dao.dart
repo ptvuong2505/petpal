@@ -5,7 +5,7 @@ import '../models/health_record.dart';
 
 class HealthRecordDao {
   HealthRecordDao({AppDatabase? database})
-    : _database = database ?? AppDatabase.instance;
+      : _database = database ?? AppDatabase.instance;
 
   final AppDatabase _database;
 

@@ -5,7 +5,7 @@ import '../models/booking.dart';
 
 class BookingDao {
   BookingDao({AppDatabase? database})
-    : _database = database ?? AppDatabase.instance;
+      : _database = database ?? AppDatabase.instance;
 
   final AppDatabase _database;
 

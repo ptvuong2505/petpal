@@ -62,8 +62,8 @@ class PayOsClient {
     required this.credentials,
     http.Client? httpClient,
     Uri? baseUri,
-  }) : _httpClient = httpClient ?? http.Client(),
-       _baseUri = baseUri ?? Uri.parse('https://api-merchant.payos.vn');
+  })  : _httpClient = httpClient ?? http.Client(),
+        _baseUri = baseUri ?? Uri.parse('https://api-merchant.payos.vn');
 
   final PayOsCredentials credentials;
   final http.Client _httpClient;
@@ -77,8 +77,7 @@ class PayOsClient {
     required String cancelUrl,
     required String checksumKey,
   }) {
-    final data =
-        'amount=$amount&cancelUrl=$cancelUrl&description=$description'
+    final data = 'amount=$amount&cancelUrl=$cancelUrl&description=$description'
         '&orderCode=$orderCode&returnUrl=$returnUrl';
     return Hmac(
       sha256,
@@ -125,10 +124,10 @@ class PayOsClient {
   }
 
   Map<String, String> get _headers => {
-    'content-type': 'application/json',
-    'x-client-id': credentials.clientId,
-    'x-api-key': credentials.apiKey,
-  };
+        'content-type': 'application/json',
+        'x-client-id': credentials.clientId,
+        'x-api-key': credentials.apiKey,
+      };
 
   void _ensureConfigured() {
     if (!credentials.isConfigured) {

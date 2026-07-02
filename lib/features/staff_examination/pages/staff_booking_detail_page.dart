@@ -97,7 +97,9 @@ class _StaffBookingDetailPageState extends State<StaffBookingDetailPage> {
                           const SizedBox(height: 12),
                           Text(
                             booking.petName,
-                            style: Theme.of(context).textTheme.titleMedium
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
                                 ?.copyWith(fontWeight: FontWeight.w700),
                           ),
                           Text(booking.serviceName),
@@ -249,8 +251,8 @@ class _StaffBookingDetailPageState extends State<StaffBookingDetailPage> {
 
   Future<void> _loadBooking() {
     return context.read<StaffExaminationProvider>().loadBookingDetail(
-      widget.bookingId,
-    );
+          widget.bookingId,
+        );
   }
 
   Widget _historyCard(ExaminationResult record) {

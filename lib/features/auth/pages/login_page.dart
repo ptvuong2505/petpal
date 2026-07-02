@@ -106,7 +106,7 @@ class _LoginPageState extends State<LoginPage> {
                         child: Image.network(
                           'https://lh3.googleusercontent.com/aida-public/AB6AXuC59eQQ9rCp4N0g52KYe8KqK6RtY6HWMCMHrJUvGS2-R7cx5ol7qMTEBTrJq2oXJ9sSE9nW8A0hObuTUiFizP415gAfyiyfqWlZ3EoSTbCpsOVVNX6Y12Jd7ULpaw1hsIEv2uTU6u-UXW3WZcvU7x9m7h9sPBwb43qqUnVBL1YpjvvRa7gSUVpPup5-OFAKsLgOgplOEd9G6YRFLSFRzpgERE_VX1oEms4stK5ChRRaDtVKNkpndYbfHOFP-YDbUguZyU1dBwGDuRE',
                           fit: BoxFit.cover,
-                          errorBuilder: (_, _, _) {
+                          errorBuilder: (_, __, ___) {
                             return const Icon(
                               Icons.pets,
                               size: 48,
@@ -116,9 +116,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                     ),
-
                     const SizedBox(height: 16),
-
                     const Text(
                       'PetPal',
                       style: TextStyle(
@@ -128,16 +126,12 @@ class _LoginPageState extends State<LoginPage> {
                         color: AppColors.primary,
                       ),
                     ),
-
                     const SizedBox(height: 4),
-
                     const Text(
                       'Chào mừng bạn quay lại!',
                       style: TextStyle(fontSize: 14, color: AppColors.subText),
                     ),
-
                     const SizedBox(height: 24),
-
                     TextFormField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
@@ -158,9 +152,7 @@ class _LoginPageState extends State<LoginPage> {
                         return null;
                       },
                     ),
-
                     const SizedBox(height: 16),
-
                     TextFormField(
                       controller: _passwordController,
                       obscureText: _obscurePassword,
@@ -189,9 +181,7 @@ class _LoginPageState extends State<LoginPage> {
                         return null;
                       },
                     ),
-
                     const SizedBox(height: 8),
-
                     Align(
                       alignment: Alignment.centerRight,
                       child: TextButton(
@@ -210,9 +200,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                     ),
-
                     const SizedBox(height: 8),
-
                     SizedBox(
                       width: double.infinity,
                       height: 44,
@@ -243,9 +231,7 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                       ),
                     ),
-
                     const SizedBox(height: 24),
-
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [

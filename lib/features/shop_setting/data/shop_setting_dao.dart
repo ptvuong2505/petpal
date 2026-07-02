@@ -5,7 +5,7 @@ import '../models/shop_setting.dart';
 
 class ShopSettingDao {
   ShopSettingDao({AppDatabase? database})
-    : _database = database ?? AppDatabase.instance;
+      : _database = database ?? AppDatabase.instance;
 
   final AppDatabase _database;
 

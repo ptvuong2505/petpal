@@ -47,9 +47,8 @@ class _EditStaffProfilePageState extends State<EditStaffProfilePage> {
         final certificates = jsonDecode(
           '${data?['certificate_names'] ?? '[]'}',
         );
-        _certificates.text = certificates is List
-            ? certificates.join('\n')
-            : '';
+        _certificates.text =
+            certificates is List ? certificates.join('\n') : '';
       } catch (_) {
         _certificates.clear();
       }
@@ -129,8 +128,8 @@ class _EditStaffProfilePageState extends State<EditStaffProfilePage> {
                   Text(
                     'Hồ sơ chuyên môn',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
                   const SizedBox(height: 20),
                   TextFormField(

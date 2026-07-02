@@ -3,7 +3,7 @@ import '../models/calendar_shift_item.dart';
 
 class AdminShiftDao {
   AdminShiftDao({AppDatabase? database})
-    : _database = database ?? AppDatabase.instance;
+      : _database = database ?? AppDatabase.instance;
 
   final AppDatabase _database;
 

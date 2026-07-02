@@ -139,16 +139,15 @@ class _State extends State<StaffPetMedicalProfilePage> {
                   'Điều trị: ${record['treatment'] ?? 'Chưa có thông tin'}',
                 ),
                 isThreeLine: true,
-                trailing: resultId == null
-                    ? null
-                    : const Icon(Icons.chevron_right),
+                trailing:
+                    resultId == null ? null : const Icon(Icons.chevron_right),
                 onTap: resultId == null
                     ? null
                     : () => NavigationService.goTo(
-                        context,
-                        AppRoutes.examinationResultDetail,
-                        queryParameters: {'resultId': resultId.toString()},
-                      ),
+                          context,
+                          AppRoutes.examinationResultDetail,
+                          queryParameters: {'resultId': resultId.toString()},
+                        ),
               ),
             );
           }),

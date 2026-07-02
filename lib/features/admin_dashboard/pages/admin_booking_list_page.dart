@@ -103,9 +103,9 @@ class _AdminBookingListPageState extends State<AdminBookingListPage> {
           Text(
             '${filteredBookings.length} booking',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppColors.textMuted,
-              fontWeight: FontWeight.w600,
-            ),
+                  color: AppColors.textMuted,
+                  fontWeight: FontWeight.w600,
+                ),
           ),
           const SizedBox(height: 8),
           Expanded(child: _buildContent(filteredBookings)),
@@ -132,9 +132,8 @@ class _AdminBookingListPageState extends State<AdminBookingListPage> {
         message: _searchController.text.trim().isEmpty
             ? 'Chưa có booking nào.'
             : 'Không tìm thấy booking phù hợp.',
-        actionLabel: _searchController.text.trim().isEmpty
-            ? null
-            : 'Xóa tìm kiếm',
+        actionLabel:
+            _searchController.text.trim().isEmpty ? null : 'Xóa tìm kiếm',
         onAction: _searchController.text.trim().isEmpty
             ? null
             : _searchController.clear,
@@ -199,9 +198,9 @@ class _AdminBookingCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.text,
-                      ),
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.text,
+                          ),
                     ),
                   ),
                   const SizedBox(width: 8),
